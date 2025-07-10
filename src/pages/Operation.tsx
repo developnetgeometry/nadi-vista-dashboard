@@ -21,13 +21,18 @@ const areaDistribution = [
   { area: "Remote", count: 109, percentage: 10, color: "bg-red-500" }
 ]
 
-const maintenanceByState = [
-  { state: "Selangor", count: 8 },
-  { state: "Kuala Lumpur", count: 5 },
-  { state: "Johor", count: 4 },
-  { state: "Penang", count: 3 },
-  { state: "Perak", count: 3 },
-  { state: "Others", count: 3 }
+const nadiByDUSP = [
+  { dusp: "TM TECH", count: 10 },
+  { dusp: "MAXIS", count: 30 },
+  { dusp: "CELCOMDIGI", count: 25 },
+  { dusp: "TIME", count: 15 },
+  { dusp: "DIGI", count: 20 }
+]
+
+const nadiByTP = [
+  { tp: "MSD", count: 45 },
+  { tp: "MOSTI", count: 35 },
+  { tp: "MCMC", count: 20 }
 ]
 
 const officerStats = [
@@ -265,75 +270,44 @@ export default function Operation() {
         ))}
       </div>
 
-      {/* NADI Details and Area Distribution */}
+      {/* NADI by Area */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <MapPin className="h-5 w-5" />
+            NADI by Area
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {areaDistribution.map((area) => (
+            <div key={area.area} className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="font-medium">{area.area}</span>
+                <span className="text-muted-foreground">
+                  {area.count} centers ({area.percentage}%)
+                </span>
+              </div>
+              <Progress value={area.percentage} className="h-2" />
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+
+      {/* NADI Distribution and Officer Management */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Info className="h-5 w-5" />
-              NADI Center Details
+              <Building2 className="h-5 w-5" />
+              Total NADI by DUSP
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {nadiDetails.map((nadi) => (
-              <div key={nadi.name} className="border rounded-lg p-4 space-y-2">
-                <div className="flex justify-between items-start">
-                  <h4 className="font-semibold">{nadi.name}</h4>
-                  <Badge 
-                    variant={nadi.status === 'Open' ? 'default' : nadi.status === 'Maintenance' ? 'destructive' : 'secondary'}
-                  >
-                    {nadi.status}
-                  </Badge>
-                </div>
-                <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
-                  <div>DUSP: <span className="font-medium">{nadi.dusp}</span></div>
-                  <div>Phase: <span className="font-medium">{nadi.phase}</span></div>
-                  <div>Parliament: <span className="font-medium">{nadi.parliament}</span></div>
-                  <div>District: <span className="font-medium">{nadi.district}</span></div>
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MapPin className="h-5 w-5" />
-              NADI by Area
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {areaDistribution.map((area) => (
-              <div key={area.area} className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="font-medium">{area.area}</span>
-                  <span className="text-muted-foreground">
-                    {area.count} centers ({area.percentage}%)
-                  </span>
-                </div>
-                <Progress value={area.percentage} className="h-2" />
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Maintenance and Officer Management */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5" />
-              Maintenance Breakdown by State
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {maintenanceByState.map((item) => (
-              <div key={item.state} className="flex justify-between items-center">
-                <span className="font-medium">{item.state}</span>
-                <Badge variant="outline" className="bg-orange-50 text-orange-600">
-                  {item.count} open dockets
+            {nadiByDUSP.map((item) => (
+              <div key={item.dusp} className="flex justify-between items-center">
+                <span className="font-medium">{item.dusp}</span>
+                <Badge variant="outline">
+                  {item.count}
                 </Badge>
               </div>
             ))}
@@ -343,29 +317,49 @@ export default function Operation() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <UserCheck className="h-5 w-5" />
-              NADI Officer Breakdown
+              <Users className="h-5 w-5" />
+              Total NADI by TP
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
-            {officerStats.map((officer) => (
-              <div key={officer.role} className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="font-medium">{officer.role}</span>
-                  <span className="text-sm text-muted-foreground">
-                    {officer.occupied}/{officer.total}
-                  </span>
-                </div>
-                <Progress value={(officer.occupied / officer.total) * 100} className="h-2" />
-                <div className="flex justify-between text-sm">
-                  <span className="text-green-600">Occupied: {officer.occupied}</span>
-                  <span className="text-red-600">Vacancies: {officer.vacancy}</span>
-                </div>
+          <CardContent className="space-y-4">
+            {nadiByTP.map((item) => (
+              <div key={item.tp} className="flex justify-between items-center">
+                <span className="font-medium">{item.tp}</span>
+                <Badge variant="outline">
+                  {item.count}
+                </Badge>
               </div>
             ))}
           </CardContent>
         </Card>
       </div>
+
+      {/* Officer Management */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <UserCheck className="h-5 w-5" />
+            NADI Officer Breakdown
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {officerStats.map((officer) => (
+            <div key={officer.role} className="space-y-2">
+              <div className="flex justify-between">
+                <span className="font-medium">{officer.role}</span>
+                <span className="text-sm text-muted-foreground">
+                  {officer.occupied}/{officer.total}
+                </span>
+              </div>
+              <Progress value={(officer.occupied / officer.total) * 100} className="h-2" />
+              <div className="flex justify-between text-sm">
+                <span className="text-green-600">Occupied: {officer.occupied}</span>
+                <span className="text-red-600">Vacancies: {officer.vacancy}</span>
+              </div>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
 
       {/* Officer Demographics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -377,15 +371,13 @@ export default function Operation() {
             <div className="flex justify-between items-center">
               <span>Male</span>
               <div className="flex items-center gap-2">
-                <Progress value={58} className="w-24 h-2" />
-                <span className="text-sm font-medium">58%</span>
+                <span className="text-sm font-medium">585 (58%)</span>
               </div>
             </div>
             <div className="flex justify-between items-center">
               <span>Female</span>
               <div className="flex items-center gap-2">
-                <Progress value={42} className="w-24 h-2" />
-                <span className="text-sm font-medium">42%</span>
+                <span className="text-sm font-medium">424 (42%)</span>
               </div>
             </div>
           </CardContent>
@@ -397,17 +389,14 @@ export default function Operation() {
           </CardHeader>
           <CardContent className="space-y-4">
             {[
-              { race: "Malay", percentage: 65 },
-              { race: "Chinese", percentage: 18 },
-              { race: "Indian", percentage: 12 },
-              { race: "Others", percentage: 5 }
+              { race: "Malay", count: 656, percentage: 65 },
+              { race: "Chinese", count: 182, percentage: 18 },
+              { race: "Indian", count: 121, percentage: 12 },
+              { race: "Others", count: 50, percentage: 5 }
             ].map((item) => (
               <div key={item.race} className="flex justify-between items-center">
                 <span>{item.race}</span>
-                <div className="flex items-center gap-2">
-                  <Progress value={item.percentage} className="w-16 h-2" />
-                  <span className="text-sm font-medium">{item.percentage}%</span>
-                </div>
+                <span className="text-sm font-medium">{item.count} ({item.percentage}%)</span>
               </div>
             ))}
           </CardContent>
