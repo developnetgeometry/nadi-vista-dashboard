@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { CalendarDays, MapPin, Users, Building2, TrendingUp, Activity } from "lucide-react"
+import { NADIDistributionMap } from "@/components/NADIDistributionMap"
 
 const statusCards = [
   { title: "Total NADI", count: "1,069 / 1,099", active: true },
@@ -86,7 +87,7 @@ export default function Home() {
           </CardContent>
         </Card>
 
-        {/* Map Integration Placeholder */}
+        {/* NADI Distribution Map */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -95,15 +96,7 @@ export default function Home() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-64 bg-muted rounded-lg flex items-center justify-center">
-              <div className="text-center">
-                <MapPin className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
-                <p className="text-muted-foreground">Interactive Map Coming Soon</p>
-                <p className="text-sm text-muted-foreground">
-                  View NADI by state/district/parliament
-                </p>
-              </div>
-            </div>
+            <NADIDistributionMap />
           </CardContent>
         </Card>
       </div>
