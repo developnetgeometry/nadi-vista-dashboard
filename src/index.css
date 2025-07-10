@@ -20,6 +20,7 @@ All colors MUST be HSL.
     /* NADI Brand Colors */
     --primary: 251 91% 65%; /* Purple/Blue from NADI brand */
     --primary-foreground: 0 0% 100%;
+    --primary-glow: 251 91% 75%;
 
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
@@ -38,6 +39,13 @@ All colors MUST be HSL.
     --ring: 251 91% 65%;
 
     --radius: 0.5rem;
+
+    /* Enhanced gradients and effects */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
+    --gradient-subtle: linear-gradient(180deg, hsl(var(--card)), hsl(var(--muted)));
+    --shadow-elegant: 0 10px 30px -10px hsl(var(--primary) / 0.1);
+    --shadow-glow: 0 0 40px hsl(var(--primary-glow) / 0.15);
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     /* Status Colors */
     --status-editing: 214 100% 92%;
