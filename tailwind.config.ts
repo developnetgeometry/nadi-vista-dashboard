@@ -61,6 +61,16 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				status: {
+					editing: 'hsl(var(--status-editing))',
+					'editing-foreground': 'hsl(var(--status-editing-foreground))',
+					submitted: 'hsl(var(--status-submitted))',
+					'submitted-foreground': 'hsl(var(--status-submitted-foreground))',
+					verified: 'hsl(var(--status-verified))',
+					'verified-foreground': 'hsl(var(--status-verified-foreground))',
+					closed: 'hsl(var(--status-closed))',
+					'closed-foreground': 'hsl(var(--status-closed-foreground))'
 				}
 			},
 			borderRadius: {
