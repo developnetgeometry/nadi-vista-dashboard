@@ -404,15 +404,15 @@ export default function Operation() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Top States by Officers</CardTitle>
+            <CardTitle>Total NADI by State</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {[
-              { state: "Selangor", count: 185 },
-              { state: "Kuala Lumpur", count: 142 },
-              { state: "Johor", count: 128 },
-              { state: "Penang", count: 98 },
-              { state: "Perak", count: 87 }
+              { state: "Selangor", count: 180 },
+              { state: "Kuala Lumpur", count: 85 },
+              { state: "Johor", count: 150 },
+              { state: "Penang", count: 75 },
+              { state: "Perak", count: 120 }
             ].map((item) => (
               <div key={item.state} className="flex justify-between items-center">
                 <span>{item.state}</span>
