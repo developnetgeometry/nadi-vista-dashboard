@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Settings, Building2, Users, MapPin, UserCheck, AlertTriangle, Info, Download } from "lucide-react"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Settings, Building2, Users, MapPin, UserCheck, AlertTriangle, Info, Download, Filter } from "lucide-react"
 import { useState } from "react"
 
 const operationStats = [
@@ -155,6 +157,14 @@ export default function Operation() {
   const [maintenanceDialogOpen, setMaintenanceDialogOpen] = useState(false)
   const [duspDialogOpen, setDuspDialogOpen] = useState(false)
   const [selectedDUSP, setSelectedDUSP] = useState<string>("")
+  
+  // Filter states
+  const [nadiAreaMonth, setNadiAreaMonth] = useState<string>("all")
+  const [nadiAreaYear, setNadiAreaYear] = useState<string>("all")
+  const [officerBreakdownMonth, setOfficerBreakdownMonth] = useState<string>("all")
+  const [officerBreakdownYear, setOfficerBreakdownYear] = useState<string>("all")
+  const [genderMonth, setGenderMonth] = useState<string>("all")
+  const [genderYear, setGenderYear] = useState<string>("all")
 
   const downloadCSV = (data: any[], filename: string) => {
     const headers = Object.keys(data[0])
@@ -174,6 +184,56 @@ export default function Operation() {
     document.body.removeChild(link)
   }
 
+  const FilterComponent = ({ 
+    month, 
+    setMonth, 
+    year, 
+    setYear, 
+    title 
+  }: { 
+    month: string; 
+    setMonth: (value: string) => void; 
+    year: string; 
+    setYear: (value: string) => void; 
+    title: string;
+  }) => (
+    <div className="flex items-center gap-2 mb-4">
+      <Filter className="h-4 w-4" />
+      <span className="text-sm font-medium">{title}:</span>
+      <Select value={month} onValueChange={setMonth}>
+        <SelectTrigger className="w-32">
+          <SelectValue placeholder="Month" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All Months</SelectItem>
+          <SelectItem value="01">January</SelectItem>
+          <SelectItem value="02">February</SelectItem>
+          <SelectItem value="03">March</SelectItem>
+          <SelectItem value="04">April</SelectItem>
+          <SelectItem value="05">May</SelectItem>
+          <SelectItem value="06">June</SelectItem>
+          <SelectItem value="07">July</SelectItem>
+          <SelectItem value="08">August</SelectItem>
+          <SelectItem value="09">September</SelectItem>
+          <SelectItem value="10">October</SelectItem>
+          <SelectItem value="11">November</SelectItem>
+          <SelectItem value="12">December</SelectItem>
+        </SelectContent>
+      </Select>
+      <Select value={year} onValueChange={setYear}>
+        <SelectTrigger className="w-24">
+          <SelectValue placeholder="Year" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All Years</SelectItem>
+          <SelectItem value="2024">2024</SelectItem>
+          <SelectItem value="2023">2023</SelectItem>
+          <SelectItem value="2022">2022</SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
+  )
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -185,6 +245,14 @@ export default function Operation() {
           </p>
         </div>
       </div>
+
+      <Tabs defaultValue="operation" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="operation">Operation Dashboard</TabsTrigger>
+          <TabsTrigger value="officer">NADI Officer</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="operation" className="space-y-6 mt-6">
 
       {/* Operation Statistics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -295,164 +363,155 @@ export default function Operation() {
         ))}
       </div>
 
-      {/* NADI by Area */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MapPin className="h-5 w-5" />
-            NADI by Area
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {areaDistribution.map((area) => (
-            <div key={area.area} className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="font-medium">{area.area}</span>
-                <span className="text-muted-foreground">
-                  {area.count} centers ({area.percentage}%)
-                </span>
-              </div>
-              <Progress value={area.percentage} className="h-2" />
-            </div>
-          ))}
-        </CardContent>
-      </Card>
-
-      {/* NADI Distribution by DUSP */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        {nadiByDUSP.map((item) => (
-          <Card 
-            key={item.dusp}
-            className="cursor-pointer hover:shadow-md transition-shadow"
-            onClick={() => {
-              setSelectedDUSP(item.dusp)
-              setDuspDialogOpen(true)
-            }}
-          >
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-muted rounded-lg">
-                    <Building2 className={`h-6 w-6 ${item.color}`} />
+          {/* NADI by Area */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MapPin className="h-5 w-5" />
+                NADI by Area
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <FilterComponent
+                month={nadiAreaMonth}
+                setMonth={setNadiAreaMonth}
+                year={nadiAreaYear}
+                setYear={setNadiAreaYear}
+                title="Filter"
+              />
+              {areaDistribution.map((area) => (
+                <div key={area.area} className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="font-medium">{area.area}</span>
+                    <span className="text-muted-foreground">
+                      {area.count} centers ({area.percentage}%)
+                    </span>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">{item.dusp}</p>
-                    <p className="text-2xl font-bold">{item.count}</p>
-                  </div>
+                  <Progress value={area.percentage} className="h-2" />
                 </div>
-              </div>
+              ))}
             </CardContent>
           </Card>
-        ))}
-      </div>
 
-      {/* DUSP Dialog */}
-      <Dialog open={duspDialogOpen} onOpenChange={setDuspDialogOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Total NADI by TP - {selectedDUSP}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>TP</TableHead>
-                  <TableHead>Count</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {nadiByTPForDUSP[selectedDUSP]?.map((tp, index) => (
-                  <TableRow key={index}>
-                    <TableCell className="font-medium">{tp.tp}</TableCell>
-                    <TableCell>{tp.count}</TableCell>
-                  </TableRow>
-                )) || <TableRow><TableCell colSpan={2}>No data available</TableCell></TableRow>}
-              </TableBody>
-            </Table>
-            <div className="flex justify-end">
-              <Button onClick={() => downloadCSV(nadiByTPForDUSP[selectedDUSP] || [], `nadi-tp-${selectedDUSP.toLowerCase()}.csv`)}>
-                <Download className="h-4 w-4 mr-2" />
-                Download
-              </Button>
-            </div>
+          {/* NADI Distribution by DUSP */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            {nadiByDUSP.map((item) => (
+              <Card 
+                key={item.dusp}
+                className="cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => {
+                  setSelectedDUSP(item.dusp)
+                  setDuspDialogOpen(true)
+                }}
+              >
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 bg-muted rounded-lg">
+                        <Building2 className={`h-6 w-6 ${item.color}`} />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">{item.dusp}</p>
+                        <p className="text-2xl font-bold">{item.count}</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
-        </DialogContent>
-      </Dialog>
+        </TabsContent>
 
-      {/* Total NADI by TP */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {nadiByTP.map((item) => (
-          <Card 
-            key={item.tp}
-            className="cursor-pointer hover:shadow-md transition-shadow"
-          >
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-muted rounded-lg">
-                    <Users className="h-6 w-6 text-indigo-600" />
+        <TabsContent value="officer" className="space-y-6 mt-6">
+
+          {/* Total NADI by TP */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {nadiByTP.map((item) => (
+              <Card 
+                key={item.tp}
+                className="cursor-pointer hover:shadow-md transition-shadow"
+              >
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 bg-muted rounded-lg">
+                        <Users className="h-6 w-6 text-indigo-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">{item.tp}</p>
+                        <p className="text-2xl font-bold">{item.count}</p>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">{item.tp}</p>
-                    <p className="text-2xl font-bold">{item.count}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Officer Management */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <UserCheck className="h-5 w-5" />
+                NADI Officer Breakdown
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <FilterComponent
+                month={officerBreakdownMonth}
+                setMonth={setOfficerBreakdownMonth}
+                year={officerBreakdownYear}
+                setYear={setOfficerBreakdownYear}
+                title="Filter"
+              />
+              {officerStats.map((officer) => (
+                <div key={officer.role} className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="font-medium">{officer.role}</span>
+                    <span className="text-sm text-muted-foreground">
+                      {officer.occupied}/{officer.total}
+                    </span>
+                  </div>
+                  <Progress value={(officer.occupied / officer.total) * 100} className="h-2" />
+                  <div className="flex justify-between text-sm">
+                    <span className="text-green-600">Occupied: {officer.occupied}</span>
+                    <span className="text-red-600">Vacancies: {officer.vacancy}</span>
                   </div>
                 </div>
-              </div>
+              ))}
             </CardContent>
           </Card>
-        ))}
-      </div>
 
-      {/* Officer Management */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <UserCheck className="h-5 w-5" />
-            NADI Officer Breakdown
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {officerStats.map((officer) => (
-            <div key={officer.role} className="space-y-2">
-              <div className="flex justify-between">
-                <span className="font-medium">{officer.role}</span>
-                <span className="text-sm text-muted-foreground">
-                  {officer.occupied}/{officer.total}
-                </span>
-              </div>
-              <Progress value={(officer.occupied / officer.total) * 100} className="h-2" />
-              <div className="flex justify-between text-sm">
-                <span className="text-green-600">Occupied: {officer.occupied}</span>
-                <span className="text-red-600">Vacancies: {officer.vacancy}</span>
-              </div>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
-
-      {/* Officer Demographics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Total Nadi Officers by Gender</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex justify-between items-center">
-              <span>Male</span>
-              <div className="flex items-center gap-2">
-                <Progress value={58} className="w-24 h-2" />
-                <span className="text-sm font-medium">585 (58%)</span>
-              </div>
-            </div>
-            <div className="flex justify-between items-center">
-              <span>Female</span>
-              <div className="flex items-center gap-2">
-                <Progress value={42} className="w-24 h-2" />
-                <span className="text-sm font-medium">424 (42%)</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+          {/* Officer Demographics */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Total Nadi Officers by Gender</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <FilterComponent
+                  month={genderMonth}
+                  setMonth={setGenderMonth}
+                  year={genderYear}
+                  setYear={setGenderYear}
+                  title="Filter"
+                />
+                <div className="flex justify-between items-center">
+                  <span>Male</span>
+                  <div className="flex items-center gap-2">
+                    <Progress value={58} className="w-24 h-2" />
+                    <span className="text-sm font-medium">585 (58%)</span>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span>Female</span>
+                  <div className="flex items-center gap-2">
+                    <Progress value={42} className="w-24 h-2" />
+                    <span className="text-sm font-medium">424 (42%)</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
         <Card>
           <CardHeader>
@@ -495,7 +554,42 @@ export default function Operation() {
             ))}
           </CardContent>
         </Card>
-      </div>
+          </div>
+        </TabsContent>
+      </Tabs>
+
+      {/* DUSP Dialog - Move outside tabs */}
+      <Dialog open={duspDialogOpen} onOpenChange={setDuspDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Total NADI by TP - {selectedDUSP}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>TP</TableHead>
+                  <TableHead>Count</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {nadiByTPForDUSP[selectedDUSP]?.map((tp, index) => (
+                  <TableRow key={index}>
+                    <TableCell className="font-medium">{tp.tp}</TableCell>
+                    <TableCell>{tp.count}</TableCell>
+                  </TableRow>
+                )) || <TableRow><TableCell colSpan={2}>No data available</TableCell></TableRow>}
+              </TableBody>
+            </Table>
+            <div className="flex justify-end">
+              <Button onClick={() => downloadCSV(nadiByTPForDUSP[selectedDUSP] || [], `nadi-tp-${selectedDUSP.toLowerCase()}.csv`)}>
+                <Download className="h-4 w-4 mr-2" />
+                Download
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
