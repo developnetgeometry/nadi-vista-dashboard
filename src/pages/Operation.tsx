@@ -380,24 +380,28 @@ export default function Operation() {
       </Dialog>
 
       {/* Total NADI by TP */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Users className="h-5 w-5" />
-            Total NADI by TP
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {nadiByTP.map((item) => (
-            <div key={item.tp} className="flex justify-between items-center">
-              <span className="font-medium">{item.tp}</span>
-              <Badge variant="outline">
-                {item.count}
-              </Badge>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {nadiByTP.map((item) => (
+          <Card 
+            key={item.tp}
+            className="cursor-pointer hover:shadow-md transition-shadow"
+          >
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-muted rounded-lg">
+                    <Users className="h-6 w-6 text-indigo-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">{item.tp}</p>
+                    <p className="text-2xl font-bold">{item.count}</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
 
       {/* Officer Management */}
       <Card>
