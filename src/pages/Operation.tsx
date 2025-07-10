@@ -6,8 +6,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Settings, Building2, Users, MapPin, UserCheck, AlertTriangle, Info, Download, Filter } from "lucide-react"
-import { useState } from "react"
+import { Input } from "@/components/ui/input"
+import { Settings, Building2, Users, MapPin, UserCheck, AlertTriangle, Info, Download, Filter, Search } from "lucide-react"
+import { useState, useMemo } from "react"
 
 const operationStats = [
   { title: "Total NADI", count: "1,099", icon: Building2, color: "text-blue-600" },
@@ -32,31 +33,32 @@ const nadiByDUSP = [
 ]
 
 const nadiByTP = [
-  { tp: "MSD", count: 45 },
-  { tp: "MOSTI", count: 35 },
-  { tp: "MCMC", count: 20 }
+  { tp: "MYNIC", count: 45 },
+  { tp: "JKM", count: 35 },
+  { tp: "DOSM", count: 30 },
+  { tp: "JPM", count: 25 }
 ]
 
 const nadiByTPForDUSP = {
   "TM TECH": [
-    { tp: "MSD", count: 8 },
-    { tp: "MOSTI", count: 2 }
+    { tp: "MYNIC", count: 8 },
+    { tp: "JKM", count: 2 }
   ],
   "MAXIS": [
-    { tp: "MSD", count: 18 },
-    { tp: "MOSTI", count: 12 }
+    { tp: "MYNIC", count: 18 },
+    { tp: "JKM", count: 12 }
   ],
   "CELCOMDIGI": [
-    { tp: "MSD", count: 15 },
-    { tp: "MCMC", count: 10 }
+    { tp: "MYNIC", count: 15 },
+    { tp: "DOSM", count: 10 }
   ],
   "TIME": [
-    { tp: "MSD", count: 10 },
-    { tp: "MOSTI", count: 5 }
+    { tp: "MYNIC", count: 10 },
+    { tp: "JPM", count: 5 }
   ],
   "DIGI": [
-    { tp: "MSD", count: 12 },
-    { tp: "MCMC", count: 8 }
+    { tp: "MYNIC", count: 12 },
+    { tp: "DOSM", count: 8 }
   ]
 }
 
@@ -158,13 +160,16 @@ export default function Operation() {
   const [duspDialogOpen, setDuspDialogOpen] = useState(false)
   const [selectedDUSP, setSelectedDUSP] = useState<string>("")
   
-  // Filter states
+  // Filter states - unified filter
   const [nadiAreaMonth, setNadiAreaMonth] = useState<string>("all")
   const [nadiAreaYear, setNadiAreaYear] = useState<string>("all")
-  const [officerBreakdownMonth, setOfficerBreakdownMonth] = useState<string>("all")
-  const [officerBreakdownYear, setOfficerBreakdownYear] = useState<string>("all")
-  const [genderMonth, setGenderMonth] = useState<string>("all")
-  const [genderYear, setGenderYear] = useState<string>("all")
+  const [officerFilterMonth, setOfficerFilterMonth] = useState<string>("all")
+  const [officerFilterYear, setOfficerFilterYear] = useState<string>("all")
+  
+  // Search states
+  const [genderSearch, setGenderSearch] = useState<string>("")
+  const [raceSearch, setRaceSearch] = useState<string>("")
+  const [stateSearch, setStateSearch] = useState<string>("")
 
   const downloadCSV = (data: any[], filename: string) => {
     const headers = Object.keys(data[0])
@@ -233,6 +238,62 @@ export default function Operation() {
       </Select>
     </div>
   )
+
+  const SearchComponent = ({ 
+    search, 
+    setSearch, 
+    placeholder 
+  }: { 
+    search: string; 
+    setSearch: (value: string) => void; 
+    placeholder: string;
+  }) => (
+    <div className="relative mb-4">
+      <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+      <Input
+        placeholder={placeholder}
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="pl-8"
+      />
+    </div>
+  )
+
+  // Filter data based on search
+  const filteredGenderData = useMemo(() => {
+    const data = [
+      { gender: "Male", count: 585, percentage: 58 },
+      { gender: "Female", count: 424, percentage: 42 }
+    ]
+    return data.filter(item => 
+      item.gender.toLowerCase().includes(genderSearch.toLowerCase())
+    )
+  }, [genderSearch])
+
+  const filteredRaceData = useMemo(() => {
+    const data = [
+      { race: "Malay", count: 656, percentage: 65 },
+      { race: "Chinese", count: 182, percentage: 18 },
+      { race: "Indian", count: 121, percentage: 12 },
+      { race: "Others", count: 50, percentage: 5 }
+    ]
+    return data.filter(item => 
+      item.race.toLowerCase().includes(raceSearch.toLowerCase())
+    )
+  }, [raceSearch])
+
+  const filteredStateData = useMemo(() => {
+    const data = [
+      { state: "Selangor", count: 180 },
+      { state: "Kuala Lumpur", count: 85 },
+      { state: "Johor", count: 150 },
+      { state: "Penang", count: 75 },
+      { state: "Perak", count: 120 }
+    ]
+    return data.filter(item => 
+      item.state.toLowerCase().includes(stateSearch.toLowerCase())
+    )
+  }, [stateSearch])
 
   return (
     <div className="space-y-6">
@@ -423,30 +484,58 @@ export default function Operation() {
         </TabsContent>
 
         <TabsContent value="officer" className="space-y-6 mt-6">
+          {/* Unified Filter for NADI Officer Tab */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Filter className="h-5 w-5" />
+                Filter
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <FilterComponent
+                month={officerFilterMonth}
+                setMonth={setOfficerFilterMonth}
+                year={officerFilterYear}
+                setYear={setOfficerFilterYear}
+                title="Apply filter to all sections below"
+              />
+            </CardContent>
+          </Card>
 
           {/* Total NADI by TP */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {nadiByTP.map((item) => (
-              <Card 
-                key={item.tp}
-                className="cursor-pointer hover:shadow-md transition-shadow"
-              >
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="p-2 bg-muted rounded-lg">
-                        <Users className="h-6 w-6 text-indigo-600" />
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                Total NADI by TP
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                {nadiByTP.map((item) => (
+                  <Card 
+                    key={item.tp}
+                    className="cursor-pointer hover:shadow-md transition-shadow border-2"
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className="p-2 bg-muted rounded-lg">
+                            <Users className="h-5 w-5 text-indigo-600" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-muted-foreground">{item.tp}</p>
+                            <p className="text-xl font-bold">{item.count}</p>
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">{item.tp}</p>
-                        <p className="text-2xl font-bold">{item.count}</p>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Officer Management */}
           <Card>
@@ -457,13 +546,6 @@ export default function Operation() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <FilterComponent
-                month={officerBreakdownMonth}
-                setMonth={setOfficerBreakdownMonth}
-                year={officerBreakdownYear}
-                setYear={setOfficerBreakdownYear}
-                title="Filter"
-              />
               {officerStats.map((officer) => (
                 <div key={officer.role} className="space-y-2">
                   <div className="flex justify-between">
@@ -489,27 +571,20 @@ export default function Operation() {
                 <CardTitle>Total Nadi Officers by Gender</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <FilterComponent
-                  month={genderMonth}
-                  setMonth={setGenderMonth}
-                  year={genderYear}
-                  setYear={setGenderYear}
-                  title="Filter"
+                <SearchComponent
+                  search={genderSearch}
+                  setSearch={setGenderSearch}
+                  placeholder="Search gender..."
                 />
-                <div className="flex justify-between items-center">
-                  <span>Male</span>
-                  <div className="flex items-center gap-2">
-                    <Progress value={58} className="w-24 h-2" />
-                    <span className="text-sm font-medium">585 (58%)</span>
+                {filteredGenderData.map((item) => (
+                  <div key={item.gender} className="flex justify-between items-center">
+                    <span>{item.gender}</span>
+                    <div className="flex items-center gap-2">
+                      <Progress value={item.percentage} className="w-24 h-2" />
+                      <span className="text-sm font-medium">{item.count} ({item.percentage}%)</span>
+                    </div>
                   </div>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span>Female</span>
-                  <div className="flex items-center gap-2">
-                    <Progress value={42} className="w-24 h-2" />
-                    <span className="text-sm font-medium">424 (42%)</span>
-                  </div>
-                </div>
+                ))}
               </CardContent>
             </Card>
 
@@ -518,12 +593,12 @@ export default function Operation() {
             <CardTitle>Total Nadi Officers by Race</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {[
-              { race: "Malay", count: 656, percentage: 65 },
-              { race: "Chinese", count: 182, percentage: 18 },
-              { race: "Indian", count: 121, percentage: 12 },
-              { race: "Others", count: 50, percentage: 5 }
-            ].map((item) => (
+            <SearchComponent
+              search={raceSearch}
+              setSearch={setRaceSearch}
+              placeholder="Search race..."
+            />
+            {filteredRaceData.map((item) => (
               <div key={item.race} className="flex justify-between items-center">
                 <span>{item.race}</span>
                 <div className="flex items-center gap-2">
@@ -540,13 +615,12 @@ export default function Operation() {
             <CardTitle>Total NADI by State</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {[
-              { state: "Selangor", count: 180 },
-              { state: "Kuala Lumpur", count: 85 },
-              { state: "Johor", count: 150 },
-              { state: "Penang", count: 75 },
-              { state: "Perak", count: 120 }
-            ].map((item) => (
+            <SearchComponent
+              search={stateSearch}
+              setSearch={setStateSearch}
+              placeholder="Search state..."
+            />
+            {filteredStateData.map((item) => (
               <div key={item.state} className="flex justify-between items-center">
                 <span>{item.state}</span>
                 <Badge variant="secondary">{item.count}</Badge>
