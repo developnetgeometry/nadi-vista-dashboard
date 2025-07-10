@@ -248,7 +248,7 @@ export default function Operation() {
 
       <Tabs defaultValue="operation" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="operation">Operation Dashboard</TabsTrigger>
+          <TabsTrigger value="operation">Operation</TabsTrigger>
           <TabsTrigger value="officer">NADI Officer</TabsTrigger>
         </TabsList>
 
