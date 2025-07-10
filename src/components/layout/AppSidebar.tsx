@@ -34,14 +34,10 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 
 const navigationItems = [
   {
-    title: "Dashboard",
-    items: [
-      { title: "Home", url: "/", icon: Home }
-    ]
-  },
-  {
     title: "Admin Console",
     items: [
+      { title: "Dashboard", url: "/", icon: Home },
+      { title: "Home", url: "/", icon: Home },
       { title: "Membership", url: "/membership", icon: Users },
       { title: "Smart Services", url: "/smart-services", icon: Cpu },
       { title: "Operation", url: "/operation", icon: Settings },
@@ -61,6 +57,10 @@ const navigationItems = [
   },
   {
     title: "Asset Management", 
+    items: []
+  },
+  {
+    title: "Finance Management",
     items: []
   },
   {
@@ -89,7 +89,7 @@ export function AppSidebar() {
   const { state } = useSidebar()
   const location = useLocation()
   const currentPath = location.pathname
-  const [openGroups, setOpenGroups] = useState(["Dashboard", "Admin Console"])
+  const [openGroups, setOpenGroups] = useState(["Admin Console"])
 
   const isActive = (path: string) => currentPath === path
 
