@@ -22,11 +22,11 @@ const areaDistribution = [
 ]
 
 const nadiByDUSP = [
-  { dusp: "TM TECH", count: 10 },
-  { dusp: "MAXIS", count: 30 },
-  { dusp: "CELCOMDIGI", count: 25 },
-  { dusp: "TIME", count: 15 },
-  { dusp: "DIGI", count: 20 }
+  { dusp: "TM TECH", count: 10, color: "text-blue-600" },
+  { dusp: "MAXIS", count: 30, color: "text-green-600" },
+  { dusp: "CELCOMDIGI", count: 25, color: "text-purple-600" },
+  { dusp: "TIME", count: 15, color: "text-orange-600" },
+  { dusp: "DIGI", count: 20, color: "text-red-600" }
 ]
 
 const nadiByTP = [
@@ -34,6 +34,29 @@ const nadiByTP = [
   { tp: "MOSTI", count: 35 },
   { tp: "MCMC", count: 20 }
 ]
+
+const nadiByTPForDUSP = {
+  "TM TECH": [
+    { tp: "MSD", count: 8 },
+    { tp: "MOSTI", count: 2 }
+  ],
+  "MAXIS": [
+    { tp: "MSD", count: 18 },
+    { tp: "MOSTI", count: 12 }
+  ],
+  "CELCOMDIGI": [
+    { tp: "MSD", count: 15 },
+    { tp: "MCMC", count: 10 }
+  ],
+  "TIME": [
+    { tp: "MSD", count: 10 },
+    { tp: "MOSTI", count: 5 }
+  ],
+  "DIGI": [
+    { tp: "MSD", count: 12 },
+    { tp: "MCMC", count: 8 }
+  ]
+}
 
 const officerStats = [
   { role: "Manager", total: 550, occupied: 520, vacancy: 30 },
@@ -130,6 +153,8 @@ const openDockets = [
 export default function Operation() {
   const [closedDialogOpen, setClosedDialogOpen] = useState(false)
   const [maintenanceDialogOpen, setMaintenanceDialogOpen] = useState(false)
+  const [duspDialogOpen, setDuspDialogOpen] = useState(false)
+  const [selectedDUSP, setSelectedDUSP] = useState<string>("")
 
   const downloadCSV = (data: any[], filename: string) => {
     const headers = Object.keys(data[0])
@@ -293,46 +318,86 @@ export default function Operation() {
         </CardContent>
       </Card>
 
-      {/* NADI Distribution and Officer Management */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Building2 className="h-5 w-5" />
-              Total NADI by DUSP
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {nadiByDUSP.map((item) => (
-              <div key={item.dusp} className="flex justify-between items-center">
-                <span className="font-medium">{item.dusp}</span>
-                <Badge variant="outline">
-                  {item.count}
-                </Badge>
+      {/* NADI Distribution by DUSP */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        {nadiByDUSP.map((item) => (
+          <Card 
+            key={item.dusp}
+            className="cursor-pointer hover:shadow-md transition-shadow"
+            onClick={() => {
+              setSelectedDUSP(item.dusp)
+              setDuspDialogOpen(true)
+            }}
+          >
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-muted rounded-lg">
+                    <Building2 className={`h-6 w-6 ${item.color}`} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">{item.dusp}</p>
+                    <p className="text-2xl font-bold">{item.count}</p>
+                  </div>
+                </div>
               </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5" />
-              Total NADI by TP
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {nadiByTP.map((item) => (
-              <div key={item.tp} className="flex justify-between items-center">
-                <span className="font-medium">{item.tp}</span>
-                <Badge variant="outline">
-                  {item.count}
-                </Badge>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        ))}
       </div>
+
+      {/* DUSP Dialog */}
+      <Dialog open={duspDialogOpen} onOpenChange={setDuspDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Total NADI by TP - {selectedDUSP}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>TP</TableHead>
+                  <TableHead>Count</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {nadiByTPForDUSP[selectedDUSP]?.map((tp, index) => (
+                  <TableRow key={index}>
+                    <TableCell className="font-medium">{tp.tp}</TableCell>
+                    <TableCell>{tp.count}</TableCell>
+                  </TableRow>
+                )) || <TableRow><TableCell colSpan={2}>No data available</TableCell></TableRow>}
+              </TableBody>
+            </Table>
+            <div className="flex justify-end">
+              <Button onClick={() => downloadCSV(nadiByTPForDUSP[selectedDUSP] || [], `nadi-tp-${selectedDUSP.toLowerCase()}.csv`)}>
+                <Download className="h-4 w-4 mr-2" />
+                Download
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Total NADI by TP */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Users className="h-5 w-5" />
+            Total NADI by TP
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {nadiByTP.map((item) => (
+            <div key={item.tp} className="flex justify-between items-center">
+              <span className="font-medium">{item.tp}</span>
+              <Badge variant="outline">
+                {item.count}
+              </Badge>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
 
       {/* Officer Management */}
       <Card>
@@ -365,18 +430,20 @@ export default function Operation() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Officers by Gender</CardTitle>
+            <CardTitle>Total Nadi Officers by Gender</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex justify-between items-center">
               <span>Male</span>
               <div className="flex items-center gap-2">
+                <Progress value={58} className="w-24 h-2" />
                 <span className="text-sm font-medium">585 (58%)</span>
               </div>
             </div>
             <div className="flex justify-between items-center">
               <span>Female</span>
               <div className="flex items-center gap-2">
+                <Progress value={42} className="w-24 h-2" />
                 <span className="text-sm font-medium">424 (42%)</span>
               </div>
             </div>
@@ -385,7 +452,7 @@ export default function Operation() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Officers by Race</CardTitle>
+            <CardTitle>Total Nadi Officers by Race</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {[
@@ -396,7 +463,10 @@ export default function Operation() {
             ].map((item) => (
               <div key={item.race} className="flex justify-between items-center">
                 <span>{item.race}</span>
-                <span className="text-sm font-medium">{item.count} ({item.percentage}%)</span>
+                <div className="flex items-center gap-2">
+                  <Progress value={item.percentage} className="w-16 h-2" />
+                  <span className="text-sm font-medium">{item.count} ({item.percentage}%)</span>
+                </div>
               </div>
             ))}
           </CardContent>
