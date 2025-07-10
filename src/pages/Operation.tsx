@@ -484,25 +484,6 @@ export default function Operation() {
         </TabsContent>
 
         <TabsContent value="officer" className="space-y-6 mt-6">
-          {/* Unified Filter for NADI Officer Tab */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Filter className="h-5 w-5" />
-                Filter
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <FilterComponent
-                month={officerFilterMonth}
-                setMonth={setOfficerFilterMonth}
-                year={officerFilterYear}
-                setYear={setOfficerFilterYear}
-                title="Apply filter to all sections below"
-              />
-            </CardContent>
-          </Card>
-
           {/* Total NADI by TP */}
           <Card>
             <CardHeader>
@@ -537,35 +518,75 @@ export default function Operation() {
             </CardContent>
           </Card>
 
-          {/* Officer Management */}
+          {/* Officer Management and Total NADI by State */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <UserCheck className="h-5 w-5" />
+                  NADI Officer Breakdown
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {officerStats.map((officer) => (
+                  <div key={officer.role} className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="font-medium">{officer.role}</span>
+                      <span className="text-sm text-muted-foreground">
+                        {officer.occupied}/{officer.total}
+                      </span>
+                    </div>
+                    <Progress value={(officer.occupied / officer.total) * 100} className="h-2" />
+                    <div className="flex justify-between text-sm">
+                      <span className="text-green-600">Occupied: {officer.occupied}</span>
+                      <span className="text-red-600">Vacancies: {officer.vacancy}</span>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Total NADI by State</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <SearchComponent
+                  search={stateSearch}
+                  setSearch={setStateSearch}
+                  placeholder="Search state..."
+                />
+                {filteredStateData.map((item) => (
+                  <div key={item.state} className="flex justify-between items-center">
+                    <span>{item.state}</span>
+                    <Badge variant="secondary">{item.count}</Badge>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Filter for Gender and Race only */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <UserCheck className="h-5 w-5" />
-                NADI Officer Breakdown
+                <Filter className="h-5 w-5" />
+                Filter for Gender & Race
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
-              {officerStats.map((officer) => (
-                <div key={officer.role} className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="font-medium">{officer.role}</span>
-                    <span className="text-sm text-muted-foreground">
-                      {officer.occupied}/{officer.total}
-                    </span>
-                  </div>
-                  <Progress value={(officer.occupied / officer.total) * 100} className="h-2" />
-                  <div className="flex justify-between text-sm">
-                    <span className="text-green-600">Occupied: {officer.occupied}</span>
-                    <span className="text-red-600">Vacancies: {officer.vacancy}</span>
-                  </div>
-                </div>
-              ))}
+            <CardContent>
+              <FilterComponent
+                month={officerFilterMonth}
+                setMonth={setOfficerFilterMonth}
+                year={officerFilterYear}
+                setYear={setOfficerFilterYear}
+                title="Apply filter to Gender and Race sections"
+              />
             </CardContent>
           </Card>
 
-          {/* Officer Demographics */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Officer Demographics - Gender and Race only */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
                 <CardTitle>Total Nadi Officers by Gender</CardTitle>
@@ -588,46 +609,27 @@ export default function Operation() {
               </CardContent>
             </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Total Nadi Officers by Race</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <SearchComponent
-              search={raceSearch}
-              setSearch={setRaceSearch}
-              placeholder="Search race..."
-            />
-            {filteredRaceData.map((item) => (
-              <div key={item.race} className="flex justify-between items-center">
-                <span>{item.race}</span>
-                <div className="flex items-center gap-2">
-                  <Progress value={item.percentage} className="w-16 h-2" />
-                  <span className="text-sm font-medium">{item.count} ({item.percentage}%)</span>
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Total NADI by State</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <SearchComponent
-              search={stateSearch}
-              setSearch={setStateSearch}
-              placeholder="Search state..."
-            />
-            {filteredStateData.map((item) => (
-              <div key={item.state} className="flex justify-between items-center">
-                <span>{item.state}</span>
-                <Badge variant="secondary">{item.count}</Badge>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Total Nadi Officers by Race</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <SearchComponent
+                  search={raceSearch}
+                  setSearch={setRaceSearch}
+                  placeholder="Search race..."
+                />
+                {filteredRaceData.map((item) => (
+                  <div key={item.race} className="flex justify-between items-center">
+                    <span>{item.race}</span>
+                    <div className="flex items-center gap-2">
+                      <Progress value={item.percentage} className="w-16 h-2" />
+                      <span className="text-sm font-medium">{item.count} ({item.percentage}%)</span>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
           </div>
         </TabsContent>
       </Tabs>
