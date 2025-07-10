@@ -33,10 +33,10 @@ const nadiByDUSP = [
 ]
 
 const nadiByTP = [
-  { tp: "MYNIC", count: 45 },
-  { tp: "JKM", count: 35 },
-  { tp: "DOSM", count: 30 },
-  { tp: "JPM", count: 25 }
+  { tp: "MYNIC", count: 45, color: "text-blue-600", bgColor: "bg-blue-50", iconColor: "text-blue-600" },
+  { tp: "JKM", count: 35, color: "text-green-600", bgColor: "bg-green-50", iconColor: "text-green-600" },
+  { tp: "DOSM", count: 30, color: "text-purple-600", bgColor: "bg-purple-50", iconColor: "text-purple-600" },
+  { tp: "JPM", count: 25, color: "text-orange-600", bgColor: "bg-orange-50", iconColor: "text-orange-600" }
 ]
 
 const nadiByTPForDUSP = {
@@ -497,18 +497,16 @@ export default function Operation() {
                 {nadiByTP.map((item) => (
                   <Card 
                     key={item.tp}
-                    className="cursor-pointer hover:shadow-md transition-shadow border-2"
+                    className="cursor-pointer hover:shadow-lg transition-all duration-200 border-0 shadow-sm"
                   >
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          <div className="p-2 bg-muted rounded-lg">
-                            <Users className="h-5 w-5 text-indigo-600" />
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium text-muted-foreground">{item.tp}</p>
-                            <p className="text-xl font-bold">{item.count}</p>
-                          </div>
+                    <CardContent className="p-6 text-center">
+                      <div className="flex flex-col items-center space-y-3">
+                        <div className={`p-3 rounded-lg ${item.bgColor}`}>
+                          <Building2 className={`h-6 w-6 ${item.iconColor}`} />
+                        </div>
+                        <div>
+                          <p className={`text-lg font-semibold ${item.color}`}>{item.tp}</p>
+                          <p className="text-3xl font-bold text-gray-900 mt-1">{item.count}</p>
                         </div>
                       </div>
                     </CardContent>
