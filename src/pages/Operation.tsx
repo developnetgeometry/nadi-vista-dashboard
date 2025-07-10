@@ -2,7 +2,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
-import { Settings, Building2, Users, MapPin, UserCheck, AlertTriangle, Info } from "lucide-react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Settings, Building2, Users, MapPin, UserCheck, AlertTriangle, Info, Download } from "lucide-react"
+import { useState } from "react"
 
 const operationStats = [
   { title: "Total NADI", count: "1,099", icon: Building2, color: "text-blue-600" },
@@ -59,7 +62,88 @@ const nadiDetails = [
   }
 ]
 
+// Mock data for NADI closures
+const nadiClosures = [
+  {
+    nadiName: "NADI Shah Alam",
+    dusp: "TM",
+    state: "Selangor",
+    district: "Petaling",
+    parliament: "Shah Alam",
+    dun: "Kota Anggerik",
+    reason: "Infrastructure maintenance"
+  },
+  {
+    nadiName: "NADI Ipoh",
+    dusp: "MAXIS",
+    state: "Perak",
+    district: "Kinta",
+    parliament: "Ipoh Barat",
+    dun: "Canning",
+    reason: "Equipment upgrade"
+  },
+  {
+    nadiName: "NADI Kota Kinabalu",
+    dusp: "CELCOMDIGI",
+    state: "Sabah",
+    district: "Kota Kinabalu",
+    parliament: "Kota Kinabalu",
+    dun: "Api-Api",
+    reason: "Building renovation"
+  }
+]
+
+// Mock data for open dockets
+const openDockets = [
+  {
+    state: "Selangor",
+    totalNadi: 180,
+    totalDocketOpen: 8
+  },
+  {
+    state: "Kuala Lumpur",
+    totalNadi: 85,
+    totalDocketOpen: 5
+  },
+  {
+    state: "Johor",
+    totalNadi: 150,
+    totalDocketOpen: 4
+  },
+  {
+    state: "Penang",
+    totalNadi: 75,
+    totalDocketOpen: 3
+  },
+  {
+    state: "Perak",
+    totalNadi: 120,
+    totalDocketOpen: 3
+  }
+]
+
 export default function Operation() {
+  const [closedDialogOpen, setClosedDialogOpen] = useState(false)
+  const [maintenanceDialogOpen, setMaintenanceDialogOpen] = useState(false)
+
+  const downloadCSV = (data: any[], filename: string) => {
+    const headers = Object.keys(data[0])
+    const csvContent = [
+      headers.join(','),
+      ...data.map(row => headers.map(header => `"${row[header]}"`).join(','))
+    ].join('\n')
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    link.setAttribute('href', url)
+    link.setAttribute('download', filename)
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -77,14 +161,104 @@ export default function Operation() {
         {operationStats.map((stat) => (
           <Card key={stat.title}>
             <CardContent className="p-6">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-muted rounded-lg">
-                  <stat.icon className={`h-6 w-6 ${stat.color}`} />
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-muted rounded-lg">
+                    <stat.icon className={`h-6 w-6 ${stat.color}`} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
+                    <p className="text-2xl font-bold">{stat.count}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-                  <p className="text-2xl font-bold">{stat.count}</p>
-                </div>
+                {stat.title === "Closed" && (
+                  <Dialog open={closedDialogOpen} onOpenChange={setClosedDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                        <Info className="h-4 w-4" />
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-4xl">
+                      <DialogHeader>
+                        <DialogTitle>NADI Closures</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>NADI Name</TableHead>
+                              <TableHead>DUSP</TableHead>
+                              <TableHead>State</TableHead>
+                              <TableHead>District</TableHead>
+                              <TableHead>Parliament</TableHead>
+                              <TableHead>DUN</TableHead>
+                              <TableHead>Reason</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {nadiClosures.map((closure, index) => (
+                              <TableRow key={index}>
+                                <TableCell className="font-medium">{closure.nadiName}</TableCell>
+                                <TableCell>{closure.dusp}</TableCell>
+                                <TableCell>{closure.state}</TableCell>
+                                <TableCell>{closure.district}</TableCell>
+                                <TableCell>{closure.parliament}</TableCell>
+                                <TableCell>{closure.dun}</TableCell>
+                                <TableCell>{closure.reason}</TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                        <div className="flex justify-end">
+                          <Button onClick={() => downloadCSV(nadiClosures, 'nadi-closures.csv')}>
+                            <Download className="h-4 w-4 mr-2" />
+                            Download
+                          </Button>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                )}
+                {stat.title === "Maintenance Open" && (
+                  <Dialog open={maintenanceDialogOpen} onOpenChange={setMaintenanceDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                        <Info className="h-4 w-4" />
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl">
+                      <DialogHeader>
+                        <DialogTitle>Open Dockets</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>State</TableHead>
+                              <TableHead>Total NADI</TableHead>
+                              <TableHead>Total Docket Open</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {openDockets.map((docket, index) => (
+                              <TableRow key={index}>
+                                <TableCell className="font-medium">{docket.state}</TableCell>
+                                <TableCell>{docket.totalNadi}</TableCell>
+                                <TableCell>{docket.totalDocketOpen}</TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                        <div className="flex justify-end">
+                          <Button onClick={() => downloadCSV(openDockets, 'open-dockets.csv')}>
+                            <Download className="h-4 w-4 mr-2" />
+                            Download
+                          </Button>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                )}
               </div>
             </CardContent>
           </Card>
