@@ -3,7 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { PieChart, MapPin, TrendingUp, BarChart3, Search } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { PieChart, MapPin, TrendingUp, BarChart3, Search, ChevronLeft, ChevronRight } from "lucide-react"
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LineChart, Line, PieChart as RechartsPieChart, Pie, Cell } from "recharts"
 
 // Mock data for different pillars
@@ -40,7 +41,12 @@ const mockData = {
       { event: "Business Plan Workshop", registered: 80, attended: 75, completionRate: 94 },
       { event: "Investor Pitch Day", registered: 120, attended: 95, completionRate: 79 },
       { event: "Marketing Fundamentals", registered: 90, attended: 80, completionRate: 89 },
-      { event: "Financial Planning", registered: 70, attended: 65, completionRate: 93 }
+      { event: "Financial Planning", registered: 70, attended: 65, completionRate: 93 },
+      { event: "E-commerce Workshop", registered: 110, attended: 98, completionRate: 89 },
+      { event: "Digital Marketing", registered: 95, attended: 88, completionRate: 93 },
+      { event: "Leadership Training", registered: 85, attended: 78, completionRate: 92 },
+      { event: "Innovation Summit", registered: 150, attended: 135, completionRate: 90 },
+      { event: "Networking Event", registered: 75, attended: 70, completionRate: 93 }
     ]
   },
   awareness: {
@@ -68,7 +74,13 @@ const mockData = {
       { event: "Digital Literacy Workshop", registered: 150, attended: 120, completionRate: 80 },
       { event: "Cybersecurity Seminar", registered: 100, attended: 90, completionRate: 90 },
       { event: "Tech Awareness Campaign", registered: 80, attended: 70, completionRate: 88 },
-      { event: "Digital Skills Training", registered: 200, attended: 180, completionRate: 90 }
+      { event: "Digital Skills Training", registered: 200, attended: 180, completionRate: 90 },
+      { event: "AI Awareness Session", registered: 120, attended: 110, completionRate: 92 },
+      { event: "Data Privacy Workshop", registered: 90, attended: 85, completionRate: 94 },
+      { event: "Social Media Safety", registered: 110, attended: 95, completionRate: 86 },
+      { event: "Digital Citizenship", registered: 85, attended: 80, completionRate: 94 },
+      { event: "Online Security Training", registered: 95, attended: 88, completionRate: 93 },
+      { event: "Tech Ethics Seminar", registered: 75, attended: 70, completionRate: 93 }
     ]
   },
   "lifelong-learning": {
@@ -96,7 +108,13 @@ const mockData = {
       { event: "Professional Development Course", registered: 120, attended: 100, completionRate: 83 },
       { event: "Skills Certification Program", registered: 90, attended: 85, completionRate: 94 },
       { event: "Leadership Training", registered: 110, attended: 95, completionRate: 86 },
-      { event: "Communication Skills Workshop", registered: 100, attended: 90, completionRate: 90 }
+      { event: "Communication Skills Workshop", registered: 100, attended: 90, completionRate: 90 },
+      { event: "Project Management Training", registered: 130, attended: 115, completionRate: 88 },
+      { event: "Time Management Course", registered: 95, attended: 88, completionRate: 93 },
+      { event: "Team Building Workshop", registered: 85, attended: 80, completionRate: 94 },
+      { event: "Presentation Skills Training", registered: 105, attended: 95, completionRate: 90 },
+      { event: "Creative Thinking Workshop", registered: 75, attended: 70, completionRate: 93 },
+      { event: "Career Development Seminar", registered: 115, attended: 105, completionRate: 91 }
     ]
   }
 }
@@ -105,6 +123,9 @@ export default function SSOEventBreakdown() {
   const [selectedPillar, setSelectedPillar] = useState<string>("entrepreneur")
   const [currentData, setCurrentData] = useState<any>(null)
   const [searchLocation, setSearchLocation] = useState<string>("")
+  const [searchProgram, setSearchProgram] = useState<string>("")
+  const [currentPage, setCurrentPage] = useState<number>(1)
+  const itemsPerPage = 5
 
   useEffect(() => {
     if (selectedPillar && mockData[selectedPillar as keyof typeof mockData]) {
@@ -119,6 +140,15 @@ export default function SSOEventBreakdown() {
   const filteredLocations = currentData?.eventsByLocation.filter((location: any) =>
     location.location.toLowerCase().includes(searchLocation.toLowerCase())
   ) || []
+
+  const filteredPrograms = currentData?.registrationVsAttendance.filter((program: any) =>
+    program.event.toLowerCase().includes(searchProgram.toLowerCase())
+  ) || []
+
+  const totalPages = Math.ceil(filteredPrograms.length / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const paginatedPrograms = filteredPrograms.slice(startIndex, endIndex)
 
   return (
     <div className="space-y-6">
@@ -256,34 +286,58 @@ export default function SSOEventBreakdown() {
               <p className="text-sm text-muted-foreground">
                 Comprehensive comparison of registration numbers and actual attendance with completion rates
               </p>
+              <div className="flex items-center gap-4 mt-4">
+                <div className="relative flex-1 max-w-md">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search programs..."
+                    value={searchProgram}
+                    onChange={(e) => {
+                      setSearchProgram(e.target.value)
+                      setCurrentPage(1)
+                    }}
+                    className="pl-10"
+                  />
+                </div>
+                <Badge variant="outline" className="text-primary border-primary">
+                  {filteredPrograms.length} / {currentData.registrationVsAttendance.length} programs
+                </Badge>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
                 <div className="p-4 bg-primary/5 rounded-lg text-center">
                   <div className="text-2xl font-bold text-primary">
-                    {Math.round(currentData.registrationVsAttendance.reduce((sum: number, item: any) => sum + (item.attended / item.registered * 100), 0) / currentData.registrationVsAttendance.length)}%
+                    {Math.round(filteredPrograms.reduce((sum: number, item: any) => sum + (item.attended / item.registered * 100), 0) / filteredPrograms.length) || 0}%
                   </div>
                   <p className="text-sm text-muted-foreground">Average Attendance Rate</p>
                 </div>
                 <div className="p-4 bg-secondary/5 rounded-lg text-center">
                   <div className="text-2xl font-bold text-secondary">
-                    {currentData.registrationVsAttendance.reduce((sum: number, item: any) => sum + item.registered, 0)}
+                    {filteredPrograms.reduce((sum: number, item: any) => sum + item.registered, 0)}
                   </div>
                   <p className="text-sm text-muted-foreground">Total Registrations</p>
                 </div>
                 <div className="p-4 bg-accent/5 rounded-lg text-center">
                   <div className="text-2xl font-bold text-accent">
-                    {currentData.registrationVsAttendance.reduce((sum: number, item: any) => sum + item.attended, 0)}
+                    {filteredPrograms.reduce((sum: number, item: any) => sum + item.attended, 0)}
                   </div>
                   <p className="text-sm text-muted-foreground">Total Attendance</p>
                 </div>
               </div>
               
               <ResponsiveContainer width="100%" height={400}>
-                <BarChart data={currentData.registrationVsAttendance} layout="horizontal">
+                <BarChart data={filteredPrograms}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" />
-                  <YAxis dataKey="event" type="category" width={150} />
+                  <XAxis 
+                    dataKey="event" 
+                    angle={-45}
+                    textAnchor="end"
+                    height={100}
+                    interval={0}
+                    fontSize={12}
+                  />
+                  <YAxis />
                   <Tooltip 
                     formatter={(value, name) => [value, name === "registered" ? "Registered" : "Attended"]}
                     labelFormatter={(label) => `Event: ${label}`}
@@ -293,9 +347,14 @@ export default function SSOEventBreakdown() {
                 </BarChart>
               </ResponsiveContainer>
 
-              {/* Event Details Table */}
+              {/* Event Details Table with Pagination */}
               <div className="mt-6 overflow-x-auto">
-                <h4 className="text-lg font-semibold mb-4">Event Performance Details</h4>
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-lg font-semibold">Event Performance Details</h4>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    Showing {startIndex + 1}-{Math.min(endIndex, filteredPrograms.length)} of {filteredPrograms.length} events
+                  </div>
+                </div>
                 <div className="border rounded-lg">
                   <div className="grid grid-cols-4 gap-4 p-4 bg-muted/50 font-medium">
                     <div>Event Name</div>
@@ -303,7 +362,7 @@ export default function SSOEventBreakdown() {
                     <div>Attended</div>
                     <div>Attendance Rate</div>
                   </div>
-                  {currentData.registrationVsAttendance.map((event: any, index: number) => (
+                  {paginatedPrograms.map((event: any, index: number) => (
                     <div key={index} className="grid grid-cols-4 gap-4 p-4 border-t">
                       <div className="font-medium">{event.event}</div>
                       <div>{event.registered}</div>
@@ -319,6 +378,47 @@ export default function SSOEventBreakdown() {
                     </div>
                   ))}
                 </div>
+                
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-between mt-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                      disabled={currentPage === 1}
+                      className="flex items-center gap-2"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                      Previous
+                    </Button>
+                    
+                    <div className="flex items-center gap-2">
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                        <Button
+                          key={page}
+                          variant={currentPage === page ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setCurrentPage(page)}
+                          className="w-8 h-8 p-0"
+                        >
+                          {page}
+                        </Button>
+                      ))}
+                    </div>
+                    
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                      disabled={currentPage === totalPages}
+                      className="flex items-center gap-2"
+                    >
+                      Next
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
