@@ -4,6 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Input } from "@/components/ui/input"
 import { 
   Calendar, 
   Users, 
@@ -14,9 +15,10 @@ import {
   Activity,
   UserCheck,
   Building2,
-  Clock
+  Clock,
+  Search
 } from "lucide-react"
-import { PieChart as RechartsPieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LineChart, Line } from "recharts"
+import { PieChart as RechartsPieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LineChart, Line, Legend } from "recharts"
 
 // Mock data for different pillars
 const pillars = [
@@ -53,10 +55,16 @@ const mockData = {
       { month: "Jun", participants: 320 }
     ],
     registrationVsAttendance: [
-      { event: "Bootcamp 1", registered: 100, attended: 85 },
-      { event: "Workshop A", registered: 80, attended: 75 },
-      { event: "Seminar B", registered: 120, attended: 95 },
-      { event: "Training C", registered: 90, attended: 80 }
+      { program: "Digital Marketing Bootcamp", registered: 800, attended: 745 },
+      { program: "E-commerce Workshop", registered: 650, attended: 598 },
+      { program: "Business Plan Development", registered: 720, attended: 684 },
+      { program: "Financial Management Course", registered: 580, attended: 522 },
+      { program: "Leadership Training", registered: 490, attended: 441 },
+      { program: "Innovation Lab Session", registered: 380, attended: 342 },
+      { program: "Networking Event", registered: 620, attended: 558 },
+      { program: "Pitch Competition Prep", registered: 310, attended: 279 },
+      { program: "Market Research Workshop", registered: 290, attended: 261 },
+      { program: "Growth Hacking Seminar", registered: 240, attended: 216 }
     ]
   },
   awareness: {
@@ -86,10 +94,16 @@ const mockData = {
       { month: "Jun", participants: 280 }
     ],
     registrationVsAttendance: [
-      { event: "Digital Day", registered: 150, attended: 120 },
-      { event: "Cyber Seminar", registered: 100, attended: 90 },
-      { event: "Tech Talk", registered: 80, attended: 70 },
-      { event: "Awareness Campaign", registered: 200, attended: 180 }
+      { program: "Digital Literacy Workshop", registered: 450, attended: 405 },
+      { program: "Cybersecurity Awareness", registered: 380, attended: 342 },
+      { program: "Social Media Safety", registered: 320, attended: 288 },
+      { program: "Digital Banking Guide", registered: 290, attended: 261 },
+      { program: "Online Privacy Protection", registered: 260, attended: 234 },
+      { program: "Tech for Seniors", registered: 240, attended: 216 },
+      { program: "Digital Communication", registered: 220, attended: 198 },
+      { program: "E-Government Services", registered: 200, attended: 180 },
+      { program: "Smart Device Usage", registered: 180, attended: 162 },
+      { program: "Digital Health Tools", registered: 160, attended: 144 }
     ]
   },
   "lifelong-learning": {
@@ -119,10 +133,16 @@ const mockData = {
       { month: "Jun", participants: 350 }
     ],
     registrationVsAttendance: [
-      { event: "Skills Workshop", registered: 120, attended: 100 },
-      { event: "Certification Prep", registered: 90, attended: 85 },
-      { event: "Professional Course", registered: 110, attended: 95 },
-      { event: "Training Program", registered: 100, attended: 90 }
+      { program: "Professional Certification", registered: 520, attended: 468 },
+      { program: "Technical Skills Training", registered: 480, attended: 432 },
+      { program: "Leadership Development", registered: 440, attended: 396 },
+      { program: "Project Management Course", registered: 400, attended: 360 },
+      { program: "Data Analytics Workshop", registered: 360, attended: 324 },
+      { program: "Communication Skills", registered: 320, attended: 288 },
+      { program: "Time Management", registered: 280, attended: 252 },
+      { program: "Problem Solving Methods", registered: 250, attended: 225 },
+      { program: "Career Development", registered: 220, attended: 198 },
+      { program: "Industry Best Practices", registered: 200, attended: 180 }
     ]
   }
 }
@@ -130,6 +150,7 @@ const mockData = {
 export default function SSODashboard() {
   const [selectedPillar, setSelectedPillar] = useState<string>("")
   const [currentData, setCurrentData] = useState<any>(null)
+  const [locationSearch, setLocationSearch] = useState<string>("")
 
   useEffect(() => {
     if (selectedPillar && mockData[selectedPillar as keyof typeof mockData]) {
@@ -139,6 +160,29 @@ export default function SSODashboard() {
 
   const handlePillarChange = (pillar: string) => {
     setSelectedPillar(pillar)
+  }
+
+  // Filter location data based on search
+  const filteredLocationData = currentData?.eventsByLocation?.filter((item: any) =>
+    item.location.toLowerCase().includes(locationSearch.toLowerCase())
+  ) || []
+
+  // Custom tooltip for Registration vs Attendance
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      const registered = payload.find((p: any) => p.dataKey === 'registered')?.value || 0
+      const attended = payload.find((p: any) => p.dataKey === 'attended')?.value || 0
+      const percentage = registered > 0 ? Math.round((attended / registered) * 100) : 0
+      
+      return (
+        <div className="bg-white p-3 border rounded-lg shadow-lg">
+          <p className="font-medium">{`Programme: ${label}`}</p>
+          <p className="text-blue-600">{`Registered: ${registered}`}</p>
+          <p className="text-green-600">{`Attended: ${attended} (${percentage}%)`}</p>
+        </div>
+      )
+    }
+    return null
   }
 
   if (!selectedPillar) {
@@ -311,9 +355,18 @@ export default function SSODashboard() {
                   Events by Location
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-4">
+                <div className="relative">
+                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search locations..."
+                    value={locationSearch}
+                    onChange={(e) => setLocationSearch(e.target.value)}
+                    className="pl-8"
+                  />
+                </div>
                 <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={currentData.eventsByLocation}>
+                  <BarChart data={filteredLocationData}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="location" />
                     <YAxis />
@@ -351,20 +404,41 @@ export default function SSODashboard() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <BarChart3 className="h-5 w-5" />
-                  Registration vs Attendance
+                  Registration vs Actual Attendance
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={currentData.registrationVsAttendance}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="event" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="registered" fill="#ffc658" name="Registered" />
-                    <Bar dataKey="attended" fill="#8884d8" name="Attended" />
-                  </BarChart>
-                </ResponsiveContainer>
+              <CardContent className="space-y-4">
+                <div className="flex items-center gap-4 text-sm">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-blue-500 rounded"></div>
+                    <span>Registered</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-green-500 rounded"></div>
+                    <span>Attended</span>
+                  </div>
+                </div>
+                <div className="max-h-96 overflow-y-auto">
+                  <ResponsiveContainer width="100%" height={400}>
+                    <BarChart
+                      layout="horizontal"
+                      data={currentData.registrationVsAttendance}
+                      margin={{ top: 20, right: 80, left: 80, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis type="number" />
+                      <YAxis 
+                        type="category" 
+                        dataKey="program" 
+                        width={150}
+                        tick={{ fontSize: 12 }}
+                      />
+                      <Tooltip content={<CustomTooltip />} />
+                      <Bar dataKey="registered" fill="#3b82f6" name="Registered" />
+                      <Bar dataKey="attended" fill="#10b981" name="Attended" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
               </CardContent>
             </Card>
           </div>
