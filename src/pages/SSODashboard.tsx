@@ -317,7 +317,7 @@ export default function SSODashboard() {
           {/* Charts Section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Events by Type */}
-            <Card className="hover-scale">
+            <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <PieChart className="h-5 w-5" />
@@ -348,7 +348,7 @@ export default function SSODashboard() {
             </Card>
 
             {/* Events by Location */}
-            <Card className="hover-scale">
+            <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <MapPin className="h-5 w-5" />
@@ -379,7 +379,7 @@ export default function SSODashboard() {
             </Card>
 
             {/* Participation Trends */}
-            <Card className="hover-scale">
+            <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <TrendingUp className="h-5 w-5" />
@@ -398,175 +398,50 @@ export default function SSODashboard() {
                 </ResponsiveContainer>
               </CardContent>
             </Card>
-          </div>
-          {/* Registration vs Attendance - Full Width Smart Section */}
-          <Card className="w-full animate-fade-in">
-            <CardHeader className="bg-gradient-to-r from-blue-50 to-green-50 dark:from-blue-950 dark:to-green-950">
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-3 text-xl">
-                  <div className="p-2 bg-primary/10 rounded-lg">
-                    <BarChart3 className="h-6 w-6 text-primary" />
-                  </div>
-                  Registration vs Actual Attendance Analysis
+
+            {/* Registration vs Attendance */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5" />
+                  Registration vs Actual Attendance
                 </CardTitle>
-                <Badge variant="secondary" className="text-sm">
-                  {currentData.registrationVsAttendance.length} Programs
-                </Badge>
-              </div>
-              <p className="text-muted-foreground mt-2">
-                Compare registration numbers with actual attendance across all programs
-              </p>
-            </CardHeader>
-            <CardContent className="p-6 space-y-6">
-              {/* Summary Stats */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg text-center hover-scale">
-                  <div className="text-2xl font-bold text-blue-600">
-                    {currentData.registrationVsAttendance.reduce((sum: number, item: any) => sum + item.registered, 0).toLocaleString()}
-                  </div>
-                  <div className="text-sm text-muted-foreground">Total Registered</div>
-                </div>
-                <div className="bg-green-50 dark:bg-green-950/20 p-4 rounded-lg text-center hover-scale">
-                  <div className="text-2xl font-bold text-green-600">
-                    {currentData.registrationVsAttendance.reduce((sum: number, item: any) => sum + item.attended, 0).toLocaleString()}
-                  </div>
-                  <div className="text-sm text-muted-foreground">Total Attended</div>
-                </div>
-                <div className="bg-purple-50 dark:bg-purple-950/20 p-4 rounded-lg text-center hover-scale">
-                  <div className="text-2xl font-bold text-purple-600">
-                    {Math.round((currentData.registrationVsAttendance.reduce((sum: number, item: any) => sum + item.attended, 0) / 
-                    currentData.registrationVsAttendance.reduce((sum: number, item: any) => sum + item.registered, 0)) * 100)}%
-                  </div>
-                  <div className="text-sm text-muted-foreground">Overall Rate</div>
-                </div>
-                <div className="bg-orange-50 dark:bg-orange-950/20 p-4 rounded-lg text-center hover-scale">
-                  <div className="text-2xl font-bold text-orange-600">
-                    {Math.round(currentData.registrationVsAttendance.reduce((sum: number, item: any) => sum + item.attended, 0) / currentData.registrationVsAttendance.length)}
-                  </div>
-                  <div className="text-sm text-muted-foreground">Avg per Program</div>
-                </div>
-              </div>
-
-              {/* Legend and Controls */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-6 text-sm">
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center gap-4 text-sm">
                   <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-blue-500 rounded shadow-lg"></div>
-                    <span className="font-medium">Registered</span>
+                    <div className="w-3 h-3 bg-blue-500 rounded"></div>
+                    <span>Registered</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-green-500 rounded shadow-lg"></div>
-                    <span className="font-medium">Attended</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-gradient-to-r from-blue-500 to-green-500 rounded shadow-lg"></div>
-                    <span className="font-medium">Attendance Rate</span>
+                    <div className="w-3 h-3 bg-green-500 rounded"></div>
+                    <span>Attended</span>
                   </div>
                 </div>
-              </div>
-
-              {/* Enhanced Chart */}
-              <div className="border rounded-lg p-4 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
-                <ResponsiveContainer width="100%" height={600}>
-                  <BarChart
-                    layout="horizontal"
-                    data={currentData.registrationVsAttendance}
-                    margin={{ top: 20, right: 120, left: 200, bottom: 20 }}
-                  >
-                    <defs>
-                      <linearGradient id="registeredGradient" x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.8}/>
-                        <stop offset="100%" stopColor="#1d4ed8" stopOpacity={1}/>
-                      </linearGradient>
-                      <linearGradient id="attendedGradient" x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stopColor="#10b981" stopOpacity={0.8}/>
-                        <stop offset="100%" stopColor="#059669" stopOpacity={1}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                    <XAxis 
-                      type="number" 
-                      tick={{ fontSize: 12 }}
-                      tickFormatter={(value) => value.toLocaleString()}
-                    />
-                    <YAxis 
-                      type="category" 
-                      dataKey="program" 
-                      width={180}
-                      tick={{ fontSize: 11 }}
-                      interval={0}
-                    />
-                    <Tooltip content={<CustomTooltip />} />
-                    <Bar 
-                      dataKey="registered" 
-                      fill="url(#registeredGradient)" 
-                      name="Registered"
-                      radius={[0, 4, 4, 0]}
-                    />
-                    <Bar 
-                      dataKey="attended" 
-                      fill="url(#attendedGradient)" 
-                      name="Attended"
-                      radius={[0, 4, 4, 0]}
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-
-              {/* Program Performance List */}
-              <div className="space-y-3">
-                <h4 className="font-semibold text-lg">Program Performance Breakdown</h4>
-                <div className="grid gap-3 max-h-80 overflow-y-auto">
-                  {currentData.registrationVsAttendance
-                    .sort((a: any, b: any) => (b.attended / b.registered) - (a.attended / a.registered))
-                    .map((program: any, index: number) => {
-                      const percentage = Math.round((program.attended / program.registered) * 100)
-                      const isHighPerforming = percentage >= 85
-                      const isMediumPerforming = percentage >= 70
-                      
-                      return (
-                        <div 
-                          key={program.program} 
-                          className="flex items-center justify-between p-3 bg-card border rounded-lg hover:shadow-md transition-all duration-200 hover-scale"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold ${
-                              isHighPerforming ? 'bg-green-500' : 
-                              isMediumPerforming ? 'bg-yellow-500' : 'bg-red-500'
-                            }`}>
-                              {index + 1}
-                            </div>
-                            <div>
-                              <div className="font-medium text-sm">{program.program}</div>
-                              <div className="text-xs text-muted-foreground">
-                                {program.attended.toLocaleString()} / {program.registered.toLocaleString()} attendees
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-4">
-                            <div className="w-32 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                              <div 
-                                className={`h-2 rounded-full transition-all duration-500 ${
-                                  isHighPerforming ? 'bg-green-500' : 
-                                  isMediumPerforming ? 'bg-yellow-500' : 'bg-red-500'
-                                }`}
-                                style={{ width: `${percentage}%` }}
-                              />
-                            </div>
-                            <div className={`text-sm font-bold ${
-                              isHighPerforming ? 'text-green-600' : 
-                              isMediumPerforming ? 'text-yellow-600' : 'text-red-600'
-                            }`}>
-                              {percentage}%
-                            </div>
-                          </div>
-                        </div>
-                      )
-                    })}
+                <div className="max-h-96 overflow-y-auto">
+                  <ResponsiveContainer width="100%" height={400}>
+                    <BarChart
+                      layout="horizontal"
+                      data={currentData.registrationVsAttendance}
+                      margin={{ top: 20, right: 80, left: 80, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis type="number" />
+                      <YAxis 
+                        type="category" 
+                        dataKey="program" 
+                        width={150}
+                        tick={{ fontSize: 12 }}
+                      />
+                      <Tooltip content={<CustomTooltip />} />
+                      <Bar dataKey="registered" fill="#3b82f6" name="Registered" />
+                      <Bar dataKey="attended" fill="#10b981" name="Attended" />
+                    </BarChart>
+                  </ResponsiveContainer>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
         </>
       )}
     </div>
