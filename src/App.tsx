@@ -6,12 +6,15 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { DashboardLayout } from "./components/layout/DashboardLayout";
+import { SSODashboardLayout } from "./components/layout/SSODashboardLayout";
 import Finance from "./pages/Finance";
 import Membership from "./pages/Membership";
 import SmartServices from "./pages/SmartServices";
 import Operation from "./pages/Operation";
 import Takwim from "./pages/Takwim";
 import Claim from "./pages/Claim";
+import SSODashboard from "./pages/SSODashboard";
+import SSOTakwim from "./pages/SSOTakwim";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +32,11 @@ const App = () => (
           <Route path="/operation" element={<DashboardLayout><Operation /></DashboardLayout>} />
           <Route path="/takwim" element={<DashboardLayout><Takwim /></DashboardLayout>} />
           <Route path="/claim" element={<DashboardLayout><Claim /></DashboardLayout>} />
+          
+          {/* SSO Dashboard Routes */}
+          <Route path="/sso" element={<SSODashboardLayout><SSODashboard /></SSODashboardLayout>} />
+          <Route path="/sso/takwim" element={<SSODashboardLayout><SSOTakwim /></SSODashboardLayout>} />
+          
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
