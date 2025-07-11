@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { PieChart, MapPin, TrendingUp, BarChart3, Search, ChevronLeft, ChevronRight } from "lucide-react"
+import { PieChart, MapPin, TrendingUp, BarChart3, Search, ChevronLeft, ChevronRight, Calendar, Filter } from "lucide-react"
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LineChart, Line, PieChart as RechartsPieChart, Pie, Cell } from "recharts"
 
 // Mock data for different pillars
@@ -34,7 +34,13 @@ const mockData = {
       { month: "Mar", participants: 280 },
       { month: "Apr", participants: 350 },
       { month: "May", participants: 400 },
-      { month: "Jun", participants: 320 }
+      { month: "Jun", participants: 320 },
+      { month: "Jul", participants: 380 },
+      { month: "Aug", participants: 420 },
+      { month: "Sep", participants: 390 },
+      { month: "Oct", participants: 450 },
+      { month: "Nov", participants: 410 },
+      { month: "Dec", participants: 480 }
     ],
     registrationVsAttendance: [
       { event: "Startup Bootcamp", registered: 100, attended: 85, completionRate: 85 },
@@ -68,7 +74,13 @@ const mockData = {
       { month: "Mar", participants: 200 },
       { month: "Apr", participants: 280 },
       { month: "May", participants: 320 },
-      { month: "Jun", participants: 280 }
+      { month: "Jun", participants: 280 },
+      { month: "Jul", participants: 310 },
+      { month: "Aug", participants: 340 },
+      { month: "Sep", participants: 300 },
+      { month: "Oct", participants: 360 },
+      { month: "Nov", participants: 330 },
+      { month: "Dec", participants: 380 }
     ],
     registrationVsAttendance: [
       { event: "Digital Literacy Workshop", registered: 150, attended: 120, completionRate: 80 },
@@ -102,7 +114,13 @@ const mockData = {
       { month: "Mar", participants: 300 },
       { month: "Apr", participants: 320 },
       { month: "May", participants: 380 },
-      { month: "Jun", participants: 350 }
+      { month: "Jun", participants: 350 },
+      { month: "Jul", participants: 400 },
+      { month: "Aug", participants: 430 },
+      { month: "Sep", participants: 410 },
+      { month: "Oct", participants: 470 },
+      { month: "Nov", participants: 450 },
+      { month: "Dec", participants: 500 }
     ],
     registrationVsAttendance: [
       { event: "Professional Development Course", registered: 120, attended: 100, completionRate: 83 },
@@ -125,7 +143,31 @@ export default function SSOEventBreakdown() {
   const [searchLocation, setSearchLocation] = useState<string>("")
   const [searchProgram, setSearchProgram] = useState<string>("")
   const [currentPage, setCurrentPage] = useState<number>(1)
+  const [selectedMonth, setSelectedMonth] = useState<string>("all")
+  const [selectedYear, setSelectedYear] = useState<string>("2024")
   const itemsPerPage = 5
+
+  const months = [
+    { value: "all", label: "All Months" },
+    { value: "01", label: "January" },
+    { value: "02", label: "February" },
+    { value: "03", label: "March" },
+    { value: "04", label: "April" },
+    { value: "05", label: "May" },
+    { value: "06", label: "June" },
+    { value: "07", label: "July" },
+    { value: "08", label: "August" },
+    { value: "09", label: "September" },
+    { value: "10", label: "October" },
+    { value: "11", label: "November" },
+    { value: "12", label: "December" }
+  ]
+
+  const years = [
+    { value: "2024", label: "2024" },
+    { value: "2023", label: "2023" },
+    { value: "2022", label: "2022" }
+  ]
 
   useEffect(() => {
     if (selectedPillar && mockData[selectedPillar as keyof typeof mockData]) {
@@ -137,6 +179,16 @@ export default function SSOEventBreakdown() {
     setSelectedPillar(pillar)
   }
 
+  // Apply filters (except for participation trends)
+  const applyDateFilter = (data: any[]) => {
+    if (selectedMonth === "all") return data
+    // For demo purposes, we'll filter by a simple logic
+    return data.filter((_: any, index: number) => {
+      const monthIndex = parseInt(selectedMonth) - 1
+      return index === monthIndex || selectedMonth === "all"
+    })
+  }
+
   const filteredLocations = currentData?.eventsByLocation.filter((location: any) =>
     location.location.toLowerCase().includes(searchLocation.toLowerCase())
   ) || []
@@ -144,6 +196,11 @@ export default function SSOEventBreakdown() {
   const filteredPrograms = currentData?.registrationVsAttendance.filter((program: any) =>
     program.event.toLowerCase().includes(searchProgram.toLowerCase())
   ) || []
+
+  // Apply date filter to events by type (for demo)
+  const filteredEventsByType = selectedMonth === "all" ? 
+    currentData?.eventsByType || [] :
+    applyDateFilter(currentData?.eventsByType || [])
 
   const totalPages = Math.ceil(filteredPrograms.length / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage
@@ -171,110 +228,83 @@ export default function SSOEventBreakdown() {
               ))}
             </SelectContent>
           </Select>
-          <Badge variant="outline" className="text-primary border-primary">
-            {pillars.find(p => p.id === selectedPillar)?.name}
-          </Badge>
         </div>
       </div>
 
+      {/* Filters Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Filter className="h-5 w-5" />
+            Date Filters
+          </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Filter data by month and year (applies to all sections except Participation Trends)
+          </p>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4" />
+              <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                <SelectTrigger className="w-40">
+                  <SelectValue placeholder="Select Month" />
+                </SelectTrigger>
+                <SelectContent>
+                  {months.map((month) => (
+                    <SelectItem key={month.value} value={month.value}>
+                      {month.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center gap-2">
+              <Select value={selectedYear} onValueChange={setSelectedYear}>
+                <SelectTrigger className="w-32">
+                  <SelectValue placeholder="Select Year" />
+                </SelectTrigger>
+                <SelectContent>
+                  {years.map((year) => (
+                    <SelectItem key={year.value} value={year.value}>
+                      {year.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <Badge variant="outline" className="text-primary border-primary">
+              {selectedMonth === "all" ? "All Data" : `${months.find(m => m.value === selectedMonth)?.label} ${selectedYear}`}
+            </Badge>
+          </div>
+        </CardContent>
+      </Card>
+
       {currentData && (
         <>
-          {/* Charts Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Events by Type */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <PieChart className="h-5 w-5" />
-                  Events by Type
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <RechartsPieChart>
-                    <Pie
-                      data={currentData.eventsByType}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {currentData.eventsByType.map((entry: any, index: number) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </RechartsPieChart>
-                </ResponsiveContainer>
-                <div className="mt-4 grid grid-cols-2 gap-2">
-                  {currentData.eventsByType.map((item: any, index: number) => (
-                    <div key={index} className="flex items-center gap-2">
-                      <div 
-                        className="w-3 h-3 rounded-full" 
-                        style={{ backgroundColor: item.color }}
-                      />
-                      <span className="text-sm">{item.name}: {item.value}</span>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Events by Location with Search */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MapPin className="h-5 w-5" />
-                  Events by Location
-                </CardTitle>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search locations..."
-                    value={searchLocation}
-                    onChange={(e) => setSearchLocation(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={filteredLocations}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="location" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="events" fill="#8884d8" name="Events" />
-                    <Bar dataKey="attendees" fill="#82ca9d" name="Attendees" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            {/* Participation Trends */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5" />
-                  Participation Trends
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={currentData.participationTrends}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="participants" stroke="#8884d8" strokeWidth={2} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </div>
+          {/* Participation Trends - Full Width */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5" />
+                Participation Trends (Full Year)
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Monthly participation trends throughout the year (not affected by date filters)
+              </p>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={400}>
+                <LineChart data={currentData.participationTrends}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <Tooltip />
+                  <Line type="monotone" dataKey="participants" stroke="#8884d8" strokeWidth={3} />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
 
           {/* Registration vs Attendance - Full Width */}
           <Card>
@@ -422,6 +452,82 @@ export default function SSOEventBreakdown() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Charts Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Events by Type */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <PieChart className="h-5 w-5" />
+                  Events by Type
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <RechartsPieChart>
+                    <Pie
+                      data={filteredEventsByType}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {filteredEventsByType.map((entry: any, index: number) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </RechartsPieChart>
+                </ResponsiveContainer>
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  {filteredEventsByType.map((item: any, index: number) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <div 
+                        className="w-3 h-3 rounded-full" 
+                        style={{ backgroundColor: item.color }}
+                      />
+                      <span className="text-sm">{item.name}: {item.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Events by Location with Search */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MapPin className="h-5 w-5" />
+                  Events by Location
+                </CardTitle>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search locations..."
+                    value={searchLocation}
+                    onChange={(e) => setSearchLocation(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={filteredLocations}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="location" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="events" fill="#8884d8" name="Events" />
+                    <Bar dataKey="attendees" fill="#82ca9d" name="Attendees" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
         </>
       )}
     </div>
