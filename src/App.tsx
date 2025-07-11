@@ -16,6 +16,9 @@ import Takwim from "./pages/Takwim";
 import Claim from "./pages/Claim";
 import SSODashboard from "./pages/SSODashboard";
 import SSOTakwim from "./pages/SSOTakwim";
+import SSOEventOverview from "./pages/SSOEventOverview";
+import SSOParticipantStats from "./pages/SSOParticipantStats";
+import SSOEventBreakdown from "./pages/SSOEventBreakdown";
 import { AuthProvider } from "./contexts/AuthContext";
 
 const queryClient = new QueryClient();
@@ -39,6 +42,9 @@ const App = () => (
             
             {/* SSO Dashboard Routes */}
             <Route path="/sso" element={<SSODashboardLayout><SSODashboard /></SSODashboardLayout>} />
+            <Route path="/sso/events" element={<SSODashboardLayout><SSOEventOverview /></SSODashboardLayout>} />
+            <Route path="/sso/participants" element={<SSODashboardLayout><SSOParticipantStats /></SSODashboardLayout>} />
+            <Route path="/sso/breakdown" element={<SSODashboardLayout><SSOEventBreakdown /></SSODashboardLayout>} />
             <Route path="/sso/takwim" element={<SSODashboardLayout><SSOTakwim /></SSODashboardLayout>} />
             
             <Route path="*" element={<NotFound />} />

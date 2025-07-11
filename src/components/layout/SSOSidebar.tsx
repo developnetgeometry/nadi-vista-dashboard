@@ -4,7 +4,9 @@ import {
   BarChart3,
   Calendar,
   ChevronDown,
-  Home
+  Home,
+  Users,
+  PieChart
 } from "lucide-react"
 
 import {
@@ -25,6 +27,9 @@ const navigationItems = [
     title: "SSO Dashboard",
     items: [
       { title: "Dashboard", url: "/sso", icon: BarChart3 },
+      { title: "Event Overview", url: "/sso/events", icon: Calendar },
+      { title: "Participant Stats", url: "/sso/participants", icon: Users },
+      { title: "Event Breakdown", url: "/sso/breakdown", icon: PieChart },
       { title: "Takwim NADI", url: "/sso/takwim", icon: Calendar }
     ]
   }
