@@ -102,7 +102,7 @@ const mockData = {
 }
 
 export default function SSOEventBreakdown() {
-  const [selectedPillar, setSelectedPillar] = useState<string>("")
+  const [selectedPillar, setSelectedPillar] = useState<string>("entrepreneur")
   const [currentData, setCurrentData] = useState<any>(null)
   const [searchLocation, setSearchLocation] = useState<string>("")
 
@@ -119,35 +119,6 @@ export default function SSOEventBreakdown() {
   const filteredLocations = currentData?.eventsByLocation.filter((location: any) =>
     location.location.toLowerCase().includes(searchLocation.toLowerCase())
   ) || []
-
-  if (!selectedPillar) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Card className="w-96">
-          <CardHeader>
-            <CardTitle className="text-center">Select Your Pillar</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-muted-foreground text-center">
-              Please select a pillar to view event breakdown.
-            </p>
-            <Select value={selectedPillar} onValueChange={handlePillarChange}>
-              <SelectTrigger>
-                <SelectValue placeholder="Choose a pillar..." />
-              </SelectTrigger>
-              <SelectContent>
-                {pillars.map((pillar) => (
-                  <SelectItem key={pillar.id} value={pillar.id}>
-                    {pillar.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
 
   return (
     <div className="space-y-6">

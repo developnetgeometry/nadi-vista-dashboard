@@ -106,7 +106,7 @@ const mockData = {
 }
 
 export default function SSOParticipantStats() {
-  const [selectedPillar, setSelectedPillar] = useState<string>("")
+  const [selectedPillar, setSelectedPillar] = useState<string>("entrepreneur")
   const [currentData, setCurrentData] = useState<any>(null)
 
   useEffect(() => {
@@ -117,35 +117,6 @@ export default function SSOParticipantStats() {
 
   const handlePillarChange = (pillar: string) => {
     setSelectedPillar(pillar)
-  }
-
-  if (!selectedPillar) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Card className="w-96">
-          <CardHeader>
-            <CardTitle className="text-center">Select Your Pillar</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-muted-foreground text-center">
-              Please select a pillar to view participant statistics.
-            </p>
-            <Select value={selectedPillar} onValueChange={handlePillarChange}>
-              <SelectTrigger>
-                <SelectValue placeholder="Choose a pillar..." />
-              </SelectTrigger>
-              <SelectContent>
-                {pillars.map((pillar) => (
-                  <SelectItem key={pillar.id} value={pillar.id}>
-                    {pillar.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </CardContent>
-        </Card>
-      </div>
-    )
   }
 
   return (
