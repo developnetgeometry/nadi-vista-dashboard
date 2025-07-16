@@ -8,6 +8,7 @@ import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import { DashboardLayout } from "./components/layout/DashboardLayout";
 import { SSODashboardLayout } from "./components/layout/SSODashboardLayout";
+import { StaffDashboardLayout } from "./components/layout/StaffDashboardLayout";
 import Finance from "./pages/Finance";
 import Membership from "./pages/Membership";
 import SmartServices from "./pages/SmartServices";
@@ -19,6 +20,7 @@ import SSOTakwim from "./pages/SSOTakwim";
 import SSOEventOverview from "./pages/SSOEventOverview";
 import SSOParticipantStats from "./pages/SSOParticipantStats";
 import SSOEventBreakdown from "./pages/SSOEventBreakdown";
+import StaffHome from "./pages/StaffHome";
 import { AuthProvider } from "./contexts/AuthContext";
 
 const queryClient = new QueryClient();
@@ -46,6 +48,9 @@ const App = () => (
             <Route path="/sso/participants" element={<SSODashboardLayout><SSOParticipantStats /></SSODashboardLayout>} />
             <Route path="/sso/breakdown" element={<SSODashboardLayout><SSOEventBreakdown /></SSODashboardLayout>} />
             <Route path="/sso/takwim" element={<SSODashboardLayout><SSOTakwim /></SSODashboardLayout>} />
+            
+            {/* Staff Dashboard Routes */}
+            <Route path="/staff" element={<StaffDashboardLayout><StaffHome /></StaffDashboardLayout>} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>

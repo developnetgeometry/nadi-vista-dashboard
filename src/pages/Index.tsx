@@ -13,6 +13,8 @@ const Index = () => {
         navigate('/operation')
       } else if (userType === 'sso') {
         navigate('/sso')
+      } else if (userType === 'staff') {
+        navigate('/staff')
       }
     } else {
       // Redirect to login if not authenticated

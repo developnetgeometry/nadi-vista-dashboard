@@ -4,10 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useAuth } from "@/contexts/AuthContext"
-import { Building2, Users, Lock, ArrowRight } from "lucide-react"
+import { Building2, Users, UserCheck, Lock, ArrowRight } from "lucide-react"
 
 export default function Login() {
-  const [selectedLoginType, setSelectedLoginType] = useState<'dusp' | 'sso' | null>(null)
+  const [selectedLoginType, setSelectedLoginType] = useState<'dusp' | 'sso' | 'staff' | null>(null)
   const { login } = useAuth()
   const navigate = useNavigate()
 
@@ -17,8 +17,10 @@ export default function Login() {
       // Navigate to appropriate dashboard
       if (selectedLoginType === 'dusp') {
         navigate('/operation') // DUSP dashboard
-      } else {
+      } else if (selectedLoginType === 'sso') {
         navigate('/sso') // SSO dashboard
+      } else if (selectedLoginType === 'staff') {
+        navigate('/staff') // Staff dashboard
       }
     }
   }
@@ -92,6 +94,39 @@ export default function Login() {
                   </div>
                 </div>
                 {selectedLoginType === 'sso' && (
+                  <div className="p-2 bg-primary rounded-full">
+                    <ArrowRight className="h-4 w-4 text-primary-foreground" />
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Staff Login */}
+          <Card 
+            className={`cursor-pointer transition-all duration-200 hover:shadow-lg ${
+              selectedLoginType === 'staff' 
+                ? 'ring-2 ring-primary bg-primary/5' 
+                : 'hover:bg-muted/50'
+            }`}
+            onClick={() => setSelectedLoginType('staff')}
+          >
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-4">
+                <div className="p-3 bg-purple-100 rounded-lg">
+                  <UserCheck className="h-6 w-6 text-purple-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-lg">Staff Login</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Access staff dashboard for Manager and Assistant Manager
+                  </p>
+                  <div className="flex gap-2 mt-2">
+                    <Badge variant="secondary" className="text-xs">HR Module</Badge>
+                    <Badge variant="secondary" className="text-xs">Staff Portal</Badge>
+                  </div>
+                </div>
+                {selectedLoginType === 'staff' && (
                   <div className="p-2 bg-primary rounded-full">
                     <ArrowRight className="h-4 w-4 text-primary-foreground" />
                   </div>

@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 
-export type UserType = 'dusp' | 'sso' | null
+export type UserType = 'dusp' | 'sso' | 'staff' | null
 
 interface AuthContextType {
   userType: UserType
