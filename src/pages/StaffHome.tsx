@@ -23,6 +23,8 @@ import {
 import { NavLink } from "react-router-dom"
 import { useState } from "react"
 import { TrainingSummary } from "@/components/staff/TrainingSummary"
+import { ReplacementLeaveSummary } from "@/components/staff/ReplacementLeaveSummary"
+import { CalendarSummary } from "@/components/staff/CalendarSummary"
 
 const StaffHome = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date())
@@ -215,6 +217,9 @@ const StaffHome = () => {
         </CardContent>
       </Card>
 
+      {/* Replacement Leave Summary */}
+      <ReplacementLeaveSummary />
+
       {/* Attendance Section */}
       <Card className="border-0 shadow-md">
         <CardHeader>
@@ -259,6 +264,9 @@ const StaffHome = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Calendar Summary */}
+      <CalendarSummary />
 
       {/* Payroll Summary */}
       <Card className="border-0 shadow-md">
