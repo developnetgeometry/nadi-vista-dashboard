@@ -22,6 +22,7 @@ import {
 } from "lucide-react"
 import { NavLink } from "react-router-dom"
 import { useState } from "react"
+import { TrainingSummary } from "@/components/staff/TrainingSummary"
 
 const StaffHome = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date())
@@ -292,6 +293,9 @@ const StaffHome = () => {
           </Button>
         </CardContent>
       </Card>
+
+      {/* Training Summary */}
+      <TrainingSummary />
 
       {/* Quick Access Menu */}
       <Card className="border-0 shadow-md">
