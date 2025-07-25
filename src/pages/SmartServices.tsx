@@ -87,33 +87,13 @@ export default function SmartServices() {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      {/* Header Section */}
-      <div className="relative">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl" />
-        <div className="relative p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-blue-100 rounded-xl">
-                <Sparkles className="h-8 w-8 text-blue-600" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  Smart Services Dashboard
-                </h1>
-                <p className="text-sm text-gray-600">DUSP Administrator</p>
-                <p className="text-sm text-gray-500">{new Date().toLocaleDateString('en-GB', { 
-                  weekday: 'long',
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric' 
-                })}</p>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-3xl font-bold text-blue-600">NADI</div>
-              <p className="text-sm text-gray-500">Smart Services Portal</p>
-            </div>
-          </div>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Smart Services Dashboard</h1>
+          <p className="text-muted-foreground">
+            Monitor participation and engagement in smart services programs
+          </p>
         </div>
       </div>
 
