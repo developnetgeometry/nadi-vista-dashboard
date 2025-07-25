@@ -343,7 +343,7 @@ export default function SmartServices() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Building2 className="h-5 w-5 text-blue-600" />
-                  Participant by DUSP
+                  Participant by TP
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -373,7 +373,7 @@ export default function SmartServices() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Building2 className="h-5 w-5 text-blue-600" />
-                  Participant by DUSP
+                  Participant by TP
                 </CardTitle>
               </CardHeader>
               <CardContent>
