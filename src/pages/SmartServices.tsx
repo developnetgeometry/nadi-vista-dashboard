@@ -130,6 +130,17 @@ export default function SmartServices() {
   const [selectedPillar, setSelectedPillar] = useState("NADi x Entrepreneur")
   const [selectedProgram, setSelectedProgram] = useState("all")
   const [programYear, setProgramYear] = useState("all")
+  const [stateSearchTerm, setStateSearchTerm] = useState("")
+  const [raceSearchTerm, setRaceSearchTerm] = useState("")
+
+  // Filter functions
+  const filteredStateData = stateData.filter(state => 
+    state.state.toLowerCase().includes(stateSearchTerm.toLowerCase())
+  )
+  
+  const filteredRaceData = demographicsData.find(d => d.category === "Race")?.data.filter(race =>
+    race.label.toLowerCase().includes(raceSearchTerm.toLowerCase())
+  ) || []
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -336,9 +347,20 @@ export default function SmartServices() {
                     <User className="h-5 w-5 text-blue-600" />
                     By {demographic.category}
                   </CardTitle>
+                  {demographic.category === "Race" && (
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Input
+                        placeholder="Search races..."
+                        value={raceSearchTerm}
+                        onChange={(e) => setRaceSearchTerm(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                  )}
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {demographic.data.map((item, itemIndex) => (
+                  {(demographic.category === "Race" ? filteredRaceData : demographic.data).map((item, itemIndex) => (
                     <div key={itemIndex} className="flex justify-between items-center p-3 rounded-lg hover:bg-gray-50 transition-all">
                       <div className="flex items-center gap-3">
                         <div className="w-2 h-2 rounded-full bg-blue-600"></div>
@@ -395,9 +417,18 @@ export default function SmartServices() {
                   <MapPin className="h-5 w-5 text-blue-600" />
                   Participation by State
                 </CardTitle>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    placeholder="Search states..."
+                    value={stateSearchTerm}
+                    onChange={(e) => setStateSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                {stateData.map((state, index) => (
+                {filteredStateData.map((state, index) => (
                   <div key={index} className="space-y-3 p-3 rounded-lg hover:bg-gray-50 transition-all">
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-2">
@@ -540,9 +571,20 @@ export default function SmartServices() {
                     <User className="h-5 w-5 text-blue-600" />
                     By {demographic.category}
                   </CardTitle>
+                  {demographic.category === "Race" && (
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Input
+                        placeholder="Search races..."
+                        value={raceSearchTerm}
+                        onChange={(e) => setRaceSearchTerm(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                  )}
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {demographic.data.map((item, itemIndex) => (
+                  {(demographic.category === "Race" ? filteredRaceData : demographic.data).map((item, itemIndex) => (
                     <div key={itemIndex} className="flex justify-between items-center p-3 rounded-lg hover:bg-gray-50 transition-all">
                       <div className="flex items-center gap-3">
                         <div className="w-2 h-2 rounded-full bg-blue-600"></div>
@@ -568,9 +610,18 @@ export default function SmartServices() {
                 <MapPin className="h-5 w-5 text-blue-600" />
                 Participation by State
               </CardTitle>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Search states..."
+                  value={stateSearchTerm}
+                  onChange={(e) => setStateSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              {stateData.map((state, index) => (
+              {filteredStateData.map((state, index) => (
                 <div key={index} className="space-y-3 p-3 rounded-lg hover:bg-gray-50 transition-all">
                   <div className="flex justify-between items-center">
                     <div className="flex items-center gap-2">
