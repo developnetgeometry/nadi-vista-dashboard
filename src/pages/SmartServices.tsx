@@ -336,157 +336,38 @@ export default function SmartServices() {
             </CardContent>
           </Card>
 
-          {/* Demographics Breakdown */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {demographicsData.map((demographic, index) => (
-              <Card key={index} className="border-0 shadow-md">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <User className="h-5 w-5 text-blue-600" />
-                    By {demographic.category}
-                  </CardTitle>
-                  {demographic.category === "Race" && (
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                      <Input
-                        placeholder="Search races..."
-                        value={raceSearchTerm}
-                        onChange={(e) => setRaceSearchTerm(e.target.value)}
-                        className="pl-10"
-                      />
-                    </div>
-                  )}
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {(demographic.category === "Race" ? filteredRaceData : demographic.data).map((item, itemIndex) => (
-                    <div key={itemIndex} className="flex justify-between items-center p-3 rounded-lg hover:bg-gray-50 transition-all">
-                      <div className="flex items-center gap-3">
-                        <div className="w-2 h-2 rounded-full bg-blue-600"></div>
-                        <Badge variant="outline" className="text-blue-600 border-blue-200">
-                          {item.label}
-                        </Badge>
-                        <span className="text-sm text-gray-600 font-medium">
-                          {item.count.toLocaleString()}
-                        </span>
-                      </div>
-                      <div className="text-lg font-bold text-blue-600">{item.percentage}%</div>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
 
-          {/* DUSP and State Distribution */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="border-0 shadow-md">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Building2 className="h-5 w-5 text-blue-600" />
-                  Participation by DUSP
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {duspData.map((dusp, index) => (
-                    <div key={index} className="flex justify-between items-center p-4 rounded-lg hover:bg-gray-50 transition-all">
-                      <div className="flex items-center gap-4">
-                        <div className="text-2xl">{dusp.logo}</div>
-                        <div>
-                          <span className="font-semibold">{dusp.name}</span>
-                          <div className="text-xs text-gray-500">Rank #{index + 1}</div>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-xl font-bold text-blue-600">
-                          {dusp.count.toLocaleString()}
-                        </div>
-                        <div className="text-xs text-gray-500">participants</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-0 shadow-md">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MapPin className="h-5 w-5 text-blue-600" />
-                  Participation by State
-                </CardTitle>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input
-                    placeholder="Search states..."
-                    value={stateSearchTerm}
-                    onChange={(e) => setStateSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {filteredStateData.map((state, index) => (
-                  <div key={index} className="space-y-3 p-3 rounded-lg hover:bg-gray-50 transition-all">
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-blue-600"></div>
-                        <span className="font-semibold">{state.state}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg font-bold text-blue-600">
-                          {state.count.toLocaleString()}
-                        </span>
-                        <Badge variant="secondary" className="text-xs">
-                          {state.percentage}%
-                        </Badge>
-                      </div>
-                    </div>
-                    <Progress value={state.percentage} className="h-2" />
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Popular Smart Services */}
+          {/* DUSP Distribution */}
           <Card className="border-0 shadow-md">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-blue-600" />
-                Popular Smart Services
+                <Building2 className="h-5 w-5 text-blue-600" />
+                Participation by DUSP
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {[
-                  { service: "Digital Literacy", participants: 1200, growth: "+15%", icon: "📚" },
-                  { service: "E-Government Services", participants: 980, growth: "+22%", icon: "🏛️" },
-                  { service: "Online Banking", participants: 850, growth: "+8%", icon: "🏦" },
-                  { service: "Digital Health", participants: 750, growth: "+35%", icon: "🏥" },
-                  { service: "E-Commerce", participants: 650, growth: "+18%", icon: "🛒" },
-                  { service: "Social Media", participants: 550, growth: "+12%", icon: "💬" }
-                ].map((service, index) => (
-                  <div key={index} className="text-center p-4 border rounded-lg hover:shadow-sm transition-shadow">
-                    <div className="text-3xl mb-3">{service.icon}</div>
-                    <div>
-                      <p className="font-semibold text-sm mb-1">{service.service}</p>
-                      <p className="text-2xl font-bold text-blue-600">
-                        {service.participants.toLocaleString()}
-                      </p>
-                      <p className="text-xs text-gray-500">participants</p>
+              <div className="space-y-4">
+                {duspData.map((dusp, index) => (
+                  <div key={index} className="flex justify-between items-center p-4 rounded-lg hover:bg-gray-50 transition-all">
+                    <div className="flex items-center gap-4">
+                      <div className="text-2xl">{dusp.logo}</div>
+                      <div>
+                        <span className="font-semibold">{dusp.name}</span>
+                        <div className="text-xs text-gray-500">Rank #{index + 1}</div>
+                      </div>
                     </div>
-                    <div className="mt-2">
-                      <Badge variant="secondary" className="bg-green-100 text-green-600">
-                        <ArrowUp className="h-3 w-3 mr-1" />
-                        {service.growth}
-                      </Badge>
+                    <div className="text-right">
+                      <div className="text-xl font-bold text-blue-600">
+                        {dusp.count.toLocaleString()}
+                      </div>
+                      <div className="text-xs text-gray-500">participants</div>
                     </div>
                   </div>
                 ))}
               </div>
             </CardContent>
           </Card>
+
         </TabsContent>
 
         <TabsContent value="program" className="space-y-6">
