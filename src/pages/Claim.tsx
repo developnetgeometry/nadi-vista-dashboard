@@ -40,19 +40,19 @@ const summaryByTPData = [
 const chartConfig = {
   pending: {
     label: "Pending",
-    color: "hsl(var(--chart-1))",
+    color: "#ff7c43",
   },
   submitted: {
     label: "Submitted", 
-    color: "hsl(var(--chart-2))",
+    color: "#3b82f6",
   },
   processing: {
     label: "Processing",
-    color: "hsl(var(--chart-3))",
+    color: "#f59e0b",
   },
   completed: {
     label: "Completed",
-    color: "hsl(var(--chart-4))",
+    color: "#10b981",
   },
 }
 

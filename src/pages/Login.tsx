@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useAuth } from "@/contexts/AuthContext"
-import { Building2, Users, UserCheck, Lock, ArrowRight } from "lucide-react"
+import { Building2, Users, UserCheck, Lock, ArrowRight, Cpu } from "lucide-react"
 
 export default function Login() {
   const [selectedLoginType, setSelectedLoginType] = useState<'dusp' | 'sso' | 'staff' | 'tp' | null>(null)
@@ -129,6 +129,39 @@ export default function Login() {
                   </div>
                 </div>
                 {selectedLoginType === 'staff' && (
+                  <div className="p-2 bg-primary rounded-full">
+                    <ArrowRight className="h-4 w-4 text-primary-foreground" />
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* TP Login */}
+          <Card 
+            className={`cursor-pointer transition-all duration-200 hover:shadow-lg ${
+              selectedLoginType === 'tp' 
+                ? 'ring-2 ring-primary bg-primary/5' 
+                : 'hover:bg-muted/50'
+            }`}
+            onClick={() => setSelectedLoginType('tp')}
+          >
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-4">
+                <div className="p-3 bg-emerald-100 rounded-lg">
+                  <Cpu className="h-6 w-6 text-emerald-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-lg">TP Login</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Technology Partner dashboard access and management
+                  </p>
+                  <div className="flex gap-2 mt-2">
+                    <Badge variant="secondary" className="text-xs">Partner Access</Badge>
+                    <Badge variant="secondary" className="text-xs">TP Dashboard</Badge>
+                  </div>
+                </div>
+                {selectedLoginType === 'tp' && (
                   <div className="p-2 bg-primary rounded-full">
                     <ArrowRight className="h-4 w-4 text-primary-foreground" />
                   </div>
