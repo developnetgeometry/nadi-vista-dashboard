@@ -20,13 +20,21 @@ const claimStats = [
 const technologyPartnerData = [
   { tp: "TP1", pending: 5, submitted: 3, processing: 2, completed: 8, total: 18 },
   { tp: "TP2", pending: 4, submitted: 2, processing: 1, completed: 4, total: 11 },
-  { tp: "TP3", pending: 3, submitted: 3, processing: 2, completed: 3, total: 11 }
+  { tp: "TP3", pending: 3, submitted: 3, processing: 2, completed: 3, total: 11 },
+  { tp: "TP4", pending: 6, submitted: 4, processing: 3, completed: 7, total: 20 },
+  { tp: "TP5", pending: 2, submitted: 1, processing: 1, completed: 5, total: 9 },
+  { tp: "TP6", pending: 7, submitted: 5, processing: 2, completed: 6, total: 20 },
+  { tp: "TP7", pending: 3, submitted: 2, processing: 4, completed: 9, total: 18 }
 ]
 
 const summaryByTPData = [
   { tp: "TP1", q1: "5/18", q2: "5/18", q3: "5/18", q4: "5/18" },
   { tp: "TP2", q1: "5/18", q2: "5/18", q3: "5/18", q4: "5/18" },
-  { tp: "TP3", q1: "5/18", q2: "5/18", q3: "5/18", q4: "5/18" }
+  { tp: "TP3", q1: "5/18", q2: "5/18", q3: "5/18", q4: "5/18" },
+  { tp: "TP4", q1: "6/20", q2: "6/20", q3: "6/20", q4: "6/20" },
+  { tp: "TP5", q1: "2/9", q2: "2/9", q3: "2/9", q4: "2/9" },
+  { tp: "TP6", q1: "7/20", q2: "7/20", q3: "7/20", q4: "7/20" },
+  { tp: "TP7", q1: "3/18", q2: "3/18", q3: "3/18", q4: "3/18" }
 ]
 
 const chartConfig = {
@@ -157,98 +165,96 @@ export default function Claim() {
             </Card>
 
             {/* Claims by Technology Partner Section */}
-            <div className="space-y-4">
+            <div className="space-y-6">
               <h3 className="text-xl font-semibold">Claims by Technology Partner (TP)</h3>
               
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Stacked Bar Chart */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <BarChart3 className="h-5 w-5" />
-                      Claims Distribution by TP
-                    </CardTitle>
-                    <p className="text-sm text-muted-foreground">Visual breakdown of claim statuses across technology partners</p>
-                  </CardHeader>
-                  <CardContent>
-                    <ChartContainer config={chartConfig} className="h-[350px]">
-                      <BarChart data={technologyPartnerData}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis 
-                          dataKey="tp" 
-                          tickLine={false}
-                          axisLine={false}
-                          className="text-xs"
-                        />
-                        <YAxis 
-                          tickLine={false}
-                          axisLine={false}
-                          className="text-xs"
-                        />
-                        <ChartTooltip content={<ChartTooltipContent />} />
-                        <Bar dataKey="pending" stackId="a" fill="var(--color-pending)" radius={[0, 0, 4, 4]} />
-                        <Bar dataKey="submitted" stackId="a" fill="var(--color-submitted)" />
-                        <Bar dataKey="processing" stackId="a" fill="var(--color-processing)" />
-                        <Bar dataKey="completed" stackId="a" fill="var(--color-completed)" radius={[4, 4, 0, 0]} />
-                      </BarChart>
-                    </ChartContainer>
-                  </CardContent>
-                </Card>
+              {/* Stacked Bar Chart - Full Width */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <BarChart3 className="h-5 w-5" />
+                    Claims Distribution by TP
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">Visual breakdown of claim statuses across all 7 technology partners</p>
+                </CardHeader>
+                <CardContent>
+                  <ChartContainer config={chartConfig} className="h-[400px] w-full">
+                    <BarChart data={technologyPartnerData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis 
+                        dataKey="tp" 
+                        tickLine={false}
+                        axisLine={false}
+                        className="text-xs"
+                      />
+                      <YAxis 
+                        tickLine={false}
+                        axisLine={false}
+                        className="text-xs"
+                      />
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                      <Bar dataKey="pending" stackId="a" fill="var(--color-pending)" radius={[0, 0, 4, 4]} />
+                      <Bar dataKey="submitted" stackId="a" fill="var(--color-submitted)" />
+                      <Bar dataKey="processing" stackId="a" fill="var(--color-processing)" />
+                      <Bar dataKey="completed" stackId="a" fill="var(--color-completed)" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ChartContainer>
+                </CardContent>
+              </Card>
 
-                {/* Data Table */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Detailed Breakdown</CardTitle>
-                    <p className="text-sm text-muted-foreground">Complete statistics for each technology partner</p>
-                  </CardHeader>
-                  <CardContent className="p-0">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="px-6">TP</TableHead>
-                          <TableHead className="text-center">Pending</TableHead>
-                          <TableHead className="text-center">Submitted</TableHead>
-                          <TableHead className="text-center">Processing</TableHead>
-                          <TableHead className="text-center">Completed</TableHead>
-                          <TableHead className="text-center font-semibold">Total</TableHead>
+              {/* Data Table - Full Width */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Detailed Breakdown</CardTitle>
+                  <p className="text-sm text-muted-foreground">Complete statistics for each technology partner with color-coded status indicators</p>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="px-6 w-32">Technology Partner</TableHead>
+                        <TableHead className="text-center w-32">Pending</TableHead>
+                        <TableHead className="text-center w-32">Submitted</TableHead>
+                        <TableHead className="text-center w-32">Processing</TableHead>
+                        <TableHead className="text-center w-32">Completed</TableHead>
+                        <TableHead className="text-center w-32 font-semibold">Total Claims</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {technologyPartnerData.map((tp) => (
+                        <TableRow key={tp.tp} className="hover:bg-muted/50">
+                          <TableCell className="font-medium px-6">{tp.tp}</TableCell>
+                          <TableCell className="text-center">
+                            <Badge variant="secondary" className="bg-orange-50 text-orange-600 border-orange-200 min-w-[40px]">
+                              {tp.pending}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <Badge variant="secondary" className="bg-blue-50 text-blue-600 border-blue-200 min-w-[40px]">
+                              {tp.submitted}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <Badge variant="secondary" className="bg-yellow-50 text-yellow-600 border-yellow-200 min-w-[40px]">
+                              {tp.processing}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <Badge variant="secondary" className="bg-green-50 text-green-600 border-green-200 min-w-[40px]">
+                              {tp.completed}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <Badge variant="outline" className="font-semibold min-w-[40px]">
+                              {tp.total}
+                            </Badge>
+                          </TableCell>
                         </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {technologyPartnerData.map((tp) => (
-                          <TableRow key={tp.tp} className="hover:bg-muted/50">
-                            <TableCell className="font-medium px-6">{tp.tp}</TableCell>
-                            <TableCell className="text-center">
-                              <Badge variant="secondary" className="bg-orange-50 text-orange-600 border-orange-200">
-                                {tp.pending}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <Badge variant="secondary" className="bg-blue-50 text-blue-600 border-blue-200">
-                                {tp.submitted}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <Badge variant="secondary" className="bg-yellow-50 text-yellow-600 border-yellow-200">
-                                {tp.processing}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <Badge variant="secondary" className="bg-green-50 text-green-600 border-green-200">
-                                {tp.completed}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <Badge variant="outline" className="font-semibold">
-                                {tp.total}
-                              </Badge>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </CardContent>
-                </Card>
-              </div>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </TabsContent>
