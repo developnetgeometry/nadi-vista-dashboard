@@ -1,25 +1,32 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Progress } from "@/components/ui/progress"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { NADIInteractiveMap } from "@/components/NADIInteractiveMap"
 import { NADIDistributionMap } from "@/components/NADIDistributionMap"
-import { Settings, TrendingUp, Filter, Download, MapPin, Network, Activity } from "lucide-react"
-import { useState } from "react"
+import { Settings, Building2, Users, MapPin, UserCheck, AlertTriangle, Info, Download, Filter, Search } from "lucide-react"
+import { useState, useMemo } from "react"
 
 const operationStats = [
-  { status: "Total NADI Centers", count: 2156, bgColor: "bg-blue-50", textColor: "text-blue-600", borderColor: "border-blue-200" },
-  { status: "Active Centers", count: 2089, bgColor: "bg-green-50", textColor: "text-green-600", borderColor: "border-green-200" },
-  { status: "Maintenance", count: 45, bgColor: "bg-orange-50", textColor: "text-orange-600", borderColor: "border-orange-200" },
-  { status: "Offline", count: 22, bgColor: "bg-red-50", textColor: "text-red-600", borderColor: "border-red-200" }
+  { title: "Total NADI", count: "1,099", icon: Building2, color: "text-blue-600" },
+  { title: "Open", count: "1,044", icon: Building2, color: "text-green-600" },
+  { title: "Closed", count: "25", icon: Building2, color: "text-red-600" },
+  { title: "Maintenance Open", count: "26", icon: AlertTriangle, color: "text-orange-600" }
 ]
 
+const areaDistribution = [
+  { area: "Urban", count: 440, percentage: 40, color: "bg-blue-500" },
+  { area: "Suburban", count: 330, percentage: 30, color: "bg-green-500" },
+  { area: "Rural", count: 220, percentage: 20, color: "bg-orange-500" },
+  { area: "Remote", count: 109, percentage: 10, color: "bg-red-500" }
+]
+
+// Changed from "Total NADI by TP" to "Total NADI by Region"
 const nadiByRegion = [
   { region: "Northern Region", count: 430, color: "text-blue-600" },
   { region: "Central Region", count: 650, color: "text-green-600" },
@@ -66,220 +73,552 @@ const nadiByTPForRegion = {
   ]
 }
 
-const siteClosure = [
-  { id: "SC001", location: "Kuala Lumpur", reason: "Maintenance", duration: "2 hours", region: "Central Region", startTime: "09:00", endTime: "11:00" },
-  { id: "SC002", location: "Penang", reason: "Network Issue", duration: "30 mins", region: "Northern Region", startTime: "14:30", endTime: "15:00" },
-  { id: "SC003", location: "Johor Bahru", reason: "Power Outage", duration: "1 hour", region: "Southern Region", startTime: "16:00", endTime: "17:00" }
+const officerStats = [
+  { role: "Manager", total: 550, occupied: 520, vacancy: 30 },
+  { role: "Assistant Manager", total: 549, occupied: 489, vacancy: 60 }
+]
+
+const nadiDetails = [
+  {
+    name: "NADI Bukit Jalil",
+    region: "Central Region",
+    status: "Open",
+    parliament: "Bandar Tun Razak",
+    district: "Kuala Lumpur",
+    phase: "Phase 2"
+  },
+  {
+    name: "NADI Petaling Jaya",
+    region: "Central Region", 
+    status: "Open",
+    parliament: "Petaling Jaya",
+    district: "Petaling",
+    phase: "Phase 1"
+  },
+  {
+    name: "NADI Johor Bahru",
+    region: "Southern Region",
+    status: "Maintenance",
+    parliament: "Johor Bahru",
+    district: "Johor Bahru",
+    phase: "Phase 2"
+  }
+]
+
+// Mock data for NADI closures
+const nadiClosures = [
+  {
+    nadiName: "NADI Shah Alam",
+    region: "Central Region",
+    state: "Selangor",
+    district: "Petaling",
+    parliament: "Shah Alam",
+    dun: "Kota Anggerik",
+    reason: "Infrastructure maintenance"
+  },
+  {
+    nadiName: "NADI Ipoh",
+    region: "Northern Region",
+    state: "Perak",
+    district: "Kinta",
+    parliament: "Ipoh Barat",
+    dun: "Canning",
+    reason: "Equipment upgrade"
+  },
+  {
+    nadiName: "NADI Kota Kinabalu",
+    region: "East Malaysia",
+    state: "Sabah",
+    district: "Kota Kinabalu",
+    parliament: "Kota Kinabalu",
+    dun: "Api-Api",
+    reason: "Building renovation"
+  }
+]
+
+// Mock data for open dockets
+const openDockets = [
+  {
+    state: "Selangor",
+    totalNadi: 180,
+    totalDocketOpen: 8
+  },
+  {
+    state: "Kuala Lumpur",
+    totalNadi: 85,
+    totalDocketOpen: 5
+  },
+  {
+    state: "Johor",
+    totalNadi: 150,
+    totalDocketOpen: 4
+  },
+  {
+    state: "Penang",
+    totalNadi: 75,
+    totalDocketOpen: 3
+  },
+  {
+    state: "Perak",
+    totalNadi: 120,
+    totalDocketOpen: 3
+  }
 ]
 
 export default function TPOperation() {
-  const [selectedYear, setSelectedYear] = useState("2024")
-  const [selectedMonth, setSelectedMonth] = useState("All")
+  const [closedDialogOpen, setClosedDialogOpen] = useState(false)
+  const [maintenanceDialogOpen, setMaintenanceDialogOpen] = useState(false)
   const [regionDialogOpen, setRegionDialogOpen] = useState(false)
   const [selectedRegion, setSelectedRegion] = useState<string>("")
+  
+  // Filter states - unified filter
+  const [nadiAreaMonth, setNadiAreaMonth] = useState<string>("all")
+  const [nadiAreaYear, setNadiAreaYear] = useState<string>("all")
+  const [officerFilterMonth, setOfficerFilterMonth] = useState<string>("all")
+  const [officerFilterYear, setOfficerFilterYear] = useState<string>("all")
+  
+  // Search states
+  const [genderSearch, setGenderSearch] = useState<string>("")
+  const [raceSearch, setRaceSearch] = useState<string>("")
+  const [stateSearch, setStateSearch] = useState<string>("")
 
   const downloadCSV = (data: any[], filename: string) => {
+    const headers = Object.keys(data[0])
     const csvContent = [
-      Object.keys(data[0]).join(','),
-      ...data.map(row => Object.values(row).join(','))
+      headers.join(','),
+      ...data.map(row => headers.map(header => `"${row[header]}"`).join(','))
     ].join('\n')
-    
-    const blob = new Blob([csvContent], { type: 'text/csv' })
-    const url = window.URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = filename
-    a.click()
-    window.URL.revokeObjectURL(url)
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    link.setAttribute('href', url)
+    link.setAttribute('download', filename)
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
   }
 
-  const totalCenters = operationStats.reduce((sum, stat) => sum + stat.count, 0)
+  const FilterComponent = ({ 
+    month, 
+    setMonth, 
+    year, 
+    setYear, 
+    title 
+  }: { 
+    month: string; 
+    setMonth: (value: string) => void; 
+    year: string; 
+    setYear: (value: string) => void; 
+    title: string;
+  }) => (
+    <div className="flex items-center gap-2 mb-4">
+      <Filter className="h-4 w-4" />
+      <span className="text-sm font-medium">{title}:</span>
+      <Select value={month} onValueChange={setMonth}>
+        <SelectTrigger className="w-32">
+          <SelectValue placeholder="Month" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All Months</SelectItem>
+          <SelectItem value="01">January</SelectItem>
+          <SelectItem value="02">February</SelectItem>
+          <SelectItem value="03">March</SelectItem>
+          <SelectItem value="04">April</SelectItem>
+          <SelectItem value="05">May</SelectItem>
+          <SelectItem value="06">June</SelectItem>
+          <SelectItem value="07">July</SelectItem>
+          <SelectItem value="08">August</SelectItem>
+          <SelectItem value="09">September</SelectItem>
+          <SelectItem value="10">October</SelectItem>
+          <SelectItem value="11">November</SelectItem>
+          <SelectItem value="12">December</SelectItem>
+        </SelectContent>
+      </Select>
+      <Select value={year} onValueChange={setYear}>
+        <SelectTrigger className="w-24">
+          <SelectValue placeholder="Year" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All Years</SelectItem>
+          <SelectItem value="2024">2024</SelectItem>
+          <SelectItem value="2023">2023</SelectItem>
+          <SelectItem value="2022">2022</SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
+  )
+
+  const SearchComponent = ({ 
+    search, 
+    setSearch, 
+    placeholder 
+  }: { 
+    search: string; 
+    setSearch: (value: string) => void; 
+    placeholder: string;
+  }) => (
+    <div className="relative mb-4">
+      <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+      <Input
+        placeholder={placeholder}
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="pl-8"
+      />
+    </div>
+  )
+
+  // Filter data based on search
+  const filteredGenderData = useMemo(() => {
+    const data = [
+      { gender: "Male", count: 585, percentage: 58 },
+      { gender: "Female", count: 424, percentage: 42 }
+    ]
+    return data.filter(item => 
+      item.gender.toLowerCase().includes(genderSearch.toLowerCase())
+    )
+  }, [genderSearch])
+
+  const filteredRaceData = useMemo(() => {
+    const data = [
+      { race: "Malay", count: 656, percentage: 65 },
+      { race: "Chinese", count: 182, percentage: 18 },
+      { race: "Indian", count: 121, percentage: 12 },
+      { race: "Others", count: 50, percentage: 5 }
+    ]
+    return data.filter(item => 
+      item.race.toLowerCase().includes(raceSearch.toLowerCase())
+    )
+  }, [raceSearch])
+
+  const filteredStateData = useMemo(() => {
+    const data = [
+      { state: "Selangor", count: 180 },
+      { state: "Kuala Lumpur", count: 85 },
+      { state: "Johor", count: 150 },
+      { state: "Penang", count: 75 },
+      { state: "Perak", count: 120 }
+    ]
+    return data.filter(item => 
+      item.state.toLowerCase().includes(stateSearch.toLowerCase())
+    )
+  }, [stateSearch])
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Operation Management</h1>
-          <p className="text-muted-foreground">Monitor and manage NADI center operations for TP</p>
+          <h1 className="text-3xl font-bold tracking-tight">Operation Dashboard</h1>
+          <p className="text-muted-foreground">
+            Monitor NADI operations, maintenance status, and workforce management
+          </p>
         </div>
-        <Button><Download className="h-4 w-4 mr-2" />Export Report</Button>
       </div>
 
-      <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
+      <Tabs defaultValue="operation" className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="operation">Operation</TabsTrigger>
+          <TabsTrigger value="officer">NADI Officer</TabsTrigger>
           <TabsTrigger value="maps">Interactive Maps</TabsTrigger>
-          <TabsTrigger value="closure">Site Closure</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-6">
+        <TabsContent value="operation" className="space-y-6 mt-6">
           {/* Operation Statistics */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <h2 className="text-xl font-semibold">Operation Statistics</h2>
-              <Badge variant="outline">{totalCenters.toLocaleString()} Total Centers</Badge>
-            </div>
-            
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {operationStats.map((stat) => (
-                <Card key={stat.status} className={`${stat.bgColor} ${stat.borderColor} border`}>
-                  <CardContent className="p-6 text-center">
-                    <div className={`text-3xl font-bold ${stat.textColor}`}>{stat.count.toLocaleString()}</div>
-                    <p className={`text-sm font-medium ${stat.textColor} mt-2`}>{stat.status}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {operationStats.map((stat) => (
+              <Card key={stat.title}>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 bg-muted rounded-lg">
+                        <stat.icon className={`h-6 w-6 ${stat.color}`} />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
+                        <p className="text-2xl font-bold">{stat.count}</p>
+                      </div>
+                    </div>
+                    {stat.title === "Closed" && (
+                      <Dialog open={closedDialogOpen} onOpenChange={setClosedDialogOpen}>
+                        <DialogTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <Info className="h-4 w-4" />
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-4xl">
+                          <DialogHeader>
+                            <DialogTitle>NADI Closures</DialogTitle>
+                          </DialogHeader>
+                          <div className="space-y-4">
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead>NADI Name</TableHead>
+                                  <TableHead>Region</TableHead>
+                                  <TableHead>State</TableHead>
+                                  <TableHead>District</TableHead>
+                                  <TableHead>Parliament</TableHead>
+                                  <TableHead>DUN</TableHead>
+                                  <TableHead>Reason</TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {nadiClosures.map((closure, index) => (
+                                  <TableRow key={index}>
+                                    <TableCell className="font-medium">{closure.nadiName}</TableCell>
+                                    <TableCell>{closure.region}</TableCell>
+                                    <TableCell>{closure.state}</TableCell>
+                                    <TableCell>{closure.district}</TableCell>
+                                    <TableCell>{closure.parliament}</TableCell>
+                                    <TableCell>{closure.dun}</TableCell>
+                                    <TableCell>{closure.reason}</TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                            <div className="flex justify-end">
+                              <Button onClick={() => downloadCSV(nadiClosures, 'nadi-closures.csv')}>
+                                <Download className="h-4 w-4 mr-2" />
+                                Download
+                              </Button>
+                            </div>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    )}
+                    {stat.title === "Maintenance Open" && (
+                      <Dialog open={maintenanceDialogOpen} onOpenChange={setMaintenanceDialogOpen}>
+                        <DialogTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <Info className="h-4 w-4" />
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-2xl">
+                          <DialogHeader>
+                            <DialogTitle>Open Dockets</DialogTitle>
+                          </DialogHeader>
+                          <div className="space-y-4">
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead>State</TableHead>
+                                  <TableHead>Total NADI</TableHead>
+                                  <TableHead>Total Docket Open</TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {openDockets.map((docket, index) => (
+                                  <TableRow key={index}>
+                                    <TableCell className="font-medium">{docket.state}</TableCell>
+                                    <TableCell>{docket.totalNadi}</TableCell>
+                                    <TableCell>{docket.totalDocketOpen}</TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                            <div className="flex justify-end">
+                              <Button onClick={() => downloadCSV(openDockets, 'open-dockets.csv')}>
+                                <Download className="h-4 w-4 mr-2" />
+                                Download
+                              </Button>
+                            </div>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
 
-          {/* NADI Distribution by Region */}
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold">NADI Distribution</h2>
-              <div className="flex items-center gap-2">
-                <Filter className="h-4 w-4" />
-                <span className="text-sm text-muted-foreground">Filters:</span>
-                <Select value={selectedYear} onValueChange={setSelectedYear}>
-                  <SelectTrigger className="w-24">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="2024">2024</SelectItem>
-                    <SelectItem value="2023">2023</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                  <SelectTrigger className="w-32">
-                    <SelectValue placeholder="Month" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="All">All Months</SelectItem>
-                    <SelectItem value="Jan">January</SelectItem>
-                    <SelectItem value="Feb">February</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {/* Total NADI by Region */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MapPin className="h-5 w-5" />
-                  Total NADI by Region
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                  {nadiByRegion.map((item) => (
-                    <Card 
-                      key={item.region}
-                      className="cursor-pointer hover:bg-muted/50 transition-colors"
-                      onClick={() => {
-                        setSelectedRegion(item.region)
-                        setRegionDialogOpen(true)
-                      }}
-                    >
-                      <CardContent className="p-4 text-center">
-                        <div className={`text-2xl font-bold ${item.color}`}>{item.count}</div>
-                        <p className="text-sm font-medium text-muted-foreground">{item.region}</p>
-                        <div className="mt-2">
-                          <Progress value={(item.count / 2156) * 100} className="h-2" />
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {((item.count / 2156) * 100).toFixed(1)}%
-                        </p>
-                      </CardContent>
-                    </Card>
-                  ))}
+          {/* NADI by Area */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MapPin className="h-5 w-5" />
+                NADI by Area
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <FilterComponent
+                month={nadiAreaMonth}
+                setMonth={setNadiAreaMonth}
+                year={nadiAreaYear}
+                setYear={setNadiAreaYear}
+                title="Filter"
+              />
+              {areaDistribution.map((area) => (
+                <div key={area.area} className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="font-medium">{area.area}</span>
+                    <span className="text-muted-foreground">
+                      {area.count} centers ({area.percentage}%)
+                    </span>
+                  </div>
+                  <Progress value={area.percentage} className="h-2" />
                 </div>
-              </CardContent>
-            </Card>
+              ))}
+            </CardContent>
+          </Card>
 
-            {/* Performance Metrics */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Activity className="h-5 w-5" />
-                    System Performance
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div>
-                      <div className="flex justify-between text-sm">
-                        <span>Uptime</span>
-                        <span>99.8%</span>
+          {/* Total NADI by Region (Changed from "by TP") */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            {nadiByRegion.map((item) => (
+              <Card 
+                key={item.region}
+                className="cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => {
+                  setSelectedRegion(item.region)
+                  setRegionDialogOpen(true)
+                }}
+              >
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 bg-muted rounded-lg">
+                        <Building2 className={`h-6 w-6 ${item.color}`} />
                       </div>
-                      <Progress value={99.8} className="mt-2" />
-                    </div>
-                    <div>
-                      <div className="flex justify-between text-sm">
-                        <span>Network Quality</span>
-                        <span>95.2%</span>
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">{item.region}</p>
+                        <p className="text-2xl font-bold">{item.count}</p>
                       </div>
-                      <Progress value={95.2} className="mt-2" />
                     </div>
                   </div>
                 </CardContent>
               </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Network className="h-5 w-5" />
-                    Connectivity
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div>
-                      <div className="flex justify-between text-sm">
-                        <span>4G Coverage</span>
-                        <span>98.5%</span>
-                      </div>
-                      <Progress value={98.5} className="mt-2" />
-                    </div>
-                    <div>
-                      <div className="flex justify-between text-sm">
-                        <span>5G Coverage</span>
-                        <span>87.3%</span>
-                      </div>
-                      <Progress value={87.3} className="mt-2" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5" />
-                    Monthly Growth
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div>
-                      <div className="flex justify-between text-sm">
-                        <span>New Centers</span>
-                        <span className="text-green-600">+24</span>
-                      </div>
-                      <Progress value={75} className="mt-2" />
-                    </div>
-                    <div>
-                      <div className="flex justify-between text-sm">
-                        <span>Upgrades</span>
-                        <span className="text-blue-600">+16</span>
-                      </div>
-                      <Progress value={60} className="mt-2" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+            ))}
           </div>
+        </TabsContent>
+
+        <TabsContent value="officer" className="space-y-6 mt-6">
+          {/* Officer Management Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <UserCheck className="h-5 w-5" />
+                Officer Placement Status
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <FilterComponent
+                month={officerFilterMonth}
+                setMonth={setOfficerFilterMonth}
+                year={officerFilterYear}
+                setYear={setOfficerFilterYear}
+                title="Filter"
+              />
+              {officerStats.map((officer) => (
+                <div key={officer.role} className="space-y-3 p-4 border rounded-lg">
+                  <div className="flex justify-between items-center">
+                    <h3 className="font-semibold">{officer.role}</h3>
+                    <Badge variant="outline">{officer.total} Total Positions</Badge>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4 text-sm">
+                    <div>
+                      <span className="text-muted-foreground">Occupied:</span>
+                      <span className="ml-2 font-medium text-green-600">{officer.occupied}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Vacancy:</span>
+                      <span className="ml-2 font-medium text-red-600">{officer.vacancy}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Fill Rate:</span>
+                      <span className="ml-2 font-medium">{((officer.occupied / officer.total) * 100).toFixed(1)}%</span>
+                    </div>
+                  </div>
+                  <Progress value={(officer.occupied / officer.total) * 100} className="h-2" />
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          {/* Gender Distribution */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                Officer Demographics - Gender
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <SearchComponent
+                search={genderSearch}
+                setSearch={setGenderSearch}
+                placeholder="Search gender..."
+              />
+              {filteredGenderData.map((item) => (
+                <div key={item.gender} className="flex justify-between items-center p-3 border rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline">{item.gender}</Badge>
+                    <span className="text-sm text-muted-foreground">
+                      {item.count} officers
+                    </span>
+                  </div>
+                  <div className="text-sm font-medium">{item.percentage}%</div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          {/* Race Distribution */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                Officer Demographics - Race
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <SearchComponent
+                search={raceSearch}
+                setSearch={setRaceSearch}
+                placeholder="Search race..."
+              />
+              {filteredRaceData.map((item) => (
+                <div key={item.race} className="flex justify-between items-center p-3 border rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline">{item.race}</Badge>
+                    <span className="text-sm text-muted-foreground">
+                      {item.count} officers
+                    </span>
+                  </div>
+                  <div className="text-sm font-medium">{item.percentage}%</div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          {/* State Distribution */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MapPin className="h-5 w-5" />
+                Officer Distribution by State
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <SearchComponent
+                search={stateSearch}
+                setSearch={setStateSearch}
+                placeholder="Search state..."
+              />
+              {filteredStateData.map((item) => (
+                <div key={item.state} className="flex justify-between items-center p-3 border rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline">{item.state}</Badge>
+                    <span className="text-sm text-muted-foreground">
+                      {item.count} officers
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="maps" className="space-y-6">
@@ -288,61 +627,9 @@ export default function TPOperation() {
             <NADIDistributionMap />
           </div>
         </TabsContent>
-
-        <TabsContent value="closure" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Site Closure Management</CardTitle>
-              <p className="text-sm text-muted-foreground">Track and manage planned and unplanned site closures</p>
-            </CardHeader>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="px-6">Closure ID</TableHead>
-                    <TableHead>Location</TableHead>
-                    <TableHead>Region</TableHead>
-                    <TableHead>Reason</TableHead>
-                    <TableHead>Duration</TableHead>
-                    <TableHead>Start Time</TableHead>
-                    <TableHead>End Time</TableHead>
-                    <TableHead className="text-center">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {siteClosure.map((closure) => (
-                    <TableRow key={closure.id} className="hover:bg-muted/50">
-                      <TableCell className="font-medium px-6">{closure.id}</TableCell>
-                      <TableCell>{closure.location}</TableCell>
-                      <TableCell>{closure.region}</TableCell>
-                      <TableCell>
-                        <Badge 
-                          variant="secondary" 
-                          className={
-                            closure.reason === "Maintenance" ? "bg-blue-50 text-blue-600 border-blue-200" :
-                            closure.reason === "Network Issue" ? "bg-orange-50 text-orange-600 border-orange-200" :
-                            "bg-red-50 text-red-600 border-red-200"
-                          }
-                        >
-                          {closure.reason}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{closure.duration}</TableCell>
-                      <TableCell>{closure.startTime}</TableCell>
-                      <TableCell>{closure.endTime}</TableCell>
-                      <TableCell className="text-center">
-                        <Button variant="outline" size="sm">View Details</Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
       </Tabs>
 
-      {/* Region Dialog */}
+      {/* Region Dialog - Move outside tabs */}
       <Dialog open={regionDialogOpen} onOpenChange={setRegionDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>

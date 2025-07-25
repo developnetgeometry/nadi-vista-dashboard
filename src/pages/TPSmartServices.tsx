@@ -1,250 +1,486 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Progress } from "@/components/ui/progress"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
-import { Cpu, TrendingUp, Filter, Plus, Activity, Zap, Shield, Globe } from "lucide-react"
+import { 
+  Cpu, 
+  Users, 
+  TrendingUp, 
+  Building2, 
+  User, 
+  MapPin, 
+  Search,
+  Filter,
+  Download,
+  RefreshCw,
+  ArrowUp,
+  BarChart3,
+  Activity,
+  Sparkles,
+  Eye
+} from "lucide-react"
 import { useState } from "react"
-import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts"
 
-const serviceStats = [
-  { status: "Active Services", count: 45, bgColor: "bg-green-50", textColor: "text-green-600", borderColor: "border-green-200" },
-  { status: "Inactive Services", count: 8, bgColor: "bg-red-50", textColor: "text-red-600", borderColor: "border-red-200" },
-  { status: "Pending Approval", count: 3, bgColor: "bg-orange-50", textColor: "text-orange-600", borderColor: "border-orange-200" },
-  { status: "Total Participants", count: 12840, bgColor: "bg-blue-50", textColor: "text-blue-600", borderColor: "border-blue-200" }
+const pillars = [
+  "NADi x Entrepreneur",
+  "NADi x Lifelong Learning", 
+  "NADi x Wellbeing",
+  "NADi x Awareness",
+  "NADi x Government"
 ]
 
-const serviceData = [
-  { name: "Digital Identity", participants: 4500, status: "Active", growth: "+12%", category: "Security" },
-  { name: "IoT Connectivity", participants: 3200, status: "Active", growth: "+8%", category: "Network" },
-  { name: "Cloud Storage", participants: 2800, status: "Active", growth: "+15%", category: "Storage" },
-  { name: "Data Analytics", participants: 1840, status: "Active", growth: "+22%", category: "Analytics" },
-  { name: "Mobile Payment", participants: 500, status: "Inactive", growth: "-5%", category: "Payment" }
-]
-
-const regionData = [
-  { region: "Northern Region", count: 3200, color: "#8884d8" },
-  { region: "Central Region", count: 4500, color: "#82ca9d" },
-  { region: "Southern Region", count: 2800, color: "#ffc658" },
-  { region: "East Coast", count: 1840, color: "#ff7300" },
-  { region: "East Malaysia", count: 500, color: "#00ff88" }
-]
-
-const chartConfig = {
-  participants: {
-    label: "Participants",
-    color: "hsl(var(--chart-1))",
-  }
+const pillarData = {
+  "NADi x Entrepreneur": { participants: 850, total: 7000, percentage: 12.1 },
+  "NADi x Lifelong Learning": { participants: 920, total: 8200, percentage: 11.2 },
+  "NADi x Wellbeing": { participants: 720, total: 6800, percentage: 10.6 },
+  "NADi x Awareness": { participants: 1100, total: 7300, percentage: 15.1 },
+  "NADi x Government": { participants: 390, total: 4200, percentage: 9.3 }
 }
 
-export default function TPSmartServices() {
-  const [selectedYear, setSelectedYear] = useState("2024")
-  const [selectedService, setSelectedService] = useState("All")
-  const [selectedRegion, setSelectedRegion] = useState("All")
+const participantStats = {
+  total: 33500,
+  participants: 3980,
+  percentage: 12
+}
 
-  const totalServices = serviceStats[0].count + serviceStats[1].count + serviceStats[2].count
+const programData = {
+  "NADi x Entrepreneur": [
+    { name: "Program 1", participants: 250, icon: "💼" },
+    { name: "Program 2", participants: 180, icon: "🚀" },
+    { name: "Program 3", participants: 220, icon: "💡" },
+    { name: "Program 4", participants: 200, icon: "📈" }
+  ],
+  "NADi x Lifelong Learning": [
+    { name: "Program 1", participants: 300, icon: "📚" },
+    { name: "Program 2", participants: 250, icon: "🎓" },
+    { name: "Program 3", participants: 200, icon: "🧠" },
+    { name: "Program 4", participants: 170, icon: "💻" }
+  ],
+  "NADi x Wellbeing": [
+    { name: "Program 1", participants: 200, icon: "🏃" },
+    { name: "Program 2", participants: 180, icon: "🧘" },
+    { name: "Program 3", participants: 160, icon: "💚" },
+    { name: "Program 4", participants: 180, icon: "🌱" }
+  ],
+  "NADi x Awareness": [
+    { name: "Program 1", participants: 350, icon: "📢" },
+    { name: "Program 2", participants: 280, icon: "🎯" },
+    { name: "Program 3", participants: 250, icon: "📊" },
+    { name: "Program 4", participants: 220, icon: "🔍" }
+  ],
+  "NADi x Government": [
+    { name: "Program 1", participants: 120, icon: "🏛️" },
+    { name: "Program 2", participants: 100, icon: "📋" },
+    { name: "Program 3", participants: 90, icon: "⚖️" },
+    { name: "Program 4", participants: 80, icon: "🗳️" }
+  ]
+}
+
+const participantCategories = [
+  { category: "Children", count: 1200, percentage: 30, color: "bg-blue-500" },
+  { category: "Youth", count: 1000, percentage: 25, color: "bg-green-500" },
+  { category: "Students", count: 800, percentage: 20, color: "bg-purple-500" },
+  { category: "Women", count: 680, percentage: 17, color: "bg-pink-500" },
+  { category: "OKU", count: 300, percentage: 8, color: "bg-orange-500" }
+]
+
+const demographicsData = [
+  { category: "Gender", data: [
+    { label: "Female", count: 2200, percentage: 55 },
+    { label: "Male", count: 1780, percentage: 45 }
+  ]},
+  { category: "Race", data: [
+    { label: "Malay", count: 2388, percentage: 60 },
+    { label: "Chinese", count: 796, percentage: 20 },
+    { label: "Indian", count: 517, percentage: 13 }
+  ]},
+  { category: "Age Group", data: [
+    { label: "12-17", count: 796, percentage: 20 },
+    { label: "18-25", count: 1194, percentage: 30 },
+    { label: "26-35", count: 955, percentage: 24 },
+    { label: "36-50", count: 716, percentage: 18 },
+    { label: "50+", count: 319, percentage: 8 }
+  ]}
+]
+
+const stateData = [
+  { state: "Selangor", count: 598, percentage: 15 },
+  { state: "Kuala Lumpur", count: 478, percentage: 12 },
+  { state: "Johor", count: 438, percentage: 11 },
+  { state: "Penang", count: 398, percentage: 10 },
+  { state: "Perak", count: 358, percentage: 9 }
+]
+
+export default function TPSmartServices() {
+  const [selectedMonth, setSelectedMonth] = useState("all")
+  const [selectedYear, setSelectedYear] = useState("all")
+  const [selectedPillar, setSelectedPillar] = useState("NADi x Entrepreneur")
+  const [selectedProgram, setSelectedProgram] = useState("all")
+  const [programYear, setProgramYear] = useState("all")
+  const [stateSearchTerm, setStateSearchTerm] = useState("")
+  const [raceSearchTerm, setRaceSearchTerm] = useState("")
+
+  // Filter functions
+  const filteredStateData = stateData.filter(state => 
+    state.state.toLowerCase().includes(stateSearchTerm.toLowerCase())
+  )
+  
+  const filteredRaceData = demographicsData.find(d => d.category === "Race")?.data.filter(race =>
+    race.label.toLowerCase().includes(raceSearchTerm.toLowerCase())
+  ) || []
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 animate-fade-in">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Smart Services</h1>
-          <p className="text-muted-foreground">Monitor and manage smart services for TP participants</p>
+          <h1 className="text-3xl font-bold tracking-tight">Smart Services Dashboard</h1>
+          <p className="text-muted-foreground">
+            Monitor participation and engagement in smart services programs
+          </p>
         </div>
-        <Button><Plus className="h-4 w-4 mr-2" />New Service</Button>
       </div>
 
+      {/* Filters */}
+      <Card className="border-0 shadow-md">
+        <CardContent className="p-6">
+          <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Filter className="h-4 w-4 text-gray-600" />
+                <span className="text-sm font-medium text-gray-700">Filter by:</span>
+              </div>
+              <select 
+                value={selectedMonth} 
+                onChange={(e) => setSelectedMonth(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="all">All Months</option>
+                <option value="01">January</option>
+                <option value="02">February</option>
+                <option value="03">March</option>
+                <option value="04">April</option>
+                <option value="05">May</option>
+                <option value="06">June</option>
+                <option value="07">July</option>
+                <option value="08">August</option>
+                <option value="09">September</option>
+                <option value="10">October</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
+              </select>
+              <select 
+                value={selectedYear} 
+                onChange={(e) => setSelectedYear(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="all">All Years</option>
+                <option value="2024">2024</option>
+                <option value="2023">2023</option>
+                <option value="2022">2022</option>
+                <option value="2021">2021</option>
+              </select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Tabs Section */}
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList>
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="by-region">Participation by Region</TabsTrigger>
+          <TabsTrigger value="program">By Program</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
-          {/* Service Statistics */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <h2 className="text-xl font-semibold">Service Statistics</h2>
-              <Badge variant="outline">{totalServices} Total Services</Badge>
-            </div>
-            
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {serviceStats.map((stat) => (
-                <Card key={stat.status} className={`${stat.bgColor} ${stat.borderColor} border`}>
-                  <CardContent className="p-6 text-center">
-                    <div className={`text-3xl font-bold ${stat.textColor}`}>{stat.count.toLocaleString()}</div>
-                    <p className={`text-sm font-medium ${stat.textColor} mt-2`}>{stat.status}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
+          {/* Key Participation Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Card className="border-0 shadow-md hover:shadow-lg transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Total Participants</p>
+                    <p className="text-3xl font-bold text-blue-600">{participantStats.participants.toLocaleString()}</p>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" size="sm" className="mt-2">
+                          Click More
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-2xl">
+                        <DialogHeader>
+                          <DialogTitle>Participants by Pillars</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          {pillars.map((pillar, index) => (
+                            <div key={index} className="p-4 border rounded-lg">
+                              <div className="flex justify-between items-center mb-2">
+                                <h4 className="font-semibold">{pillar}</h4>
+                                <Badge variant="secondary">{pillarData[pillar].percentage}%</Badge>
+                              </div>
+                              <div className="flex justify-between items-center mb-2">
+                                <span className="text-sm text-gray-600">Participants</span>
+                                <span className="font-bold text-blue-600">{pillarData[pillar].participants.toLocaleString()}</span>
+                              </div>
+                              <div className="flex justify-between items-center mb-2">
+                                <span className="text-sm text-gray-600">Total Citizens</span>
+                                <span className="font-bold text-gray-600">{pillarData[pillar].total.toLocaleString()}</span>
+                              </div>
+                              <Progress value={pillarData[pillar].percentage} className="h-2" />
+                            </div>
+                          ))}
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                  <div className="p-3 bg-blue-100 rounded-xl">
+                    <Users className="h-6 w-6 text-blue-600" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
-          {/* Service Performance */}
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold">Service Performance</h2>
-              <div className="flex items-center gap-2">
-                <Filter className="h-4 w-4" />
-                <span className="text-sm text-muted-foreground">Filters:</span>
-                <Select value={selectedYear} onValueChange={setSelectedYear}>
-                  <SelectTrigger className="w-24">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="2024">2024</SelectItem>
-                    <SelectItem value="2023">2023</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select value={selectedService} onValueChange={setSelectedService}>
-                  <SelectTrigger className="w-32">
-                    <SelectValue placeholder="Service" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="All">All Services</SelectItem>
-                    <SelectItem value="Digital">Digital Identity</SelectItem>
-                    <SelectItem value="IoT">IoT Connectivity</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+            <Card className="border-0 shadow-md hover:shadow-lg transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Participation Rate</p>
+                    <p className="text-3xl font-bold text-green-600">{participantStats.percentage}%</p>
+                  </div>
+                  <div className="p-3 bg-green-100 rounded-xl">
+                    <TrendingUp className="h-6 w-6 text-green-600" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Service Distribution Chart */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Activity className="h-5 w-5" />
-                    Participant Distribution
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ChartContainer config={chartConfig} className="h-[300px]">
-                    <PieChart>
-                      <Pie
-                        data={serviceData.filter(d => d.status === "Active")}
-                        dataKey="participants"
-                        nameKey="name"
-                        cx="50%"
-                        cy="50%"
-                        outerRadius={80}
-                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                      >
-                        {serviceData.filter(d => d.status === "Active").map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={`hsl(var(--chart-${index + 1}))`} />
-                        ))}
-                      </Pie>
-                      <ChartTooltip content={<ChartTooltipContent />} />
-                    </PieChart>
-                  </ChartContainer>
-                </CardContent>
-              </Card>
+            <Card className="border-0 shadow-md hover:shadow-lg transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Total Citizens</p>
+                    <p className="text-3xl font-bold text-purple-600">{participantStats.total.toLocaleString()}</p>
+                  </div>
+                  <div className="p-3 bg-purple-100 rounded-xl">
+                    <User className="h-6 w-6 text-purple-600" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
-              {/* Service Growth Chart */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5" />
-                    Service Growth
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ChartContainer config={chartConfig} className="h-[300px]">
-                    <BarChart data={serviceData.filter(d => d.status === "Active")}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} />
-                      <YAxis />
-                      <ChartTooltip content={<ChartTooltipContent />} />
-                      <Bar dataKey="participants" fill="var(--color-participants)" />
-                    </BarChart>
-                  </ChartContainer>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Service Details Table */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Service Details</CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="px-6">Service Name</TableHead>
-                      <TableHead>Category</TableHead>
-                      <TableHead className="text-center">Participants</TableHead>
-                      <TableHead className="text-center">Growth</TableHead>
-                      <TableHead className="text-center">Status</TableHead>
-                      <TableHead className="text-center">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {serviceData.map((service) => (
-                      <TableRow key={service.name} className="hover:bg-muted/50">
-                        <TableCell className="font-medium px-6">{service.name}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{service.category}</Badge>
-                        </TableCell>
-                        <TableCell className="text-center font-medium">
-                          {service.participants.toLocaleString()}
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <span className={service.growth.startsWith('+') ? 'text-green-600' : 'text-red-600'}>
-                            {service.growth}
-                          </span>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <Badge 
-                            variant="secondary" 
-                            className={
-                              service.status === "Active" 
-                                ? "bg-green-50 text-green-600 border-green-200" 
-                                : "bg-red-50 text-red-600 border-red-200"
-                            }
-                          >
-                            {service.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <Button variant="outline" size="sm">Manage</Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+            <Card className="border-0 shadow-md hover:shadow-lg transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Growth Rate</p>
+                    <p className="text-3xl font-bold text-orange-600">+2.3%</p>
+                  </div>
+                  <div className="p-3 bg-orange-100 rounded-xl">
+                    <ArrowUp className="h-6 w-6 text-orange-600" />
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>
+
+          {/* Participant Categories */}
+          <Card className="border-0 shadow-md">
+            <CardHeader>
+              <div className="flex justify-between items-center">
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="h-5 w-5 text-blue-600" />
+                  Participant Categories
+                </CardTitle>
+                <select 
+                  value={selectedPillar} 
+                  onChange={(e) => setSelectedPillar(e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  {pillars.map((pillar) => (
+                    <option key={pillar} value={pillar}>{pillar}</option>
+                  ))}
+                </select>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {participantCategories.map((category, index) => (
+                <div key={index} className="p-4 border rounded-lg hover:shadow-sm transition-shadow">
+                  <div className="flex justify-between items-center mb-2">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-3 h-3 rounded-full ${category.color}`}></div>
+                      <h4 className="font-medium text-sm">{category.category}</h4>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg font-bold text-blue-600">
+                        {category.count.toLocaleString()}
+                      </span>
+                      <Badge variant="secondary" className="text-xs">
+                        {category.percentage}%
+                      </Badge>
+                    </div>
+                  </div>
+                  <Progress value={category.percentage} className="h-2" />
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          {/* NOTE: Removed "Participant by DUSP" and "Participant by TP" sections as requested */}
+
         </TabsContent>
 
-        <TabsContent value="by-region" className="space-y-6">
-          {/* Regional Participation */}
-          <Card>
+        <TabsContent value="program" className="space-y-6">
+          {/* Program Filters */}
+          <Card className="border-0 shadow-md">
+            <CardContent className="p-6">
+              <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <Filter className="h-4 w-4 text-gray-600" />
+                    <span className="text-sm font-medium text-gray-700">Filter by:</span>
+                  </div>
+                  <select 
+                    value={selectedPillar} 
+                    onChange={(e) => setSelectedPillar(e.target.value)}
+                    className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    {pillars.map((pillar) => (
+                      <option key={pillar} value={pillar}>{pillar}</option>
+                    ))}
+                  </select>
+                  <select 
+                    value={programYear} 
+                    onChange={(e) => setProgramYear(e.target.value)}
+                    className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="all">All Years</option>
+                    <option value="2024">2024</option>
+                    <option value="2023">2023</option>
+                    <option value="2022">2022</option>
+                    <option value="2021">2021</option>
+                  </select>
+                  <select 
+                    value={selectedProgram} 
+                    onChange={(e) => setSelectedProgram(e.target.value)}
+                    className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="all">All Programs</option>
+                    {programData[selectedPillar]?.map((program, index) => (
+                      <option key={index} value={program.name}>{program.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Program Cards */}
+          <Card className="border-0 shadow-md">
             <CardHeader>
-              <CardTitle>Participation by Region</CardTitle>
-              <p className="text-sm text-muted-foreground">Smart service participation across different regions</p>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="h-5 w-5 text-blue-600" />
+                Programs - {selectedPillar}
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                {regionData.map((region) => (
-                  <Card key={region.region} className="text-center">
-                    <CardContent className="p-4">
-                      <div className="text-2xl font-bold text-primary">{region.count.toLocaleString()}</div>
-                      <p className="text-sm font-medium mt-1">{region.region}</p>
-                      <div className="mt-2">
-                        <Progress value={(region.count / 12840) * 100} className="h-2" />
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {((region.count / 12840) * 100).toFixed(1)}%
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {programData[selectedPillar]?.map((program, index) => (
+                  <div key={index} className="text-center p-6 border rounded-lg hover:shadow-sm transition-shadow">
+                    <div className="text-4xl mb-4">{program.icon}</div>
+                    <div>
+                      <p className="font-semibold text-lg mb-2">{program.name}</p>
+                      <p className="text-3xl font-bold text-blue-600">
+                        {program.participants.toLocaleString()}
                       </p>
-                    </CardContent>
-                  </Card>
+                      <p className="text-sm text-gray-500">participants</p>
+                    </div>
+                  </div>
                 ))}
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Demographics for Program Tab */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {demographicsData.map((demographic, index) => (
+              <Card key={index} className="border-0 shadow-md">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <User className="h-5 w-5 text-blue-600" />
+                    By {demographic.category}
+                  </CardTitle>
+                  {demographic.category === "Race" && (
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Input
+                        placeholder="Search races..."
+                        value={raceSearchTerm}
+                        onChange={(e) => setRaceSearchTerm(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                  )}
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {(demographic.category === "Race" ? filteredRaceData : demographic.data).map((item, itemIndex) => (
+                    <div key={itemIndex} className="flex justify-between items-center p-3 rounded-lg hover:bg-gray-50 transition-all">
+                      <div className="flex items-center gap-3">
+                        <div className="w-2 h-2 rounded-full bg-blue-600"></div>
+                        <Badge variant="outline" className="text-blue-600 border-blue-200">
+                          {item.label}
+                        </Badge>
+                        <span className="text-sm text-gray-600 font-medium">
+                          {item.count.toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="text-lg font-bold text-blue-600">{item.percentage}%</div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* State Distribution for Program Tab */}
+          <Card className="border-0 shadow-md">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MapPin className="h-5 w-5 text-blue-600" />
+                Participation by State
+              </CardTitle>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Search states..."
+                  value={stateSearchTerm}
+                  onChange={(e) => setStateSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {filteredStateData.map((state, index) => (
+                <div key={index} className="space-y-3 p-3 rounded-lg hover:bg-gray-50 transition-all">
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-blue-600"></div>
+                      <span className="font-semibold">{state.state}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg font-bold text-blue-600">
+                        {state.count.toLocaleString()}
+                      </span>
+                      <Badge variant="secondary" className="text-xs">
+                        {state.percentage}%
+                      </Badge>
+                    </div>
+                  </div>
+                  <Progress value={state.percentage} className="h-2" />
+                </div>
+              ))}
             </CardContent>
           </Card>
         </TabsContent>
