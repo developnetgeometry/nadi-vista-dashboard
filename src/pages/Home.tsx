@@ -6,20 +6,30 @@ import { CalendarDays, MapPin, Users, Building2, TrendingUp, Activity } from "lu
 import { NADIDistributionMap } from "@/components/NADIDistributionMap"
 
 const statusCards = [
-  { title: "Total NADI", count: "1,069 / 1,099", active: true },
-  { title: "Total Membership", count: "2,149,685", active: false },
-  { title: "Operations Open", count: "1,044", active: false },
-  { title: "Operations Close", count: "25", active: false },
-  { title: "Maintenance Open", count: "26", active: false }
+  { title: "Total NADI", count: "1,069 / 1,099", active: true, remark: "Refer site_profiles table based on - status 'In Operation'/Total NADI" },
+  { title: "Total Membership NADI", count: "2,149,685", active: false, remark: "Refer memberships table" },
+  { title: "Operations Open", count: "1,044", active: false, remark: "Refer site_profiles table based on - status 'In Operation'" },
+  { title: "Operations Close", count: "25", active: false, remark: "Refer site_closures table based on - status 'Temporarily Close'" },
+  { title: "Maintenance Open", count: "26", active: false, remark: "Refer maintenances table based on status 'Open'" }
 ]
 
-const nadiCategories = [
-  { name: "Entrepreneur", percentage: 32, color: "bg-blue-500" },
-  { name: "Lifelong Learning", percentage: 24, color: "bg-green-500" },
-  { name: "Wellbeing", percentage: 18, color: "bg-purple-500" },
-  { name: "Awareness", percentage: 16, color: "bg-orange-500" },
-  { name: "Government", percentage: 10, color: "bg-red-500" }
+const nadi4uCategories = [
+  { name: "NADI x Entrepreneur", count: "3,980", percentage: "12%", remark: "Refer events table for NADI4U" },
+  { name: "NADI x Lifelong Learning", count: "23,261", percentage: "23%", remark: "" },
+  { name: "NADI x Wellbeing", count: "3,627", percentage: "2%", remark: "" },
+  { name: "NADI x Awareness", count: "3,278", percentage: "2%", remark: "" },
+  { name: "NADI x Government", count: "57", percentage: "", remark: "No percentage" }
 ]
+
+const mapDetails = {
+  nadiCenter: "NADI Felda Jengka 9",
+  coordinates: "Lat Long : 3.816610,102.469935",
+  district: "Dun : Pulau Tawar",
+  region: "Region : Timur 1",
+  phase: "Phase : Clawback 2013",
+  status: "Status : In Operation",
+  dusp: "DUSP : TM"
+}
 
 export default function Home() {
   return (
@@ -66,37 +76,64 @@ export default function Home() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* NADI4U Category Breakdown */}
+        {/* NADI4U Programs */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5" />
-              NADI4U Category Breakdown
+              NADI4U Programs
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {nadiCategories.map((category) => (
-              <div key={category.name} className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="font-medium">{category.name}</span>
-                  <span className="text-muted-foreground">{category.percentage}%</span>
+            <p className="text-sm text-muted-foreground mb-4">Display total and percentage and filter by year.</p>
+            {nadi4uCategories.map((category) => (
+              <div key={category.name} className="flex justify-between items-center p-3 border rounded-lg">
+                <div>
+                  <p className="font-medium">{category.name}</p>
+                  <p className="text-lg font-bold">{category.count}</p>
+                  {category.percentage && <p className="text-sm text-muted-foreground">{category.percentage}</p>}
                 </div>
-                <Progress value={category.percentage} className="h-2" />
+                {category.remark && (
+                  <p className="text-xs text-muted-foreground max-w-xs">{category.remark}</p>
+                )}
               </div>
             ))}
           </CardContent>
         </Card>
 
-        {/* NADI Distribution Map */}
+        {/* Maps Section */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <MapPin className="h-5 w-5" />
-              NADI Distribution Map
+              Maps
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <NADIDistributionMap />
+          <CardContent className="space-y-4">
+            <p className="text-sm font-medium mb-3">When click, view detail by NADI as below:</p>
+            <div className="space-y-2 text-sm">
+              <p><span className="font-medium">NADI Center:</span> {mapDetails.nadiCenter}</p>
+              <p><span className="font-medium">Coordinates:</span> {mapDetails.coordinates}</p>
+              <p><span className="font-medium">District:</span> {mapDetails.district}</p>
+              <p><span className="font-medium">Region:</span> {mapDetails.region}</p>
+              <p><span className="font-medium">Phase:</span> {mapDetails.phase}</p>
+              <p><span className="font-medium">Status:</span> {mapDetails.status}</p>
+              <p><span className="font-medium">DUSP:</span> {mapDetails.dusp}</p>
+            </div>
+            <div className="mt-4 p-3 bg-muted rounded-lg">
+              <p className="text-sm">
+                <span className="font-medium">Malaysia Maps</span> - When Zoom In Zoom Out, view total based on:
+              </p>
+              <ul className="text-sm mt-2 space-y-1">
+                <li>• Total NADI by State</li>
+                <li>• Total NADI by District</li>
+                <li>• Total NADI by Parliament</li>
+                <li>• Total NADI by Dun</li>
+              </ul>
+            </div>
+            <Button className="w-full mt-4">
+              <span className="font-medium">View More</span> button - url link to display NADI Dashboard
+            </Button>
           </CardContent>
         </Card>
       </div>

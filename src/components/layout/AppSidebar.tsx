@@ -36,8 +36,7 @@ const navigationItems = [
   {
     title: "Admin Console",
     items: [
-      { title: "Dashboard", url: "/", icon: Home },
-      { title: "Home", url: "/", icon: Home },
+      { title: "Home", url: "/home", icon: Home },
       { title: "Membership", url: "/membership", icon: Users },
       { title: "Smart Services", url: "/smart-services", icon: Cpu },
       { title: "Operation", url: "/operation", icon: Settings },

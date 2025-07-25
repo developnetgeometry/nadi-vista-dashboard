@@ -9,6 +9,7 @@ import NotFound from "./pages/NotFound";
 import { DashboardLayout } from "./components/layout/DashboardLayout";
 import { SSODashboardLayout } from "./components/layout/SSODashboardLayout";
 import { StaffDashboardLayout } from "./components/layout/StaffDashboardLayout";
+import Home from "./pages/Home";
 import Finance from "./pages/Finance";
 import Membership from "./pages/Membership";
 import SmartServices from "./pages/SmartServices";
@@ -35,6 +36,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/home" element={<DashboardLayout><Home /></DashboardLayout>} />
             <Route path="/finance" element={<DashboardLayout><Finance /></DashboardLayout>} />
             <Route path="/membership" element={<DashboardLayout><Membership /></DashboardLayout>} />
             <Route path="/smart-services" element={<DashboardLayout><SmartServices /></DashboardLayout>} />
