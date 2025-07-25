@@ -95,8 +95,7 @@ const demographicsData = [
   { category: "Race", data: [
     { label: "Malay", count: 2388, percentage: 60 },
     { label: "Chinese", count: 796, percentage: 20 },
-    { label: "Indian", count: 517, percentage: 13 },
-    { label: "Others", count: 279, percentage: 7 }
+    { label: "Indian", count: 517, percentage: 13 }
   ]},
   { category: "Age Group", data: [
     { label: "12-17", count: 796, percentage: 20 },
@@ -120,8 +119,7 @@ const stateData = [
   { state: "Kuala Lumpur", count: 478, percentage: 12 },
   { state: "Johor", count: 438, percentage: 11 },
   { state: "Penang", count: 398, percentage: 10 },
-  { state: "Perak", count: 358, percentage: 9 },
-  { state: "Others", count: 1710, percentage: 43 }
+  { state: "Perak", count: 358, percentage: 9 }
 ]
 
 export default function SmartServices() {
