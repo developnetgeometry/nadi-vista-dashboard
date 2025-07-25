@@ -1,197 +1,334 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Progress } from "@/components/ui/progress"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Users, TrendingUp, Filter, UserPlus } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Input } from "@/components/ui/input"
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
+import { Users, TrendingUp, MapPin, Building2, User, UserCheck, Calendar, Filter, Search } from "lucide-react"
 import { useState } from "react"
 
 const membershipStats = [
-  { status: "Active Members", count: 2350, bgColor: "bg-green-50", textColor: "text-green-600", borderColor: "border-green-200" },
-  { status: "Pending Applications", count: 45, bgColor: "bg-orange-50", textColor: "text-orange-600", borderColor: "border-orange-200" },
-  { status: "Suspended Members", count: 12, bgColor: "bg-red-50", textColor: "text-red-600", borderColor: "border-red-200" },
-  { status: "New This Month", count: 128, bgColor: "bg-blue-50", textColor: "text-blue-600", borderColor: "border-blue-200" }
+  { title: "Total NADI Membership", count: "2,150,217", icon: Users },
+  { title: "New Membership (from 01/07/2024)", count: "850,217", icon: UserCheck },
 ]
 
-const memberData = [
-  { id: "001", name: "Ahmad Rahman", email: "ahmad@example.com", region: "Kuala Lumpur", status: "Active", joinDate: "2024-01-15" },
-  { id: "002", name: "Siti Aminah", email: "siti@example.com", region: "Selangor", status: "Active", joinDate: "2024-01-20" },
-  { id: "003", name: "Chen Wei", email: "chen@example.com", region: "Penang", status: "Pending", joinDate: "2024-02-01" },
-  { id: "004", name: "Raj Kumar", email: "raj@example.com", region: "Johor", status: "Active", joinDate: "2024-02-10" },
-  { id: "005", name: "Maria Santos", email: "maria@example.com", region: "Sabah", status: "Suspended", joinDate: "2024-01-05" }
+const demographicsData = [
+  { category: "Gender", data: [
+    { label: "Male", count: 1200000, percentage: 56 },
+    { label: "Female", count: 950217, percentage: 44 }
+  ]},
+  { category: "Age Group", data: [
+    { label: "18-25", count: 450000, percentage: 21 },
+    { label: "26-35", count: 680000, percentage: 32 },
+    { label: "36-45", count: 520000, percentage: 24 },
+    { label: "46-60", count: 380000, percentage: 18 },
+    { label: "60+", count: 120217, percentage: 5 }
+  ]},
+  { category: "Race", data: [
+    { label: "Malay", count: 1290000, percentage: 60 },
+    { label: "Chinese", count: 430000, percentage: 20 },
+    { label: "Indian", count: 280000, percentage: 13 },
+    { label: "Others", count: 150217, percentage: 7 }
+  ]}
+]
+
+const areaData = [
+  { area: "Urban", count: 860000, percentage: 40, color: "bg-blue-500" },
+  { area: "Suburban", count: 650000, percentage: 30, color: "bg-green-500" },
+  { area: "Rural", count: 430000, percentage: 20, color: "bg-orange-500" },
+  { area: "Remote", count: 210217, percentage: 10, color: "bg-red-500" }
+]
+
+const tpData = [
+  { name: "Nera", count: 15420, logo: "🔵" },
+  { name: "Afintra", count: 12350, logo: "🟢" },
+  { name: "Citaglobal", count: 18200, logo: "🟡" },
+  { name: "Perwira", count: 9800, logo: "🔴" },
+  { name: "Samudera", count: 14600, logo: "🟣" },
+  { name: "Sprimtz design", count: 11250, logo: "🟠" },
+  { name: "ETDmakmur", count: 13400, logo: "🔶" }
+]
+
+const tpChartData = tpData.map(tp => ({
+  name: tp.name,
+  value: tp.count
+}))
+
+const okuData = [
+  { label: "Non-OKU", count: 1978200, percentage: 92 },
+  { label: "OKU", count: 172017, percentage: 8 }
+]
+
+const occupationData = [
+  { occupation: "Student", count: 602060, percentage: 28 },
+  { occupation: "Self-employed", count: 473047, percentage: 22 },
+  { occupation: "Private Sector", count: 430043, percentage: 20 },
+  { occupation: "Government", count: 322532, percentage: 15 },
+  { occupation: "Unemployed", count: 322535, percentage: 15 }
 ]
 
 export default function TPMembership() {
-  const [selectedYear, setSelectedYear] = useState("2024")
-  const [selectedRegion, setSelectedRegion] = useState("All")
-  const [selectedStatus, setSelectedStatus] = useState("All")
+  const [raceSearch, setRaceSearch] = useState("")
+  const [occupationSearch, setOccupationSearch] = useState("")
+  const [selectedTP, setSelectedTP] = useState("all")
 
-  const totalMembers = membershipStats.reduce((sum, stat) => sum + stat.count, 0)
+  // Filter functions
+  const filteredRaceData = demographicsData.find(d => d.category === "Race")?.data.filter(item => 
+    item.label.toLowerCase().includes(raceSearch.toLowerCase())
+  ) || []
+
+  const filteredOccupationData = occupationData.filter(item => 
+    item.occupation.toLowerCase().includes(occupationSearch.toLowerCase())
+  )
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Membership Management</h1>
-          <p className="text-muted-foreground">Manage member registrations and profiles for TP</p>
+          <h1 className="text-3xl font-bold tracking-tight">Membership Dashboard</h1>
+          <p className="text-muted-foreground">
+            Monitor membership statistics and demographics across NADI centers
+          </p>
         </div>
-        <Button><UserPlus className="h-4 w-4 mr-2" />Add New Member</Button>
       </div>
 
+      {/* Filters */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex items-center gap-4 flex-wrap">
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium">Filter by:</span>
+            </div>
+            <Select defaultValue="2024">
+              <SelectTrigger className="w-32">
+                <Calendar className="h-4 w-4 mr-2" />
+                <SelectValue placeholder="Year" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="2024">2024</SelectItem>
+                <SelectItem value="2023">2023</SelectItem>
+                <SelectItem value="2022">2022</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select defaultValue="all">
+              <SelectTrigger className="w-40">
+                <Calendar className="h-4 w-4 mr-2" />
+                <SelectValue placeholder="Month" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Months</SelectItem>
+                <SelectItem value="1">January</SelectItem>
+                <SelectItem value="2">February</SelectItem>
+                <SelectItem value="3">March</SelectItem>
+                <SelectItem value="4">April</SelectItem>
+                <SelectItem value="5">May</SelectItem>
+                <SelectItem value="6">June</SelectItem>
+                <SelectItem value="7">July</SelectItem>
+                <SelectItem value="8">August</SelectItem>
+                <SelectItem value="9">September</SelectItem>
+                <SelectItem value="10">October</SelectItem>
+                <SelectItem value="11">November</SelectItem>
+                <SelectItem value="12">December</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Tabs - Remove "Membership by DUSP and TP" tab */}
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList>
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="by-region">Membership by Region</TabsTrigger>
+          <TabsTrigger value="demographic">Membership Demographic</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
-          {/* Total Membership Section */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <h2 className="text-xl font-semibold">Total Membership</h2>
-              <Badge variant="outline">{totalMembers.toLocaleString()} Total</Badge>
-            </div>
-            
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {membershipStats.map((stat) => (
-                <Card key={stat.status} className={`${stat.bgColor} ${stat.borderColor} border`}>
-                  <CardContent className="p-6 text-center">
-                    <div className={`text-3xl font-bold ${stat.textColor}`}>{stat.count.toLocaleString()}</div>
-                    <p className={`text-sm font-medium ${stat.textColor} mt-2`}>{stat.status}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+          {/* Key Membership Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {membershipStats.map((stat) => (
+              <Card key={stat.title}>
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-4">
+                    <div className="p-3 bg-primary/10 rounded-lg">
+                      <stat.icon className="h-8 w-8 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
+                      <p className="text-3xl font-bold">{stat.count}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
 
-          {/* Member List Section */}
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold">Member Directory</h2>
-              <div className="flex items-center gap-2">
-                <Filter className="h-4 w-4" />
-                <span className="text-sm text-muted-foreground">Filters:</span>
-                <Select value={selectedYear} onValueChange={setSelectedYear}>
-                  <SelectTrigger className="w-24">
-                    <SelectValue />
+          {/* New Membership by Area */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MapPin className="h-5 w-5" />
+                New Membership by Area
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {areaData.map((area) => (
+                <div key={area.area} className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="font-medium">{area.area}</span>
+                    <span className="text-muted-foreground">
+                      {area.count.toLocaleString()} ({area.percentage}%)
+                    </span>
+                  </div>
+                  <Progress value={area.percentage} className="h-2" />
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="demographic" className="space-y-6">
+          {/* TP Filter for Demographic Tab */}
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <Filter className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">Filter by TP:</span>
+                </div>
+                <Select value={selectedTP} onValueChange={setSelectedTP}>
+                  <SelectTrigger className="w-40">
+                    <Building2 className="h-4 w-4 mr-2" />
+                    <SelectValue placeholder="Select TP" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="2024">2024</SelectItem>
-                    <SelectItem value="2023">2023</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select value={selectedRegion} onValueChange={setSelectedRegion}>
-                  <SelectTrigger className="w-32">
-                    <SelectValue placeholder="Region" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="All">All Regions</SelectItem>
-                    <SelectItem value="KL">Kuala Lumpur</SelectItem>
-                    <SelectItem value="Selangor">Selangor</SelectItem>
-                    <SelectItem value="Penang">Penang</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                  <SelectTrigger className="w-28">
-                    <SelectValue placeholder="Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="All">All</SelectItem>
-                    <SelectItem value="Active">Active</SelectItem>
-                    <SelectItem value="Pending">Pending</SelectItem>
-                    <SelectItem value="Suspended">Suspended</SelectItem>
+                    <SelectItem value="all">All TPs</SelectItem>
+                    {tpData.map((tp) => (
+                      <SelectItem key={tp.name} value={tp.name}>{tp.name}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
-            </div>
+            </CardContent>
+          </Card>
+
+          {/* Demographics Breakdown */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Gender and Age Group */}
+            {demographicsData.filter(d => d.category !== "Race").map((demographic) => (
+              <Card key={demographic.category}>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <User className="h-5 w-5" />
+                    By {demographic.category}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {demographic.data.map((item) => (
+                    <div key={item.label} className="flex justify-between items-center">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline">{item.label}</Badge>
+                        <span className="text-sm text-muted-foreground">
+                          {item.count.toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="text-sm font-medium">{item.percentage}%</div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            ))}
+
+            {/* Race with Search */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="h-5 w-5" />
+                  By Race
+                </CardTitle>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search race..."
+                    value={raceSearch}
+                    onChange={(e) => setRaceSearch(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {filteredRaceData.map((item) => (
+                  <div key={item.label} className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline">{item.label}</Badge>
+                      <span className="text-sm text-muted-foreground">
+                        {item.count.toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="text-sm font-medium">{item.percentage}%</div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* OKU and Occupation */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="h-5 w-5" />
+                  By OKU Status
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {okuData.map((item) => (
+                  <div key={item.label} className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline">{item.label}</Badge>
+                      <span className="text-sm text-muted-foreground">
+                        {item.count.toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="text-sm font-medium">{item.percentage}%</div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
 
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Users className="h-5 w-5" />
-                  Member List
+                  <User className="h-5 w-5" />
+                  By Occupation
                 </CardTitle>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search occupation..."
+                    value={occupationSearch}
+                    onChange={(e) => setOccupationSearch(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
               </CardHeader>
-              <CardContent className="p-0">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="px-6">Member ID</TableHead>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Region</TableHead>
-                      <TableHead className="text-center">Status</TableHead>
-                      <TableHead>Join Date</TableHead>
-                      <TableHead className="text-center">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {memberData.map((member) => (
-                      <TableRow key={member.id} className="hover:bg-muted/50">
-                        <TableCell className="font-medium px-6">{member.id}</TableCell>
-                        <TableCell className="font-medium">{member.name}</TableCell>
-                        <TableCell>{member.email}</TableCell>
-                        <TableCell>{member.region}</TableCell>
-                        <TableCell className="text-center">
-                          <Badge 
-                            variant="secondary" 
-                            className={
-                              member.status === "Active" ? "bg-green-50 text-green-600 border-green-200" :
-                              member.status === "Pending" ? "bg-orange-50 text-orange-600 border-orange-200" :
-                              "bg-red-50 text-red-600 border-red-200"
-                            }
-                          >
-                            {member.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{member.joinDate}</TableCell>
-                        <TableCell className="text-center">
-                          <Button variant="outline" size="sm">View</Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+              <CardContent className="space-y-4">
+                {filteredOccupationData.map((item) => (
+                  <div key={item.occupation} className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline">{item.occupation}</Badge>
+                      <span className="text-sm text-muted-foreground">
+                        {item.count.toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="text-sm font-medium">{item.percentage}%</div>
+                  </div>
+                ))}
               </CardContent>
             </Card>
           </div>
-        </TabsContent>
-
-        <TabsContent value="by-region" className="space-y-6">
-          {/* Regional Distribution */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Membership by Region</CardTitle>
-              <p className="text-sm text-muted-foreground">Distribution of members across different regions</p>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                {[
-                  { region: "Kuala Lumpur", count: 650, color: "text-blue-600" },
-                  { region: "Selangor", count: 480, color: "text-green-600" },
-                  { region: "Penang", count: 320, color: "text-purple-600" },
-                  { region: "Johor", count: 410, color: "text-orange-600" },
-                  { region: "Sabah", count: 290, color: "text-red-600" },
-                  { region: "Sarawak", count: 200, color: "text-indigo-600" }
-                ].map((region) => (
-                  <Card key={region.region} className="text-center">
-                    <CardContent className="p-4">
-                      <div className={`text-2xl font-bold ${region.color}`}>{region.count}</div>
-                      <p className="text-sm font-medium mt-1">{region.region}</p>
-                      <div className="mt-2">
-                        <Progress value={(region.count / 2350) * 100} className="h-2" />
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {((region.count / 2350) * 100).toFixed(1)}%
-                      </p>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
         </TabsContent>
       </Tabs>
     </div>
