@@ -92,133 +92,163 @@ export default function Claim() {
           </div>
 
           {/* Based on TPs Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold">Based on TPs</h2>
-                <div className="flex items-center gap-2">
-                  <Filter className="h-4 w-4" />
-                  <span className="text-sm text-muted-foreground">Filters:</span>
-                  <Select value={selectedYear} onValueChange={setSelectedYear}>
-                    <SelectTrigger className="w-24">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="2024">2024</SelectItem>
-                      <SelectItem value="2023">2023</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Select value={selectedClaim} onValueChange={setSelectedClaim}>
-                    <SelectTrigger className="w-32">
-                      <SelectValue placeholder="Claim" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="All">All Claims</SelectItem>
-                      <SelectItem value="Pending">Pending</SelectItem>
-                      <SelectItem value="Submitted">Submitted</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Select value={selectedPhase} onValueChange={setSelectedPhase}>
-                    <SelectTrigger className="w-28">
-                      <SelectValue placeholder="Phase" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="All">All</SelectItem>
-                      <SelectItem value="Phase1">Phase 1</SelectItem>
-                      <SelectItem value="Phase2">Phase 2</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-semibold">Based on TPs</h2>
+              <div className="flex items-center gap-2">
+                <Filter className="h-4 w-4" />
+                <span className="text-sm text-muted-foreground">Filters:</span>
+                <Select value={selectedYear} onValueChange={setSelectedYear}>
+                  <SelectTrigger className="w-24">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="2024">2024</SelectItem>
+                    <SelectItem value="2023">2023</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={selectedClaim} onValueChange={setSelectedClaim}>
+                  <SelectTrigger className="w-32">
+                    <SelectValue placeholder="Claim" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="All">All Claims</SelectItem>
+                    <SelectItem value="Pending">Pending</SelectItem>
+                    <SelectItem value="Submitted">Submitted</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={selectedPhase} onValueChange={setSelectedPhase}>
+                  <SelectTrigger className="w-28">
+                    <SelectValue placeholder="Phase" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="All">All</SelectItem>
+                    <SelectItem value="Phase1">Phase 1</SelectItem>
+                    <SelectItem value="Phase2">Phase 2</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <BarChart3 className="h-5 w-5" />
-                    Visual Representation
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="text-sm text-muted-foreground">KPI cards showing the count for each status:</div>
-                  <div className="grid grid-cols-2 gap-4">
-                    {claimStats.map((stat, index) => (
-                      <div key={stat.status} className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span>{stat.status}</span>
-                          <span className="font-medium">{stat.count}/{totalClaims}</span>
-                        </div>
-                        <Progress value={(stat.count / totalClaims) * 100} className="h-2" />
-                      </div>
-                    ))}
-                  </div>
-                  <div className="text-sm text-muted-foreground mt-4">
-                    Progress bar or pie chart for status distribution
-                  </div>
-                </CardContent>
-              </Card>
             </div>
 
-            {/* Claims by Technology Partner Table and Chart */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Claims by Technology Partner (TP)</h3>
-              
-              {/* Stacked Bar Chart */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-sm">Claims Distribution by TP</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ChartContainer config={chartConfig} className="h-[300px]">
-                    <BarChart data={technologyPartnerData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis 
-                        dataKey="tp" 
-                        tickLine={false}
-                        axisLine={false}
-                        className="text-xs"
-                      />
-                      <YAxis 
-                        tickLine={false}
-                        axisLine={false}
-                        className="text-xs"
-                      />
-                      <ChartTooltip content={<ChartTooltipContent />} />
-                      <Bar dataKey="pending" stackId="a" fill="var(--color-pending)" />
-                      <Bar dataKey="submitted" stackId="a" fill="var(--color-submitted)" />
-                      <Bar dataKey="processing" stackId="a" fill="var(--color-processing)" />
-                      <Bar dataKey="completed" stackId="a" fill="var(--color-completed)" />
-                    </BarChart>
-                  </ChartContainer>
-                </CardContent>
-              </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5" />
+                  Visual Representation
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="text-sm text-muted-foreground">KPI cards showing the count for each status:</div>
+                <div className="grid grid-cols-2 gap-4">
+                  {claimStats.map((stat, index) => (
+                    <div key={stat.status} className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>{stat.status}</span>
+                        <span className="font-medium">{stat.count}/{totalClaims}</span>
+                      </div>
+                      <Progress value={(stat.count / totalClaims) * 100} className="h-2" />
+                    </div>
+                  ))}
+                </div>
+                <div className="text-sm text-muted-foreground mt-4">
+                  Progress bar or pie chart for status distribution
+                </div>
+              </CardContent>
+            </Card>
 
-              {/* Data Table */}
-              <Card>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Technology Partner</TableHead>
-                      <TableHead className="text-center">Pending</TableHead>
-                      <TableHead className="text-center">Submitted</TableHead>
-                      <TableHead className="text-center">Processing</TableHead>
-                      <TableHead className="text-center">Completed</TableHead>
-                      <TableHead className="text-center">Total Claims</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {technologyPartnerData.map((tp) => (
-                      <TableRow key={tp.tp}>
-                        <TableCell className="font-medium">{tp.tp}</TableCell>
-                        <TableCell className="text-center">{tp.pending}</TableCell>
-                        <TableCell className="text-center">{tp.submitted}</TableCell>
-                        <TableCell className="text-center">{tp.processing}</TableCell>
-                        <TableCell className="text-center">{tp.completed}</TableCell>
-                        <TableCell className="text-center font-semibold">{tp.total}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </Card>
+            {/* Claims by Technology Partner Section */}
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold">Claims by Technology Partner (TP)</h3>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Stacked Bar Chart */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5" />
+                      Claims Distribution by TP
+                    </CardTitle>
+                    <p className="text-sm text-muted-foreground">Visual breakdown of claim statuses across technology partners</p>
+                  </CardHeader>
+                  <CardContent>
+                    <ChartContainer config={chartConfig} className="h-[350px]">
+                      <BarChart data={technologyPartnerData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis 
+                          dataKey="tp" 
+                          tickLine={false}
+                          axisLine={false}
+                          className="text-xs"
+                        />
+                        <YAxis 
+                          tickLine={false}
+                          axisLine={false}
+                          className="text-xs"
+                        />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Bar dataKey="pending" stackId="a" fill="var(--color-pending)" radius={[0, 0, 4, 4]} />
+                        <Bar dataKey="submitted" stackId="a" fill="var(--color-submitted)" />
+                        <Bar dataKey="processing" stackId="a" fill="var(--color-processing)" />
+                        <Bar dataKey="completed" stackId="a" fill="var(--color-completed)" radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ChartContainer>
+                  </CardContent>
+                </Card>
+
+                {/* Data Table */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Detailed Breakdown</CardTitle>
+                    <p className="text-sm text-muted-foreground">Complete statistics for each technology partner</p>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="px-6">TP</TableHead>
+                          <TableHead className="text-center">Pending</TableHead>
+                          <TableHead className="text-center">Submitted</TableHead>
+                          <TableHead className="text-center">Processing</TableHead>
+                          <TableHead className="text-center">Completed</TableHead>
+                          <TableHead className="text-center font-semibold">Total</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {technologyPartnerData.map((tp) => (
+                          <TableRow key={tp.tp} className="hover:bg-muted/50">
+                            <TableCell className="font-medium px-6">{tp.tp}</TableCell>
+                            <TableCell className="text-center">
+                              <Badge variant="secondary" className="bg-orange-50 text-orange-600 border-orange-200">
+                                {tp.pending}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-center">
+                              <Badge variant="secondary" className="bg-blue-50 text-blue-600 border-blue-200">
+                                {tp.submitted}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-center">
+                              <Badge variant="secondary" className="bg-yellow-50 text-yellow-600 border-yellow-200">
+                                {tp.processing}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-center">
+                              <Badge variant="secondary" className="bg-green-50 text-green-600 border-green-200">
+                                {tp.completed}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-center">
+                              <Badge variant="outline" className="font-semibold">
+                                {tp.total}
+                              </Badge>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
           </div>
         </TabsContent>
