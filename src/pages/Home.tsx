@@ -75,45 +75,43 @@ export default function Home() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* NADI4U Programs */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5" />
-              NADI4U Programs
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground mb-4">Display total and percentage and filter by year.</p>
-            {nadi4uCategories.map((category) => (
-              <div key={category.name} className="flex justify-between items-center p-3 border rounded-lg">
-                <div>
-                  <p className="font-medium">{category.name}</p>
-                  <p className="text-lg font-bold">{category.count}</p>
-                  {category.percentage && <p className="text-sm text-muted-foreground">{category.percentage}</p>}
-                </div>
-                {category.remark && (
-                  <p className="text-xs text-muted-foreground max-w-xs">{category.remark}</p>
-                )}
+      {/* NADI4U Programs */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5" />
+            NADI4U Programs
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground mb-4">Display total and percentage and filter by year.</p>
+          {nadi4uCategories.map((category) => (
+            <div key={category.name} className="flex justify-between items-center p-3 border rounded-lg">
+              <div>
+                <p className="font-medium">{category.name}</p>
+                <p className="text-lg font-bold">{category.count}</p>
+                {category.percentage && <p className="text-sm text-muted-foreground">{category.percentage}</p>}
               </div>
-            ))}
-          </CardContent>
-        </Card>
+              {category.remark && (
+                <p className="text-xs text-muted-foreground max-w-xs">{category.remark}</p>
+              )}
+            </div>
+          ))}
+        </CardContent>
+      </Card>
 
-        {/* Interactive Maps Section */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MapPin className="h-5 w-5" />
-              Interactive NADI Centers Map
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <NADIInteractiveMap />
-          </CardContent>
-        </Card>
-      </div>
+      {/* Interactive Maps Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <MapPin className="h-5 w-5" />
+            Interactive NADI Centers Map
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <NADIInteractiveMap />
+        </CardContent>
+      </Card>
 
       {/* Latest Updates */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
