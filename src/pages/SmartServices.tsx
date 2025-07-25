@@ -338,35 +338,67 @@ export default function SmartServices() {
 
 
           {/* DUSP Distribution */}
-          <Card className="border-0 shadow-md">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Building2 className="h-5 w-5 text-blue-600" />
-                Participation by DUSP
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {duspData.map((dusp, index) => (
-                  <div key={index} className="flex justify-between items-center p-4 rounded-lg hover:bg-gray-50 transition-all">
-                    <div className="flex items-center gap-4">
-                      <div className="text-2xl">{dusp.logo}</div>
-                      <div>
-                        <span className="font-semibold">{dusp.name}</span>
-                        <div className="text-xs text-gray-500">Rank #{index + 1}</div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card className="border-0 shadow-md">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Building2 className="h-5 w-5 text-blue-600" />
+                  Participant by DUSP
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {duspData.map((dusp, index) => (
+                    <div key={index} className="flex justify-between items-center p-4 rounded-lg hover:bg-gray-50 transition-all">
+                      <div className="flex items-center gap-4">
+                        <div className="text-2xl">{dusp.logo}</div>
+                        <div>
+                          <span className="font-semibold">{dusp.name}</span>
+                          <div className="text-xs text-gray-500">Rank #{index + 1}</div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-xl font-bold text-blue-600">
+                          {dusp.count.toLocaleString()}
+                        </div>
+                        <div className="text-xs text-gray-500">participants</div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="text-xl font-bold text-blue-600">
-                        {dusp.count.toLocaleString()}
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-md">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Building2 className="h-5 w-5 text-blue-600" />
+                  Participant by DUSP
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {duspData.map((dusp, index) => (
+                    <div key={index} className="flex justify-between items-center p-4 rounded-lg hover:bg-gray-50 transition-all">
+                      <div className="flex items-center gap-4">
+                        <div className="text-2xl">{dusp.logo}</div>
+                        <div>
+                          <span className="font-semibold">{dusp.name}</span>
+                          <div className="text-xs text-gray-500">Rank #{index + 1}</div>
+                        </div>
                       </div>
-                      <div className="text-xs text-gray-500">participants</div>
+                      <div className="text-right">
+                        <div className="text-xl font-bold text-blue-600">
+                          {dusp.count.toLocaleString()}
+                        </div>
+                        <div className="text-xs text-gray-500">participants</div>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
         </TabsContent>
 
