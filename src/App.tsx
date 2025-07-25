@@ -9,6 +9,7 @@ import NotFound from "./pages/NotFound";
 import { DashboardLayout } from "./components/layout/DashboardLayout";
 import { SSODashboardLayout } from "./components/layout/SSODashboardLayout";
 import { StaffDashboardLayout } from "./components/layout/StaffDashboardLayout";
+import { TPDashboardLayout } from "./components/layout/TPDashboardLayout";
 import Home from "./pages/Home";
 import Finance from "./pages/Finance";
 import Membership from "./pages/Membership";
@@ -22,6 +23,13 @@ import SSOEventOverview from "./pages/SSOEventOverview";
 import SSOParticipantStats from "./pages/SSOParticipantStats";
 import SSOEventBreakdown from "./pages/SSOEventBreakdown";
 import StaffHome from "./pages/StaffHome";
+import TPHome from "./pages/TPHome";
+import TPMembership from "./pages/TPMembership";
+import TPSmartServices from "./pages/TPSmartServices";
+import TPOperation from "./pages/TPOperation";
+import TPTakwim from "./pages/TPTakwim";
+import TPClaim from "./pages/TPClaim";
+import TPFinance from "./pages/TPFinance";
 import { AuthProvider } from "./contexts/AuthContext";
 
 const queryClient = new QueryClient();
@@ -53,6 +61,16 @@ const App = () => (
             
             {/* Staff Dashboard Routes */}
             <Route path="/staff" element={<StaffDashboardLayout><StaffHome /></StaffDashboardLayout>} />
+            
+            {/* TP Dashboard Routes */}
+            <Route path="/tp" element={<TPDashboardLayout><TPHome /></TPDashboardLayout>} />
+            <Route path="/tp/home" element={<TPDashboardLayout><TPHome /></TPDashboardLayout>} />
+            <Route path="/tp/membership" element={<TPDashboardLayout><TPMembership /></TPDashboardLayout>} />
+            <Route path="/tp/smart-services" element={<TPDashboardLayout><TPSmartServices /></TPDashboardLayout>} />
+            <Route path="/tp/operation" element={<TPDashboardLayout><TPOperation /></TPDashboardLayout>} />
+            <Route path="/tp/takwim" element={<TPDashboardLayout><TPTakwim /></TPDashboardLayout>} />
+            <Route path="/tp/claim" element={<TPDashboardLayout><TPClaim /></TPDashboardLayout>} />
+            <Route path="/tp/finance" element={<TPDashboardLayout><TPFinance /></TPDashboardLayout>} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -7,7 +7,7 @@ import { useAuth } from "@/contexts/AuthContext"
 import { Building2, Users, UserCheck, Lock, ArrowRight } from "lucide-react"
 
 export default function Login() {
-  const [selectedLoginType, setSelectedLoginType] = useState<'dusp' | 'sso' | 'staff' | null>(null)
+  const [selectedLoginType, setSelectedLoginType] = useState<'dusp' | 'sso' | 'staff' | 'tp' | null>(null)
   const { login } = useAuth()
   const navigate = useNavigate()
 
@@ -18,9 +18,11 @@ export default function Login() {
       if (selectedLoginType === 'dusp') {
         navigate('/operation') // DUSP dashboard
       } else if (selectedLoginType === 'sso') {
-        navigate('/sso') // SSO dashboard
+        navigate('/sso') // SSO dashboard  
       } else if (selectedLoginType === 'staff') {
         navigate('/staff') // Staff dashboard
+      } else if (selectedLoginType === 'tp') {
+        navigate('/tp') // TP dashboard
       }
     }
   }
