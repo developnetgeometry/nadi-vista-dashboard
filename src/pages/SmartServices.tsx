@@ -187,138 +187,6 @@ export default function SmartServices() {
         </CardContent>
       </Card>
 
-      {/* Key Participation Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="border-0 shadow-md hover:shadow-lg transition-shadow">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Participants</p>
-                <p className="text-3xl font-bold text-blue-600">{participantStats.participants.toLocaleString()}</p>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" size="sm" className="mt-2">
-                      Click More
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-2xl">
-                    <DialogHeader>
-                      <DialogTitle>Participants by Pillars</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      {pillars.map((pillar, index) => (
-                        <div key={index} className="p-4 border rounded-lg">
-                          <div className="flex justify-between items-center mb-2">
-                            <h4 className="font-semibold">{pillar}</h4>
-                            <Badge variant="secondary">{pillarData[pillar].percentage}%</Badge>
-                          </div>
-                          <div className="flex justify-between items-center mb-2">
-                            <span className="text-sm text-gray-600">Participants</span>
-                            <span className="font-bold text-blue-600">{pillarData[pillar].participants.toLocaleString()}</span>
-                          </div>
-                          <div className="flex justify-between items-center mb-2">
-                            <span className="text-sm text-gray-600">Total Citizens</span>
-                            <span className="font-bold text-gray-600">{pillarData[pillar].total.toLocaleString()}</span>
-                          </div>
-                          <Progress value={pillarData[pillar].percentage} className="h-2" />
-                        </div>
-                      ))}
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              </div>
-              <div className="p-3 bg-blue-100 rounded-xl">
-                <Users className="h-6 w-6 text-blue-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-0 shadow-md hover:shadow-lg transition-shadow">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Participation Rate</p>
-                <p className="text-3xl font-bold text-green-600">{participantStats.percentage}%</p>
-              </div>
-              <div className="p-3 bg-green-100 rounded-xl">
-                <TrendingUp className="h-6 w-6 text-green-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-0 shadow-md hover:shadow-lg transition-shadow">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Citizens</p>
-                <p className="text-3xl font-bold text-purple-600">{participantStats.total.toLocaleString()}</p>
-              </div>
-              <div className="p-3 bg-purple-100 rounded-xl">
-                <User className="h-6 w-6 text-purple-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-0 shadow-md hover:shadow-lg transition-shadow">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Growth Rate</p>
-                <p className="text-3xl font-bold text-orange-600">+2.3%</p>
-              </div>
-              <div className="p-3 bg-orange-100 rounded-xl">
-                <ArrowUp className="h-6 w-6 text-orange-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Participant Categories */}
-      <Card className="border-0 shadow-md">
-        <CardHeader>
-          <div className="flex justify-between items-center">
-            <CardTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5 text-blue-600" />
-              Participant Categories
-            </CardTitle>
-            <select 
-              value={selectedPillar} 
-              onChange={(e) => setSelectedPillar(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              {pillars.map((pillar) => (
-                <option key={pillar} value={pillar}>{pillar}</option>
-              ))}
-            </select>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {participantCategories.map((category, index) => (
-            <div key={index} className="p-4 border rounded-lg hover:shadow-sm transition-shadow">
-              <div className="flex justify-between items-center mb-2">
-                <div className="flex items-center gap-3">
-                  <div className={`w-3 h-3 rounded-full ${category.color}`}></div>
-                  <h4 className="font-medium text-sm">{category.category}</h4>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-lg font-bold text-blue-600">
-                    {category.count.toLocaleString()}
-                  </span>
-                  <Badge variant="secondary" className="text-xs">
-                    {category.percentage}%
-                  </Badge>
-                </div>
-              </div>
-              <Progress value={category.percentage} className="h-2" />
-            </div>
-          ))}
-        </CardContent>
-      </Card>
-
       {/* Tabs Section */}
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList className="grid w-full grid-cols-2">
@@ -327,6 +195,138 @@ export default function SmartServices() {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
+          {/* Key Participation Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Card className="border-0 shadow-md hover:shadow-lg transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Total Participants</p>
+                    <p className="text-3xl font-bold text-blue-600">{participantStats.participants.toLocaleString()}</p>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" size="sm" className="mt-2">
+                          Click More
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-2xl">
+                        <DialogHeader>
+                          <DialogTitle>Participants by Pillars</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          {pillars.map((pillar, index) => (
+                            <div key={index} className="p-4 border rounded-lg">
+                              <div className="flex justify-between items-center mb-2">
+                                <h4 className="font-semibold">{pillar}</h4>
+                                <Badge variant="secondary">{pillarData[pillar].percentage}%</Badge>
+                              </div>
+                              <div className="flex justify-between items-center mb-2">
+                                <span className="text-sm text-gray-600">Participants</span>
+                                <span className="font-bold text-blue-600">{pillarData[pillar].participants.toLocaleString()}</span>
+                              </div>
+                              <div className="flex justify-between items-center mb-2">
+                                <span className="text-sm text-gray-600">Total Citizens</span>
+                                <span className="font-bold text-gray-600">{pillarData[pillar].total.toLocaleString()}</span>
+                              </div>
+                              <Progress value={pillarData[pillar].percentage} className="h-2" />
+                            </div>
+                          ))}
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                  <div className="p-3 bg-blue-100 rounded-xl">
+                    <Users className="h-6 w-6 text-blue-600" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-md hover:shadow-lg transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Participation Rate</p>
+                    <p className="text-3xl font-bold text-green-600">{participantStats.percentage}%</p>
+                  </div>
+                  <div className="p-3 bg-green-100 rounded-xl">
+                    <TrendingUp className="h-6 w-6 text-green-600" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-md hover:shadow-lg transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Total Citizens</p>
+                    <p className="text-3xl font-bold text-purple-600">{participantStats.total.toLocaleString()}</p>
+                  </div>
+                  <div className="p-3 bg-purple-100 rounded-xl">
+                    <User className="h-6 w-6 text-purple-600" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-md hover:shadow-lg transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Growth Rate</p>
+                    <p className="text-3xl font-bold text-orange-600">+2.3%</p>
+                  </div>
+                  <div className="p-3 bg-orange-100 rounded-xl">
+                    <ArrowUp className="h-6 w-6 text-orange-600" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Participant Categories */}
+          <Card className="border-0 shadow-md">
+            <CardHeader>
+              <div className="flex justify-between items-center">
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="h-5 w-5 text-blue-600" />
+                  Participant Categories
+                </CardTitle>
+                <select 
+                  value={selectedPillar} 
+                  onChange={(e) => setSelectedPillar(e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  {pillars.map((pillar) => (
+                    <option key={pillar} value={pillar}>{pillar}</option>
+                  ))}
+                </select>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {participantCategories.map((category, index) => (
+                <div key={index} className="p-4 border rounded-lg hover:shadow-sm transition-shadow">
+                  <div className="flex justify-between items-center mb-2">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-3 h-3 rounded-full ${category.color}`}></div>
+                      <h4 className="font-medium text-sm">{category.category}</h4>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg font-bold text-blue-600">
+                        {category.count.toLocaleString()}
+                      </span>
+                      <Badge variant="secondary" className="text-xs">
+                        {category.percentage}%
+                      </Badge>
+                    </div>
+                  </div>
+                  <Progress value={category.percentage} className="h-2" />
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
           {/* Demographics Breakdown */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {demographicsData.map((demographic, index) => (
@@ -419,6 +419,45 @@ export default function SmartServices() {
               </CardContent>
             </Card>
           </div>
+
+          {/* Popular Smart Services */}
+          <Card className="border-0 shadow-md">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-blue-600" />
+                Popular Smart Services
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {[
+                  { service: "Digital Literacy", participants: 1200, growth: "+15%", icon: "📚" },
+                  { service: "E-Government Services", participants: 980, growth: "+22%", icon: "🏛️" },
+                  { service: "Online Banking", participants: 850, growth: "+8%", icon: "🏦" },
+                  { service: "Digital Health", participants: 750, growth: "+35%", icon: "🏥" },
+                  { service: "E-Commerce", participants: 650, growth: "+18%", icon: "🛒" },
+                  { service: "Social Media", participants: 550, growth: "+12%", icon: "💬" }
+                ].map((service, index) => (
+                  <div key={index} className="text-center p-4 border rounded-lg hover:shadow-sm transition-shadow">
+                    <div className="text-3xl mb-3">{service.icon}</div>
+                    <div>
+                      <p className="font-semibold text-sm mb-1">{service.service}</p>
+                      <p className="text-2xl font-bold text-blue-600">
+                        {service.participants.toLocaleString()}
+                      </p>
+                      <p className="text-xs text-gray-500">participants</p>
+                    </div>
+                    <div className="mt-2">
+                      <Badge variant="secondary" className="bg-green-100 text-green-600">
+                        <ArrowUp className="h-3 w-3 mr-1" />
+                        {service.growth}
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="program" className="space-y-6">
@@ -554,45 +593,6 @@ export default function SmartServices() {
           </Card>
         </TabsContent>
       </Tabs>
-
-      {/* Popular Smart Services */}
-      <Card className="border-0 shadow-md">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-blue-600" />
-            Popular Smart Services
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[
-              { service: "Digital Literacy", participants: 1200, growth: "+15%", icon: "📚" },
-              { service: "E-Government Services", participants: 980, growth: "+22%", icon: "🏛️" },
-              { service: "Online Banking", participants: 850, growth: "+8%", icon: "🏦" },
-              { service: "Digital Health", participants: 750, growth: "+35%", icon: "🏥" },
-              { service: "E-Commerce", participants: 650, growth: "+18%", icon: "🛒" },
-              { service: "Social Media", participants: 550, growth: "+12%", icon: "💬" }
-            ].map((service, index) => (
-              <div key={index} className="text-center p-4 border rounded-lg hover:shadow-sm transition-shadow">
-                <div className="text-3xl mb-3">{service.icon}</div>
-                <div>
-                  <p className="font-semibold text-sm mb-1">{service.service}</p>
-                  <p className="text-2xl font-bold text-blue-600">
-                    {service.participants.toLocaleString()}
-                  </p>
-                  <p className="text-xs text-gray-500">participants</p>
-                </div>
-                <div className="mt-2">
-                  <Badge variant="secondary" className="bg-green-100 text-green-600">
-                    <ArrowUp className="h-3 w-3 mr-1" />
-                    {service.growth}
-                  </Badge>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
     </div>
   )
 }
