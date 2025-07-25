@@ -80,7 +80,7 @@ export default function Home() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">{card.title}</p>
-                  
+                  <p className="text-2xl font-bold">{card.count}</p>
                 </div>
               </div>
             </CardContent>
