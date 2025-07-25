@@ -130,25 +130,6 @@ export default function Membership() {
         </CardContent>
       </Card>
 
-      {/* Key Membership Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {membershipStats.map((stat) => (
-          <Card key={stat.title}>
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-4">
-                <div className="p-3 bg-primary/10 rounded-lg">
-                  <stat.icon className="h-8 w-8 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-                  <p className="text-3xl font-bold">{stat.count}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
       {/* Tabs */}
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList className="grid w-full grid-cols-3">
@@ -158,6 +139,25 @@ export default function Membership() {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
+          {/* Key Membership Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {membershipStats.map((stat) => (
+              <Card key={stat.title}>
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-4">
+                    <div className="p-3 bg-primary/10 rounded-lg">
+                      <stat.icon className="h-8 w-8 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
+                      <p className="text-3xl font-bold">{stat.count}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
           {/* New Membership by Area */}
           <Card>
             <CardHeader>
@@ -178,29 +178,6 @@ export default function Membership() {
                   <Progress value={area.percentage} className="h-2" />
                 </div>
               ))}
-            </CardContent>
-          </Card>
-
-          {/* DUSP Distribution */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Building2 className="h-5 w-5" />
-                New Membership by DUSP
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {duspData.map((dusp) => (
-                  <Card key={dusp.name} className="text-center">
-                    <CardContent className="p-4">
-                      <div className="text-3xl mb-2">{dusp.logo}</div>
-                      <p className="font-semibold">{dusp.name}</p>
-                      <p className="text-2xl font-bold text-primary">{dusp.count.toLocaleString()}</p>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
             </CardContent>
           </Card>
         </TabsContent>
