@@ -3,8 +3,10 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Input } from "@/components/ui/input"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
-import { Users, TrendingUp, MapPin, Building2, User, UserCheck, Calendar, Filter } from "lucide-react"
+import { Users, TrendingUp, MapPin, Building2, User, UserCheck, Calendar, Filter, Search } from "lucide-react"
+import { useState } from "react"
 
 const membershipStats = [
   { title: "Total NADI Membership", count: "2,150,217", icon: Users },
@@ -74,6 +76,19 @@ const occupationData = [
 ]
 
 export default function Membership() {
+  const [raceSearch, setRaceSearch] = useState("")
+  const [occupationSearch, setOccupationSearch] = useState("")
+  const [selectedTP, setSelectedTP] = useState("all")
+
+  // Filter functions
+  const filteredRaceData = demographicsData.find(d => d.category === "Race")?.data.filter(item => 
+    item.label.toLowerCase().includes(raceSearch.toLowerCase())
+  ) || []
+
+  const filteredOccupationData = occupationData.filter(item => 
+    item.occupation.toLowerCase().includes(occupationSearch.toLowerCase())
+  )
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -260,9 +275,34 @@ export default function Membership() {
         </TabsContent>
 
         <TabsContent value="demographic" className="space-y-6">
+          {/* TP Filter for Demographic Tab */}
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <Filter className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">Filter by TP:</span>
+                </div>
+                <Select value={selectedTP} onValueChange={setSelectedTP}>
+                  <SelectTrigger className="w-40">
+                    <Building2 className="h-4 w-4 mr-2" />
+                    <SelectValue placeholder="Select TP" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All TPs</SelectItem>
+                    {tpData.map((tp) => (
+                      <SelectItem key={tp.name} value={tp.name}>{tp.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Demographics Breakdown */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {demographicsData.map((demographic) => (
+            {/* Gender and Age Group */}
+            {demographicsData.filter(d => d.category !== "Race").map((demographic) => (
               <Card key={demographic.category}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -285,6 +325,38 @@ export default function Membership() {
                 </CardContent>
               </Card>
             ))}
+
+            {/* Race with Search */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="h-5 w-5" />
+                  By Race
+                </CardTitle>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search race..."
+                    value={raceSearch}
+                    onChange={(e) => setRaceSearch(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {filteredRaceData.map((item) => (
+                  <div key={item.label} className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline">{item.label}</Badge>
+                      <span className="text-sm text-muted-foreground">
+                        {item.count.toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="text-sm font-medium">{item.percentage}%</div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
           </div>
 
           {/* OKU and Occupation */}
@@ -317,9 +389,18 @@ export default function Membership() {
                   <User className="h-5 w-5" />
                   By Occupation
                 </CardTitle>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search occupation..."
+                    value={occupationSearch}
+                    onChange={(e) => setOccupationSearch(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                {occupationData.map((item) => (
+                {filteredOccupationData.map((item) => (
                   <div key={item.occupation} className="flex justify-between items-center">
                     <div className="flex items-center gap-2">
                       <Badge variant="outline">{item.occupation}</Badge>
