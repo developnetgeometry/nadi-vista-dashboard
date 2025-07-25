@@ -1,7 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { Users, TrendingUp, MapPin, Building2, User, UserCheck } from "lucide-react"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
+import { Users, TrendingUp, MapPin, Building2, User, UserCheck, Calendar, Filter } from "lucide-react"
 
 const membershipStats = [
   { title: "Total NADI Membership", count: "2,150,217", icon: Users },
@@ -37,9 +40,37 @@ const areaData = [
 
 const duspData = [
   { name: "TM", count: 540000, logo: "🟦" },
-  { name: "MAXIS", count: 480000, logo: "🟩" },
+  { name: "MAXIS", count: 96634, logo: "🟩" },
   { name: "CELCOMDIGI", count: 390000, logo: "🟨" },
   { name: "REDTONE", count: 340217, logo: "🟥" }
+]
+
+const tpData = [
+  { name: "Nera", count: 15420, logo: "🔵" },
+  { name: "Afintra", count: 12350, logo: "🟢" },
+  { name: "Citaglobal", count: 18200, logo: "🟡" },
+  { name: "Perwira", count: 9800, logo: "🔴" },
+  { name: "Samudera", count: 14600, logo: "🟣" },
+  { name: "Sprimtz design", count: 11250, logo: "🟠" },
+  { name: "ETDmakmur", count: 13400, logo: "🔶" }
+]
+
+const tpChartData = tpData.map(tp => ({
+  name: tp.name,
+  value: tp.count
+}))
+
+const okuData = [
+  { label: "Non-OKU", count: 1978200, percentage: 92 },
+  { label: "OKU", count: 172017, percentage: 8 }
+]
+
+const occupationData = [
+  { occupation: "Student", count: 602060, percentage: 28 },
+  { occupation: "Self-employed", count: 473047, percentage: 22 },
+  { occupation: "Private Sector", count: 430043, percentage: 20 },
+  { occupation: "Government", count: 322532, percentage: 15 },
+  { occupation: "Unemployed", count: 322535, percentage: 15 }
 ]
 
 export default function Membership() {
@@ -54,6 +85,50 @@ export default function Membership() {
           </p>
         </div>
       </div>
+
+      {/* Filters */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex items-center gap-4 flex-wrap">
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium">Filter by:</span>
+            </div>
+            <Select defaultValue="2024">
+              <SelectTrigger className="w-32">
+                <Calendar className="h-4 w-4 mr-2" />
+                <SelectValue placeholder="Year" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="2024">2024</SelectItem>
+                <SelectItem value="2023">2023</SelectItem>
+                <SelectItem value="2022">2022</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select defaultValue="all">
+              <SelectTrigger className="w-40">
+                <Calendar className="h-4 w-4 mr-2" />
+                <SelectValue placeholder="Month" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Months</SelectItem>
+                <SelectItem value="1">January</SelectItem>
+                <SelectItem value="2">February</SelectItem>
+                <SelectItem value="3">March</SelectItem>
+                <SelectItem value="4">April</SelectItem>
+                <SelectItem value="5">May</SelectItem>
+                <SelectItem value="6">June</SelectItem>
+                <SelectItem value="7">July</SelectItem>
+                <SelectItem value="8">August</SelectItem>
+                <SelectItem value="9">September</SelectItem>
+                <SelectItem value="10">October</SelectItem>
+                <SelectItem value="11">November</SelectItem>
+                <SelectItem value="12">December</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Key Membership Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -74,126 +149,215 @@ export default function Membership() {
         ))}
       </div>
 
-      {/* New Membership by Area */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MapPin className="h-5 w-5" />
-            New Membership by Area
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {areaData.map((area) => (
-            <div key={area.area} className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="font-medium">{area.area}</span>
-                <span className="text-muted-foreground">
-                  {area.count.toLocaleString()} ({area.percentage}%)
-                </span>
-              </div>
-              <Progress value={area.percentage} className="h-2" />
-            </div>
-          ))}
-        </CardContent>
-      </Card>
+      {/* Tabs */}
+      <Tabs defaultValue="overview" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="dusp-tp">Membership by DUSP and TP</TabsTrigger>
+          <TabsTrigger value="demographic">Membership Demographic</TabsTrigger>
+        </TabsList>
 
-      {/* DUSP Distribution */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Building2 className="h-5 w-5" />
-            New Membership by DUSP
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {duspData.map((dusp) => (
-              <Card key={dusp.name} className="text-center">
-                <CardContent className="p-4">
-                  <div className="text-3xl mb-2">{dusp.logo}</div>
-                  <p className="font-semibold">{dusp.name}</p>
-                  <p className="text-2xl font-bold text-primary">{dusp.count.toLocaleString()}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Demographics Breakdown */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {demographicsData.map((demographic) => (
-          <Card key={demographic.category}>
+        <TabsContent value="overview" className="space-y-6">
+          {/* New Membership by Area */}
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5" />
-                By {demographic.category}
+                <MapPin className="h-5 w-5" />
+                New Membership by Area
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {demographic.data.map((item) => (
-                <div key={item.label} className="flex justify-between items-center">
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline">{item.label}</Badge>
-                    <span className="text-sm text-muted-foreground">
-                      {item.count.toLocaleString()}
+              {areaData.map((area) => (
+                <div key={area.area} className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="font-medium">{area.area}</span>
+                    <span className="text-muted-foreground">
+                      {area.count.toLocaleString()} ({area.percentage}%)
                     </span>
                   </div>
-                  <div className="text-sm font-medium">{item.percentage}%</div>
+                  <Progress value={area.percentage} className="h-2" />
                 </div>
               ))}
             </CardContent>
           </Card>
-        ))}
-      </div>
 
-      {/* OKU Status */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>OKU Status Distribution</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex justify-between items-center">
-              <span>Non-OKU</span>
-              <div className="flex items-center gap-2">
-                <Progress value={92} className="w-24 h-2" />
-                <span className="text-sm font-medium">92%</span>
+          {/* DUSP Distribution */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Building2 className="h-5 w-5" />
+                New Membership by DUSP
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {duspData.map((dusp) => (
+                  <Card key={dusp.name} className="text-center">
+                    <CardContent className="p-4">
+                      <div className="text-3xl mb-2">{dusp.logo}</div>
+                      <p className="font-semibold">{dusp.name}</p>
+                      <p className="text-2xl font-bold text-primary">{dusp.count.toLocaleString()}</p>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
-            </div>
-            <div className="flex justify-between items-center">
-              <span>OKU</span>
-              <div className="flex items-center gap-2">
-                <Progress value={8} className="w-24 h-2" />
-                <span className="text-sm font-medium">8%</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Top Occupations</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {[
-              { occupation: "Student", percentage: 28 },
-              { occupation: "Self-employed", percentage: 22 },
-              { occupation: "Private Sector", percentage: 20 },
-              { occupation: "Government", percentage: 15 },
-              { occupation: "Unemployed", percentage: 15 }
-            ].map((item) => (
-              <div key={item.occupation} className="flex justify-between items-center">
-                <span>{item.occupation}</span>
-                <div className="flex items-center gap-2">
-                  <Progress value={item.percentage} className="w-24 h-2" />
-                  <span className="text-sm font-medium">{item.percentage}%</span>
-                </div>
+        <TabsContent value="dusp-tp" className="space-y-6">
+          {/* New Membership by DUSP */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Building2 className="h-5 w-5" />
+                New Membership by DUSP
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {duspData.map((dusp) => (
+                  <Card key={dusp.name} className="text-center">
+                    <CardContent className="p-4">
+                      <div className="text-3xl mb-2">{dusp.logo}</div>
+                      <p className="font-semibold">{dusp.name}</p>
+                      <p className="text-2xl font-bold text-primary">{dusp.count.toLocaleString()}</p>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
+            </CardContent>
+          </Card>
+
+          {/* New Membership by TP */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                New Membership by TP
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+                {tpData.map((tp) => (
+                  <Card key={tp.name} className="text-center">
+                    <CardContent className="p-4">
+                      <div className="text-2xl mb-2">{tp.logo}</div>
+                      <p className="font-semibold text-sm">{tp.name}</p>
+                      <p className="text-lg font-bold text-primary">{tp.count.toLocaleString()}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* TP Bar Chart */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5" />
+                TP Membership Distribution
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={tpChartData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis 
+                      dataKey="name" 
+                      angle={-45}
+                      textAnchor="end"
+                      height={100}
+                      fontSize={12}
+                    />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="value" fill="hsl(var(--primary))" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="demographic" className="space-y-6">
+          {/* Demographics Breakdown */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {demographicsData.map((demographic) => (
+              <Card key={demographic.category}>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <User className="h-5 w-5" />
+                    By {demographic.category}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {demographic.data.map((item) => (
+                    <div key={item.label} className="flex justify-between items-center">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline">{item.label}</Badge>
+                        <span className="text-sm text-muted-foreground">
+                          {item.count.toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="text-sm font-medium">{item.percentage}%</div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
             ))}
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+
+          {/* OKU and Occupation */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="h-5 w-5" />
+                  By OKU Status
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {okuData.map((item) => (
+                  <div key={item.label} className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline">{item.label}</Badge>
+                      <span className="text-sm text-muted-foreground">
+                        {item.count.toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="text-sm font-medium">{item.percentage}%</div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="h-5 w-5" />
+                  By Occupation
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {occupationData.map((item) => (
+                  <div key={item.occupation} className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline">{item.occupation}</Badge>
+                      <span className="text-sm text-muted-foreground">
+                        {item.count.toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="text-sm font-medium">{item.percentage}%</div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }
