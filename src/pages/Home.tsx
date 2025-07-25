@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { CalendarDays, MapPin, Users, Building2, TrendingUp, Activity } from "lucide-react"
-import { NADIDistributionMap } from "@/components/NADIDistributionMap"
+import { NADIInteractiveMap } from "@/components/NADIInteractiveMap"
 
 const statusCards = [
   { title: "Total NADI", count: "1,069 / 1,099", active: true, remark: "Refer site_profiles table based on - status 'In Operation'/Total NADI" },
@@ -101,39 +101,16 @@ export default function Home() {
           </CardContent>
         </Card>
 
-        {/* Maps Section */}
-        <Card>
+        {/* Interactive Maps Section */}
+        <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <MapPin className="h-5 w-5" />
-              Maps
+              Interactive NADI Centers Map
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm font-medium mb-3">When click, view detail by NADI as below:</p>
-            <div className="space-y-2 text-sm">
-              <p><span className="font-medium">NADI Center:</span> {mapDetails.nadiCenter}</p>
-              <p><span className="font-medium">Coordinates:</span> {mapDetails.coordinates}</p>
-              <p><span className="font-medium">District:</span> {mapDetails.district}</p>
-              <p><span className="font-medium">Region:</span> {mapDetails.region}</p>
-              <p><span className="font-medium">Phase:</span> {mapDetails.phase}</p>
-              <p><span className="font-medium">Status:</span> {mapDetails.status}</p>
-              <p><span className="font-medium">DUSP:</span> {mapDetails.dusp}</p>
-            </div>
-            <div className="mt-4 p-3 bg-muted rounded-lg">
-              <p className="text-sm">
-                <span className="font-medium">Malaysia Maps</span> - When Zoom In Zoom Out, view total based on:
-              </p>
-              <ul className="text-sm mt-2 space-y-1">
-                <li>• Total NADI by State</li>
-                <li>• Total NADI by District</li>
-                <li>• Total NADI by Parliament</li>
-                <li>• Total NADI by Dun</li>
-              </ul>
-            </div>
-            <Button className="w-full mt-4">
-              <span className="font-medium">View More</span> button - url link to display NADI Dashboard
-            </Button>
+          <CardContent>
+            <NADIInteractiveMap />
           </CardContent>
         </Card>
       </div>
