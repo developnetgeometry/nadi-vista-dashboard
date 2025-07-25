@@ -79,8 +79,8 @@ export default function Home() {
                   {index > 1 && <Activity className="h-5 w-5 text-primary" />}
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">{card.title}</p>
-                  <p className="text-2xl font-bold">{card.count}</p>
+                  
+                  
                 </div>
               </div>
             </CardContent>
