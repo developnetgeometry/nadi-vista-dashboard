@@ -100,25 +100,18 @@ export default function SmartServices() {
                 <h1 className="text-2xl font-bold text-gray-900">
                   Smart Services Dashboard
                 </h1>
-                <p className="text-sm text-gray-600">Monitor participation and engagement in smart services programs</p>
-                <div className="text-sm text-gray-500 mt-1">DUSP Administrator Portal</div>
+                <p className="text-sm text-gray-600">DUSP Administrator</p>
+                <p className="text-sm text-gray-500">{new Date().toLocaleDateString('en-GB', { 
+                  weekday: 'long',
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })}</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleRefresh}
-                disabled={isRefreshing}
-                className="hover:bg-blue-50 hover:border-blue-300 transition-all"
-              >
-                <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-                Refresh
-              </Button>
-              <Button variant="outline" size="sm" className="hover:bg-blue-50 hover:border-blue-300 transition-all">
-                <Download className="h-4 w-4 mr-2" />
-                Export
-              </Button>
+            <div className="text-right">
+              <div className="text-3xl font-bold text-blue-600">NADI</div>
+              <p className="text-sm text-gray-500">Smart Services Portal</p>
             </div>
           </div>
         </div>
