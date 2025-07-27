@@ -10,11 +10,13 @@ const Index = () => {
     if (isAuthenticated && userType) {
       // Redirect to appropriate dashboard based on user type
       if (userType === 'dusp') {
-        navigate('/operation')
+        navigate('/home')
       } else if (userType === 'sso') {
         navigate('/sso')
       } else if (userType === 'staff') {
         navigate('/staff')
+      } else if (userType === 'tp') {
+        navigate('/tp')
       }
     } else {
       // Redirect to login if not authenticated
