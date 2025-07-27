@@ -37,11 +37,11 @@ const navigationItems = [
     title: "Admin Console",
     items: [
       { title: "Home", url: "/home", icon: Home },
-      { title: "Membership", url: "/membership", icon: Users },
-      { title: "Smart Services", url: "/smart-services", icon: Cpu },
+      { title: "Membership", url: "/mcmc/membership", icon: Users },
+      { title: "Smart Services", url: "/mcmc/smart-services", icon: Cpu },
       { title: "Operation", url: "/operation", icon: Settings },
       { title: "Takwim", url: "/takwim", icon: Calendar },
-      { title: "Claim", url: "/claim", icon: FileText }
+      { title: "Claim", url: "/mcmc/claim", icon: FileText }
     ]
   },
   {
@@ -81,14 +81,6 @@ const navigationItems = [
   {
     title: "Vendor Management",
     items: []
-  },
-  {
-    title: "MCMC Console",
-    items: [
-      { title: "MCMC Membership", url: "/mcmc/membership", icon: Users },
-      { title: "MCMC Smart Services", url: "/mcmc/smart-services", icon: Cpu },
-      { title: "MCMC Claim", url: "/mcmc/claim", icon: FileText }
-    ]
   }
 ]
 
