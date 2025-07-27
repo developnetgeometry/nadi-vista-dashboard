@@ -30,6 +30,9 @@ import TPOperation from "./pages/TPOperation";
 import TPTakwim from "./pages/TPTakwim";
 import TPClaim from "./pages/TPClaim";
 import TPFinance from "./pages/TPFinance";
+import MCMCMembership from "./pages/MCMCMembership";
+import MCMCSmartServices from "./pages/MCMCSmartServices";
+import MCMCClaim from "./pages/MCMCClaim";
 import { AuthProvider } from "./contexts/AuthContext";
 
 const queryClient = new QueryClient();
@@ -71,6 +74,11 @@ const App = () => (
             <Route path="/tp/takwim" element={<TPDashboardLayout><TPTakwim /></TPDashboardLayout>} />
             <Route path="/tp/claim" element={<TPDashboardLayout><TPClaim /></TPDashboardLayout>} />
             <Route path="/tp/finance" element={<TPDashboardLayout><TPFinance /></TPDashboardLayout>} />
+            
+            {/* MCMC Dashboard Routes */}
+            <Route path="/mcmc/membership" element={<DashboardLayout><MCMCMembership /></DashboardLayout>} />
+            <Route path="/mcmc/smart-services" element={<DashboardLayout><MCMCSmartServices /></DashboardLayout>} />
+            <Route path="/mcmc/claim" element={<DashboardLayout><MCMCClaim /></DashboardLayout>} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -4,11 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useAuth } from "@/contexts/AuthContext"
-import { Building2, Users, UserCheck, Lock, ArrowRight, Cpu } from "lucide-react"
+import { Building2, Users, UserCheck, Lock, ArrowRight, Cpu, Radio } from "lucide-react"
 import { PDFDownloadButton } from "@/components/PDFDownloadButton"
 
 export default function Login() {
-  const [selectedLoginType, setSelectedLoginType] = useState<'dusp' | 'sso' | 'staff' | 'tp' | null>(null)
+  const [selectedLoginType, setSelectedLoginType] = useState<'dusp' | 'mcmc' | 'sso' | 'staff' | 'tp' | null>(null)
   const { login } = useAuth()
   const navigate = useNavigate()
 
@@ -18,6 +18,8 @@ export default function Login() {
       // Navigate to appropriate dashboard
       if (selectedLoginType === 'dusp') {
         navigate('/operation') // DUSP dashboard
+      } else if (selectedLoginType === 'mcmc') {
+        navigate('/mcmc/membership') // MCMC dashboard
       } else if (selectedLoginType === 'sso') {
         navigate('/sso') // SSO dashboard  
       } else if (selectedLoginType === 'staff') {
@@ -68,6 +70,39 @@ export default function Login() {
                   </div>
                 </div>
                 {selectedLoginType === 'dusp' && (
+                  <div className="p-2 bg-primary rounded-full">
+                    <ArrowRight className="h-4 w-4 text-primary-foreground" />
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* MCMC Login */}
+          <Card 
+            className={`cursor-pointer transition-all duration-200 hover:shadow-lg ${
+              selectedLoginType === 'mcmc' 
+                ? 'ring-2 ring-primary bg-primary/5' 
+                : 'hover:bg-muted/50'
+            }`}
+            onClick={() => setSelectedLoginType('mcmc')}
+          >
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-4">
+                <div className="p-3 bg-orange-100 rounded-lg">
+                  <Radio className="h-6 w-6 text-orange-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-lg">MCMC Login</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Access MCMC dashboard with regulatory oversight controls
+                  </p>
+                  <div className="flex gap-2 mt-2">
+                    <Badge variant="secondary" className="text-xs">Regulatory</Badge>
+                    <Badge variant="secondary" className="text-xs">Oversight</Badge>
+                  </div>
+                </div>
+                {selectedLoginType === 'mcmc' && (
                   <div className="p-2 bg-primary rounded-full">
                     <ArrowRight className="h-4 w-4 text-primary-foreground" />
                   </div>
