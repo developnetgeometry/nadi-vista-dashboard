@@ -10,7 +10,24 @@ interface DashboardLayoutProps {
 }
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
-  const { logout } = useAuth()
+  const { logout, userType } = useAuth()
+  
+  const getUserDisplayName = () => {
+    switch (userType) {
+      case 'mcmc':
+        return 'MCMC User'
+      case 'dusp':
+        return 'DUSP User'
+      case 'sso':
+        return 'SSO User'
+      case 'staff':
+        return 'Staff User'
+      case 'tp':
+        return 'TP User'
+      default:
+        return 'User'
+    }
+  }
 
   return (
     <SidebarProvider>
@@ -39,7 +56,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   <span className="text-primary-foreground text-sm font-medium">U</span>
                 </div>
                 <div className="text-sm">
-                  <p className="font-medium">DUSP User</p>
+                  <p className="font-medium">{getUserDisplayName()}</p>
                   <p className="text-muted-foreground">Administrator</p>
                 </div>
               </div>

@@ -36,21 +36,21 @@ const demographicsData = [
 ]
 
 const areaData = [
-  { area: "Urban", count: 860000, percentage: 40, color: "bg-blue-500", tpData: [
-    { name: "Nera", count: 344000, percentage: 40 },
-    { name: "MSD", count: 516000, percentage: 60 }
+  { area: "Urban", count: 860000, percentage: 40, color: "bg-blue-500", duspData: [
+    { name: "TM", count: 516000, percentage: 60 },
+    { name: "MAXIS", count: 344000, percentage: 40 }
   ]},
-  { area: "Suburban", count: 650000, percentage: 30, color: "bg-green-500", tpData: [
-    { name: "Nera", count: 260000, percentage: 40 },
-    { name: "MSD", count: 390000, percentage: 60 }
+  { area: "Suburban", count: 650000, percentage: 30, color: "bg-green-500", duspData: [
+    { name: "TM", count: 390000, percentage: 60 },
+    { name: "MAXIS", count: 260000, percentage: 40 }
   ]},
-  { area: "Rural", count: 430000, percentage: 20, color: "bg-orange-500", tpData: [
-    { name: "Nera", count: 172000, percentage: 40 },
-    { name: "MSD", count: 258000, percentage: 60 }
+  { area: "Rural", count: 430000, percentage: 20, color: "bg-orange-500", duspData: [
+    { name: "TM", count: 258000, percentage: 60 },
+    { name: "MAXIS", count: 172000, percentage: 40 }
   ]},
-  { area: "Remote", count: 210217, percentage: 10, color: "bg-red-500", tpData: [
-    { name: "Nera", count: 84087, percentage: 40 },
-    { name: "MSD", count: 126130, percentage: 60 }
+  { area: "Remote", count: 210217, percentage: 10, color: "bg-red-500", duspData: [
+    { name: "TM", count: 126130, percentage: 60 },
+    { name: "MAXIS", count: 84087, percentage: 40 }
   ]}
 ]
 
@@ -189,11 +189,11 @@ export default function Membership() {
                       </TooltipTrigger>
                       <TooltipContent className="p-4">
                         <div className="space-y-2">
-                          <p className="font-semibold">{area.area} Area Details</p>
-                          {area.tpData.map((tp) => (
-                            <div key={tp.name} className="flex justify-between items-center">
-                              <span>{tp.name}:</span>
-                              <span className="ml-2">{tp.count.toLocaleString()} ({tp.percentage}%)</span>
+                          <p className="font-semibold">{area.area} Area - DUSP Details</p>
+                          {area.duspData.map((dusp) => (
+                            <div key={dusp.name} className="flex justify-between items-center">
+                              <span>{dusp.name}:</span>
+                              <span className="ml-2">{dusp.count.toLocaleString()} ({dusp.percentage}%)</span>
                             </div>
                           ))}
                         </div>

@@ -13,7 +13,8 @@ import { PDFDownloadButton } from "@/components/PDFDownloadButton"
 import { DateRange } from "@/components/DateRangePicker"
 
 const membershipStats = [
-  { title: "Total NADI Membership", count: "2,150,217", icon: Users }
+  { title: "Total NADI Membership", count: "2,150,217", icon: Users },
+  { title: "Total Participant by DUSP", count: "637,268", icon: Building2 }
 ]
 
 const demographicsData = [
@@ -36,21 +37,21 @@ const demographicsData = [
 ]
 
 const areaData = [
-  { area: "Urban", count: 860000, percentage: 40, color: "bg-blue-500", tpData: [
-    { name: "Nera", count: 344000, percentage: 40 },
-    { name: "MSD", count: 516000, percentage: 60 }
+  { area: "Urban", count: 860000, percentage: 40, color: "bg-blue-500", duspData: [
+    { name: "TM", count: 516000, percentage: 60 },
+    { name: "MAXIS", count: 344000, percentage: 40 }
   ]},
-  { area: "Suburban", count: 650000, percentage: 30, color: "bg-green-500", tpData: [
-    { name: "Nera", count: 260000, percentage: 40 },
-    { name: "MSD", count: 390000, percentage: 60 }
+  { area: "Suburban", count: 650000, percentage: 30, color: "bg-green-500", duspData: [
+    { name: "TM", count: 390000, percentage: 60 },
+    { name: "MAXIS", count: 260000, percentage: 40 }
   ]},
-  { area: "Rural", count: 430000, percentage: 20, color: "bg-orange-500", tpData: [
-    { name: "Nera", count: 172000, percentage: 40 },
-    { name: "MSD", count: 258000, percentage: 60 }
+  { area: "Rural", count: 430000, percentage: 20, color: "bg-orange-500", duspData: [
+    { name: "TM", count: 258000, percentage: 60 },
+    { name: "MAXIS", count: 172000, percentage: 40 }
   ]},
-  { area: "Remote", count: 210217, percentage: 10, color: "bg-red-500", tpData: [
-    { name: "Nera", count: 84087, percentage: 40 },
-    { name: "MSD", count: 126130, percentage: 60 }
+  { area: "Remote", count: 210217, percentage: 10, color: "bg-red-500", duspData: [
+    { name: "TM", count: 126130, percentage: 60 },
+    { name: "MAXIS", count: 84087, percentage: 40 }
   ]}
 ]
 
@@ -93,6 +94,7 @@ export default function MCMCMembership() {
   const [raceSearch, setRaceSearch] = useState("")
   const [occupationSearch, setOccupationSearch] = useState("")
   const [selectedDUSP, setSelectedDUSP] = useState("all")
+  const [selectedDUSPForTP, setSelectedDUSPForTP] = useState("all")
   const [dateRange, setDateRange] = useState<DateRange | undefined>()
 
   // Calculate total TP and sites
@@ -153,7 +155,7 @@ export default function MCMCMembership() {
 
         <TabsContent value="overview" className="space-y-6">
           {/* Key Membership Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {membershipStats.map((stat) => (
               <Card key={stat.title}>
                 <CardContent className="p-6">
@@ -197,11 +199,11 @@ export default function MCMCMembership() {
                       </TooltipTrigger>
                       <TooltipContent className="p-4">
                         <div className="space-y-2">
-                          <p className="font-semibold">{area.area} Area Details</p>
-                          {area.tpData.map((tp) => (
-                            <div key={tp.name} className="flex justify-between items-center">
-                              <span>{tp.name}:</span>
-                              <span className="ml-2">{tp.count.toLocaleString()} ({tp.percentage}%)</span>
+                          <p className="font-semibold">{area.area} Area - DUSP Details</p>
+                          {area.duspData.map((dusp) => (
+                            <div key={dusp.name} className="flex justify-between items-center">
+                              <span>{dusp.name}:</span>
+                              <span className="ml-2">{dusp.count.toLocaleString()} ({dusp.percentage}%)</span>
                             </div>
                           ))}
                         </div>
@@ -238,12 +240,36 @@ export default function MCMCMembership() {
         </TabsContent>
 
         <TabsContent value="dusp-tp" className="space-y-6">
-          {/* Membership by TP */}
+          {/* DUSP Filter for Membership by TP */}
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <Filter className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">Filter by DUSP:</span>
+                </div>
+                <Select value={selectedDUSPForTP} onValueChange={setSelectedDUSPForTP}>
+                  <SelectTrigger className="w-40">
+                    <Building2 className="h-4 w-4 mr-2" />
+                    <SelectValue placeholder="Select DUSP" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All DUSPs</SelectItem>
+                    <SelectItem value="TM">TM</SelectItem>
+                    <SelectItem value="MAXIS">MAXIS</SelectItem>
+                    <SelectItem value="CELCOMDIGI">CELCOMDIGI</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Total Participant by TP with DUSP Filter */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Users className="h-5 w-5" />
-                Membership by TP
+                Total Participant by TP
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -293,8 +319,31 @@ export default function MCMCMembership() {
             </CardContent>
           </Card>
 
-          {/* Demographics Breakdown - Age Group Only */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Demographics Breakdown */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Gender */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="h-5 w-5" />
+                  By Gender
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {demographicsData.find(d => d.category === "Gender")?.data.map((item) => (
+                  <div key={item.label} className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline">{item.label}</Badge>
+                      <span className="text-sm text-muted-foreground">
+                        {item.count.toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="text-sm font-medium">{item.percentage}%</div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
             {/* Age Group */}
             <Card>
               <CardHeader>
@@ -318,7 +367,41 @@ export default function MCMCMembership() {
               </CardContent>
             </Card>
 
-            {/* OKU and Occupation */}
+            {/* Race with Search */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="h-5 w-5" />
+                  By Race
+                </CardTitle>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search race..."
+                    value={raceSearch}
+                    onChange={(e) => setRaceSearch(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {filteredRaceData.map((item) => (
+                  <div key={item.label} className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline">{item.label}</Badge>
+                      <span className="text-sm text-muted-foreground">
+                        {item.count.toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="text-sm font-medium">{item.percentage}%</div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* OKU and Occupation */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -340,38 +423,39 @@ export default function MCMCMembership() {
                 ))}
               </CardContent>
             </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="h-5 w-5" />
+                  By Occupation
+                </CardTitle>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search occupation..."
+                    value={occupationSearch}
+                    onChange={(e) => setOccupationSearch(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {filteredOccupationData.map((item) => (
+                  <div key={item.occupation} className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline">{item.occupation}</Badge>
+                      <span className="text-sm text-muted-foreground">
+                        {item.count.toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="text-sm font-medium">{item.percentage}%</div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
           </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5" />
-                By Occupation
-              </CardTitle>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search occupation..."
-                  value={occupationSearch}
-                  onChange={(e) => setOccupationSearch(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {filteredOccupationData.map((item) => (
-                <div key={item.occupation} className="flex justify-between items-center">
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline">{item.occupation}</Badge>
-                    <span className="text-sm text-muted-foreground">
-                      {item.count.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="text-sm font-medium">{item.percentage}%</div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
         </TabsContent>
       </Tabs>
     </div>
