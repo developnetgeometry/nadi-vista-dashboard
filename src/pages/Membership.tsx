@@ -4,15 +4,13 @@ import { Progress } from "@/components/ui/progress"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
-import { DateRangePicker } from "@/components/ui/date-range-picker"
-import { PDFDownload } from "@/components/ui/pdf-download"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 import { Users, TrendingUp, MapPin, Building2, User, UserCheck, Calendar, Filter, Search } from "lucide-react"
 import { useState } from "react"
-import { DateRange } from "react-day-picker"
 
 const membershipStats = [
   { title: "Total NADI Membership", count: "2,150,217", icon: Users },
+  { title: "New Membership (from 01/07/2024)", count: "850,217", icon: UserCheck },
 ]
 
 const demographicsData = [
@@ -30,7 +28,8 @@ const demographicsData = [
   { category: "Race", data: [
     { label: "Malay", count: 1290000, percentage: 60 },
     { label: "Chinese", count: 430000, percentage: 20 },
-    { label: "Indian", count: 280000, percentage: 13 }
+    { label: "Indian", count: 280000, percentage: 13 },
+    { label: "Others", count: 150217, percentage: 7 }
   ]}
 ]
 
@@ -48,16 +47,15 @@ const duspData = [
   { name: "REDTONE", count: 340217, logo: "🟥" }
 ]
 
-// Sort TP data from highest to lowest
 const tpData = [
-  { name: "Citaglobal", count: 18200, logo: "🟡", sites: 150 },
-  { name: "Nera", count: 15420, logo: "🔵", sites: 120 },
-  { name: "Samudera", count: 14600, logo: "🟣", sites: 110 },
-  { name: "ETDmakmur", count: 13400, logo: "🔶", sites: 100 },
-  { name: "Afintra", count: 12350, logo: "🟢", sites: 95 },
-  { name: "Sprimtz design", count: 11250, logo: "🟠", sites: 80 },
-  { name: "Perwira", count: 9800, logo: "🔴", sites: 60 },
-].sort((a, b) => b.count - a.count)
+  { name: "Nera", count: 15420, logo: "🔵" },
+  { name: "Afintra", count: 12350, logo: "🟢" },
+  { name: "Citaglobal", count: 18200, logo: "🟡" },
+  { name: "Perwira", count: 9800, logo: "🔴" },
+  { name: "Samudera", count: 14600, logo: "🟣" },
+  { name: "Sprimtz design", count: 11250, logo: "🟠" },
+  { name: "ETDmakmur", count: 13400, logo: "🔶" }
+]
 
 const tpChartData = tpData.map(tp => ({
   name: tp.name,
@@ -81,7 +79,6 @@ export default function Membership() {
   const [raceSearch, setRaceSearch] = useState("")
   const [occupationSearch, setOccupationSearch] = useState("")
   const [selectedTP, setSelectedTP] = useState("all")
-  const [dateRange, setDateRange] = useState<DateRange | undefined>()
 
   // Filter functions
   const filteredRaceData = demographicsData.find(d => d.category === "Race")?.data.filter(item => 
@@ -91,15 +88,6 @@ export default function Membership() {
   const filteredOccupationData = occupationData.filter(item => 
     item.occupation.toLowerCase().includes(occupationSearch.toLowerCase())
   )
-
-  // Get total sites for selected TP
-  const getTotalSites = () => {
-    if (selectedTP === "all") {
-      return tpData.reduce((sum, tp) => sum + tp.sites, 0)
-    }
-    const selectedTpData = tpData.find(tp => tp.name === selectedTP)
-    return selectedTpData ? selectedTpData.sites : 0
-  }
 
   return (
     <div className="space-y-6">
@@ -111,22 +99,48 @@ export default function Membership() {
             Monitor membership statistics and demographics across NADI centers
           </p>
         </div>
-        <PDFDownload filename="membership-dashboard" />
       </div>
 
-      {/* Date Range Filter */}
+      {/* Filters */}
       <Card>
         <CardContent className="p-6">
           <div className="flex items-center gap-4 flex-wrap">
             <div className="flex items-center gap-2">
               <Filter className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium">Filter by date range:</span>
+              <span className="text-sm font-medium">Filter by:</span>
             </div>
-            <DateRangePicker
-              dateRange={dateRange}
-              onDateRangeChange={setDateRange}
-              placeholder="Select date range"
-            />
+            <Select defaultValue="2024">
+              <SelectTrigger className="w-32">
+                <Calendar className="h-4 w-4 mr-2" />
+                <SelectValue placeholder="Year" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="2024">2024</SelectItem>
+                <SelectItem value="2023">2023</SelectItem>
+                <SelectItem value="2022">2022</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select defaultValue="all">
+              <SelectTrigger className="w-40">
+                <Calendar className="h-4 w-4 mr-2" />
+                <SelectValue placeholder="Month" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Months</SelectItem>
+                <SelectItem value="1">January</SelectItem>
+                <SelectItem value="2">February</SelectItem>
+                <SelectItem value="3">March</SelectItem>
+                <SelectItem value="4">April</SelectItem>
+                <SelectItem value="5">May</SelectItem>
+                <SelectItem value="6">June</SelectItem>
+                <SelectItem value="7">July</SelectItem>
+                <SelectItem value="8">August</SelectItem>
+                <SelectItem value="9">September</SelectItem>
+                <SelectItem value="10">October</SelectItem>
+                <SelectItem value="11">November</SelectItem>
+                <SelectItem value="12">December</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
       </Card>
@@ -141,7 +155,7 @@ export default function Membership() {
 
         <TabsContent value="overview" className="space-y-6">
           {/* Key Membership Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {membershipStats.map((stat) => (
               <Card key={stat.title}>
                 <CardContent className="p-6">
@@ -207,12 +221,12 @@ export default function Membership() {
             </CardContent>
           </Card>
 
-          {/* Membership by TP */}
+          {/* New Membership by TP */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Users className="h-5 w-5" />
-                Membership by TP
+                New Membership by TP
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -223,10 +237,38 @@ export default function Membership() {
                       <div className="text-2xl mb-2">{tp.logo}</div>
                       <p className="font-semibold text-sm">{tp.name}</p>
                       <p className="text-lg font-bold text-primary">{tp.count.toLocaleString()}</p>
-                      <p className="text-xs text-muted-foreground">{tp.sites} sites</p>
                     </CardContent>
                   </Card>
                 ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* TP Bar Chart */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5" />
+                TP Membership Distribution
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={tpChartData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis 
+                      dataKey="name" 
+                      angle={-45}
+                      textAnchor="end"
+                      height={100}
+                      fontSize={12}
+                    />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="value" fill="hsl(var(--primary))" />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
             </CardContent>
           </Card>
@@ -253,9 +295,6 @@ export default function Membership() {
                     ))}
                   </SelectContent>
                 </Select>
-                <Badge variant="outline" className="text-primary border-primary">
-                  Total Sites: {getTotalSites()}
-                </Badge>
               </div>
             </CardContent>
           </Card>
