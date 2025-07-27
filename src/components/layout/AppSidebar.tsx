@@ -31,60 +31,66 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { useAuth } from "@/contexts/AuthContext"
 
-const navigationItems = [
-  {
-    title: "Admin Console",
-    items: [
-      { title: "Home", url: "/home", icon: Home },
-      { title: "Membership", url: "/mcmc/membership", icon: Users },
-      { title: "Smart Services", url: "/mcmc/smart-services", icon: Cpu },
-      { title: "Operation", url: "/operation", icon: Settings },
-      { title: "Takwim", url: "/takwim", icon: Calendar },
-      { title: "Claim", url: "/mcmc/claim", icon: FileText }
-    ]
-  },
-  {
-    title: "Site Management",
-    items: [
-      { title: "Finance Management", url: "/finance", icon: DollarSign }
-    ]
-  },
-  {
-    title: "Member Management",
-    items: []
-  },
-  {
-    title: "Asset Management", 
-    items: []
-  },
-  {
-    title: "Finance Management",
-    items: []
-  },
-  {
-    title: "Programmes Management",
-    items: []
-  },
-  {
-    title: "Claim Management",
-    items: []
-  },
-  {
-    title: "Compliance",
-    items: []
-  },
-  {
-    title: "Announcements",
-    items: []
-  },
-  {
-    title: "Vendor Management",
-    items: []
-  }
-]
+const getNavigationItems = (userType: string | null) => {
+  const baseItems = [
+    { title: "Home", url: "/home", icon: Home },
+    { title: "Membership", url: userType === 'mcmc' ? "/mcmc/membership" : "/membership", icon: Users },
+    { title: "Smart Services", url: userType === 'mcmc' ? "/mcmc/smart-services" : "/smart-services", icon: Cpu },
+    { title: "Operation", url: "/operation", icon: Settings },
+    { title: "Takwim", url: "/takwim", icon: Calendar },
+    { title: "Claim", url: userType === 'mcmc' ? "/mcmc/claim" : "/claim", icon: FileText }
+  ];
+
+  return [
+    {
+      title: "Admin Console",
+      items: baseItems
+    },
+    {
+      title: "Site Management",
+      items: [
+        { title: "Finance Management", url: "/finance", icon: DollarSign }
+      ]
+    },
+    {
+      title: "Member Management",
+      items: []
+    },
+    {
+      title: "Asset Management", 
+      items: []
+    },
+    {
+      title: "Finance Management",
+      items: []
+    },
+    {
+      title: "Programmes Management",
+      items: []
+    },
+    {
+      title: "Claim Management",
+      items: []
+    },
+    {
+      title: "Compliance",
+      items: []
+    },
+    {
+      title: "Announcements",
+      items: []
+    },
+    {
+      title: "Vendor Management",
+      items: []
+    }
+  ];
+}
 
 export function AppSidebar() {
+  const { userType } = useAuth()
   const { state } = useSidebar()
   
   // Safely handle location to prevent Router context errors
@@ -107,7 +113,8 @@ export function AppSidebar() {
         : [...prev, groupTitle]
     )
   }
-
+  
+  const navigationItems = getNavigationItems(userType)
   return (
     <Sidebar collapsible="icon">
       <SidebarContent className="bg-sidebar">
