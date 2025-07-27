@@ -80,7 +80,7 @@ export default function MCMCClaim() {
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="summary-by-tp">Summary by TP</TabsTrigger>
+          <TabsTrigger value="summary-by-tp">Summary by DUSP</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -327,47 +327,35 @@ export default function MCMCClaim() {
         </TabsContent>
 
         <TabsContent value="summary-by-tp" className="space-y-6">
-          {/* Summary Claim by TP */}
+          {/* Claims by Service Provider */}
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Summary Claim by TP</CardTitle>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">Filters: By Year and</span>
-                  <Select defaultValue="quarter">
-                    <SelectTrigger className="w-40">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="quarter">Claim by Quarter</SelectItem>
-                      <SelectItem value="month">Claim by Month</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <span className="text-sm text-muted-foreground">and Phase</span>
-                </div>
-              </div>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="h-5 w-5" />
+                Claims by Service Provider (Bar Chart/Pie Chart)
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>No</TableHead>
-                    <TableHead>TP</TableHead>
-                    <TableHead className="text-center">Q1</TableHead>
-                    <TableHead className="text-center">Q2</TableHead>
-                    <TableHead className="text-center">Q3</TableHead>
-                    <TableHead className="text-center">Q4</TableHead>
+                    <TableHead>Service Provider</TableHead>
+                    <TableHead className="text-center">Pending</TableHead>
+                    <TableHead className="text-center">Submitted</TableHead>
+                    <TableHead className="text-center">Processing</TableHead>
+                    <TableHead className="text-center">Completed</TableHead>
+                    <TableHead className="text-center font-semibold">Total Claims</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {summaryByTPData.map((item, index) => (
-                    <TableRow key={item.tp}>
-                      <TableCell>{index + 1}</TableCell>
-                      <TableCell className="font-medium">{item.tp}</TableCell>
-                      <TableCell className="text-center">{item.q1}</TableCell>
-                      <TableCell className="text-center">{item.q2}</TableCell>
-                      <TableCell className="text-center">{item.q3}</TableCell>
-                      <TableCell className="text-center">{item.q4}</TableCell>
+                  {serviceProviderData.map((provider) => (
+                    <TableRow key={provider.provider} className="hover:bg-muted/50">
+                      <TableCell className="font-medium">{provider.provider}</TableCell>
+                      <TableCell className="text-center">X</TableCell>
+                      <TableCell className="text-center">X</TableCell>
+                      <TableCell className="text-center">X</TableCell>
+                      <TableCell className="text-center">X</TableCell>
+                      <TableCell className="text-center">X</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
