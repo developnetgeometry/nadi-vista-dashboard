@@ -81,6 +81,14 @@ const navigationItems = [
   {
     title: "Vendor Management",
     items: []
+  },
+  {
+    title: "MCMC Console",
+    items: [
+      { title: "MCMC Membership", url: "/mcmc/membership", icon: Users },
+      { title: "MCMC Smart Services", url: "/mcmc/smart-services", icon: Cpu },
+      { title: "MCMC Claim", url: "/mcmc/claim", icon: FileText }
+    ]
   }
 ]
 
