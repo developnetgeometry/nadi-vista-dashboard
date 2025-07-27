@@ -92,15 +92,6 @@ const participantCategories = [
 ]
 
 const demographicsData = [
-  { category: "Gender", data: [
-    { label: "Female", count: 2200, percentage: 55 },
-    { label: "Male", count: 1780, percentage: 45 }
-  ]},
-  { category: "Race", data: [
-    { label: "Malay", count: 2388, percentage: 60 },
-    { label: "Chinese", count: 796, percentage: 20 },
-    { label: "Indian", count: 517, percentage: 13 }
-  ]},
   { category: "Age Group", data: [
     { label: "12-17", count: 796, percentage: 20 },
     { label: "18-25", count: 1194, percentage: 30 },
@@ -118,6 +109,16 @@ const duspData = [
   { name: "Others", count: 398, logo: "⚫" }
 ]
 
+const tpData = [
+  { name: "Citaglobal", count: 18200, logo: "🟡" },
+  { name: "Nera", count: 15420, logo: "🔵" },
+  { name: "Samudera", count: 14600, logo: "🟣" },
+  { name: "ETDmakmur", count: 13400, logo: "🔶" },
+  { name: "Afintra", count: 12350, logo: "🟢" },
+  { name: "Sprimtz design", count: 11250, logo: "🟠" },
+  { name: "Perwira", count: 9800, logo: "🔴" }
+].sort((a, b) => b.count - a.count)
+
 const stateData = [
   { state: "Selangor", count: 598, percentage: 15 },
   { state: "Kuala Lumpur", count: 478, percentage: 12 },
@@ -126,36 +127,31 @@ const stateData = [
   { state: "Perak", count: 358, percentage: 9 }
 ]
 
-export default function SmartServices() {
+export default function MCMCSmartServices() {
   const [selectedMonth, setSelectedMonth] = useState("all")
   const [selectedYear, setSelectedYear] = useState("all")
   const [selectedPillar, setSelectedPillar] = useState("NADi x Entrepreneur")
   const [selectedProgram, setSelectedProgram] = useState("all")
   const [programYear, setProgramYear] = useState("all")
   const [stateSearchTerm, setStateSearchTerm] = useState("")
-  const [raceSearchTerm, setRaceSearchTerm] = useState("")
   const [dateRange, setDateRange] = useState<DateRange | undefined>()
 
   // Filter functions
   const filteredStateData = stateData.filter(state => 
     state.state.toLowerCase().includes(stateSearchTerm.toLowerCase())
   )
-  
-  const filteredRaceData = demographicsData.find(d => d.category === "Race")?.data.filter(race =>
-    race.label.toLowerCase().includes(raceSearchTerm.toLowerCase())
-  ) || []
 
   return (
     <div className="space-y-8 animate-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Smart Services Dashboard</h1>
+          <h1 className="text-3xl font-bold tracking-tight">MCMC Smart Services Dashboard</h1>
           <p className="text-muted-foreground">
             Monitor participation and engagement in smart services programs
           </p>
         </div>
-        <PDFDownloadButton filename="smart-services-dashboard" />
+        <PDFDownloadButton filename="mcmc-smart-services-dashboard" />
       </div>
 
       {/* Date Range Filter */}
@@ -294,9 +290,88 @@ export default function SmartServices() {
             </CardContent>
           </Card>
 
+          {/* Participant by DUSP - KEEP FOR MCMC */}
+          <Card className="border-0 shadow-md">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Building2 className="h-5 w-5 text-blue-600" />
+                Participant by DUSP
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                {duspData.map((dusp) => (
+                  <Card key={dusp.name} className="text-center hover:shadow-sm transition-shadow">
+                    <CardContent className="p-6">
+                      <div className="text-3xl mb-4">{dusp.logo}</div>
+                      <div>
+                        <p className="font-semibold text-lg mb-2">{dusp.name}</p>
+                        <p className="text-2xl font-bold text-blue-600">
+                          {dusp.count.toLocaleString()}
+                        </p>
+                        <p className="text-sm text-gray-500">participants</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
 
+          {/* Total Participant by TP */}
+          <Card className="border-0 shadow-md">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5 text-blue-600" />
+                Total Participant by TP
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+                {tpData.map((tp) => (
+                  <Card key={tp.name} className="text-center hover:shadow-sm transition-shadow">
+                    <CardContent className="p-4">
+                      <div className="text-2xl mb-2">{tp.logo}</div>
+                      <p className="font-semibold text-sm">{tp.name}</p>
+                      <p className="text-lg font-bold text-primary">{tp.count.toLocaleString()}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
 
-
+          {/* Participant by State */}
+          <Card className="border-0 shadow-md">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MapPin className="h-5 w-5 text-blue-600" />
+                Participant by State
+              </CardTitle>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Search states..."
+                  value={stateSearchTerm}
+                  onChange={(e) => setStateSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={filteredStateData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="state" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="count" fill="#3b82f6" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="program" className="space-y-6">
@@ -366,37 +441,6 @@ export default function SmartServices() {
             ))}
           </div>
 
-          {/* Total Participant by TP */}
-          <Card className="border-0 shadow-md">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5 text-blue-600" />
-                Total Participant by TP
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
-                {[
-                  { name: "Citaglobal", count: 18200, logo: "🟡" },
-                  { name: "Nera", count: 15420, logo: "🔵" },
-                  { name: "Samudera", count: 14600, logo: "🟣" },
-                  { name: "ETDmakmur", count: 13400, logo: "🔶" },
-                  { name: "Afintra", count: 12350, logo: "🟢" },
-                  { name: "Sprimtz design", count: 11250, logo: "🟠" },
-                  { name: "Perwira", count: 9800, logo: "🔴" }
-                ].sort((a, b) => b.count - a.count).map((tp) => (
-                  <Card key={tp.name} className="text-center hover:shadow-sm transition-shadow">
-                    <CardContent className="p-4">
-                      <div className="text-2xl mb-2">{tp.logo}</div>
-                      <p className="font-semibold text-sm">{tp.name}</p>
-                      <p className="text-lg font-bold text-primary">{tp.count.toLocaleString()}</p>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
           {/* Demographics for Program Tab - Age Group Only */}
           <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
             <Card className="border-0 shadow-md">
@@ -407,7 +451,7 @@ export default function SmartServices() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {demographicsData.find(d => d.category === "Age Group")?.data.map((item, itemIndex) => (
+                {demographicsData[0].data.map((item, itemIndex) => (
                   <div key={itemIndex} className="flex justify-between items-center p-3 rounded-lg hover:bg-gray-50 transition-all">
                     <div className="flex items-center gap-3">
                       <div className="w-2 h-2 rounded-full bg-blue-600"></div>
@@ -418,57 +462,12 @@ export default function SmartServices() {
                         {item.count.toLocaleString()}
                       </span>
                     </div>
-                    <div className="text-lg font-bold text-blue-600">{item.percentage}%</div>
+                    <div className="text-sm font-bold text-blue-600">{item.percentage}%</div>
                   </div>
                 ))}
               </CardContent>
             </Card>
           </div>
-
-          {/* State Distribution for Program Tab - Updated to Bar Chart */}
-          <Card className="border-0 shadow-md">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MapPin className="h-5 w-5 text-blue-600" />
-                Participation by State
-              </CardTitle>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Search states..."
-                  value={stateSearchTerm}
-                  onChange={(e) => setStateSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={400}>
-                <BarChart data={filteredStateData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="state" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="count" fill="#3b82f6" name="Participants" />
-                </BarChart>
-              </ResponsiveContainer>
-              {stateSearchTerm && (
-                <div className="mt-4">
-                  <h4 className="font-medium mb-2">Search Results:</h4>
-                  <div className="grid grid-cols-1 gap-2">
-                    {filteredStateData.slice(0, 5).map((state, index) => (
-                      <div key={index} className="flex justify-between items-center p-2 bg-muted rounded">
-                        <span>{state.state}</span>
-                        <div className="text-sm text-muted-foreground">
-                          {state.count} participants ({state.percentage}%)
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
         </TabsContent>
       </Tabs>
     </div>

@@ -89,27 +89,35 @@ const occupationData = [
   { occupation: "Unemployed", count: 322535, percentage: 15 }
 ]
 
-export default function Membership() {
+export default function MCMCMembership() {
   const [raceSearch, setRaceSearch] = useState("")
   const [occupationSearch, setOccupationSearch] = useState("")
-  const [selectedTP, setSelectedTP] = useState("all")
+  const [selectedDUSP, setSelectedDUSP] = useState("all")
   const [dateRange, setDateRange] = useState<DateRange | undefined>()
 
-  // Calculate total sites
+  // Calculate total TP and sites
+  const getTotalTP = () => {
+    if (selectedDUSP === "all") {
+      return tpData.length
+    }
+    // For MCMC, each DUSP has associated TPs
+    return Math.floor(tpData.length / 3) // Simplified calculation
+  }
+
   const getTotalSites = () => {
-    if (selectedTP === "all") {
+    if (selectedDUSP === "all") {
       return tpData.reduce((total, tp) => total + tp.sites, 0)
     }
-    const selectedTPData = tpData.find(tp => tp.name === selectedTP)
-    return selectedTPData ? selectedTPData.sites : 0
+    // For MCMC, calculate sites based on selected DUSP
+    return Math.floor(tpData.reduce((total, tp) => total + tp.sites, 0) / 3) // Simplified calculation
   }
 
   // Filter functions
-  const filteredRaceData = demographicsData.find(d => d.category === "Race")?.data.filter(item => 
+  const filteredRaceData = demographicsData.find(d => d.category === "Race")?.data.filter(item =>
     item.label.toLowerCase().includes(raceSearch.toLowerCase())
   ) || []
 
-  const filteredOccupationData = occupationData.filter(item => 
+  const filteredOccupationData = occupationData.filter(item =>
     item.occupation.toLowerCase().includes(occupationSearch.toLowerCase())
   )
 
@@ -118,12 +126,12 @@ export default function Membership() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Membership Dashboard</h1>
+          <h1 className="text-3xl font-bold tracking-tight">MCMC Membership Dashboard</h1>
           <p className="text-muted-foreground">
             Monitor membership statistics and demographics across NADI centers
           </p>
         </div>
-        <PDFDownloadButton filename="membership-dashboard" />
+        <PDFDownloadButton filename="mcmc-membership-dashboard" />
       </div>
 
       {/* Date Range Filter */}
@@ -204,6 +212,29 @@ export default function Membership() {
               ))}
             </CardContent>
           </Card>
+
+          {/* New Membership by DUSP - KEEP FOR MCMC */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Building2 className="h-5 w-5" />
+                New Membership by DUSP
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {duspData.map((dusp) => (
+                  <Card key={dusp.name} className="text-center">
+                    <CardContent className="p-4">
+                      <div className="text-2xl mb-2">{dusp.logo}</div>
+                      <p className="font-semibold text-sm">{dusp.name}</p>
+                      <p className="text-lg font-bold text-primary">{dusp.count.toLocaleString()}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="dusp-tp" className="space-y-6">
@@ -232,26 +263,29 @@ export default function Membership() {
         </TabsContent>
 
         <TabsContent value="demographic" className="space-y-6">
-          {/* TP Filter for Demographic Tab */}
+          {/* DUSP Filter for Demographic Tab */}
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
                   <Filter className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm font-medium">Filter by TP:</span>
+                  <span className="text-sm font-medium">Filter by DUSP:</span>
                 </div>
-                <Select value={selectedTP} onValueChange={setSelectedTP}>
+                <Select value={selectedDUSP} onValueChange={setSelectedDUSP}>
                   <SelectTrigger className="w-40">
                     <Building2 className="h-4 w-4 mr-2" />
-                    <SelectValue placeholder="Select TP" />
+                    <SelectValue placeholder="Select DUSP" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All TPs</SelectItem>
-                    {tpData.map((tp) => (
-                      <SelectItem key={tp.name} value={tp.name}>{tp.name}</SelectItem>
-                    ))}
+                    <SelectItem value="all">All DUSPs</SelectItem>
+                    <SelectItem value="TM">TM</SelectItem>
+                    <SelectItem value="MAXIS">MAXIS</SelectItem>
+                    <SelectItem value="CELCOMDIGI">CELCOMDIGI</SelectItem>
                   </SelectContent>
                 </Select>
+                <div className="text-sm text-muted-foreground">
+                  Total TP: <span className="font-medium">{getTotalTP()}</span>
+                </div>
                 <div className="text-sm text-muted-foreground">
                   Total Sites: <span className="font-medium">{getTotalSites()}</span>
                 </div>
@@ -259,52 +293,18 @@ export default function Membership() {
             </CardContent>
           </Card>
 
-          {/* Demographics Breakdown */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Gender and Age Group */}
-            {demographicsData.filter(d => d.category !== "Race").map((demographic) => (
-              <Card key={demographic.category}>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <User className="h-5 w-5" />
-                    By {demographic.category}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {demographic.data.map((item) => (
-                    <div key={item.label} className="flex justify-between items-center">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline">{item.label}</Badge>
-                        <span className="text-sm text-muted-foreground">
-                          {item.count.toLocaleString()}
-                        </span>
-                      </div>
-                      <div className="text-sm font-medium">{item.percentage}%</div>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            ))}
-
-            {/* Race with Search */}
+          {/* Demographics Breakdown - Age Group Only */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Age Group */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <User className="h-5 w-5" />
-                  By Race
+                  By Age Group
                 </CardTitle>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search race..."
-                    value={raceSearch}
-                    onChange={(e) => setRaceSearch(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                {filteredRaceData.map((item) => (
+                {demographicsData.find(d => d.category === "Age Group")?.data.map((item) => (
                   <div key={item.label} className="flex justify-between items-center">
                     <div className="flex items-center gap-2">
                       <Badge variant="outline">{item.label}</Badge>
@@ -317,10 +317,8 @@ export default function Membership() {
                 ))}
               </CardContent>
             </Card>
-          </div>
 
-          {/* OKU and Occupation */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* OKU and Occupation */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -342,38 +340,38 @@ export default function Membership() {
                 ))}
               </CardContent>
             </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5" />
-                  By Occupation
-                </CardTitle>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search occupation..."
-                    value={occupationSearch}
-                    onChange={(e) => setOccupationSearch(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {filteredOccupationData.map((item) => (
-                  <div key={item.occupation} className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline">{item.occupation}</Badge>
-                      <span className="text-sm text-muted-foreground">
-                        {item.count.toLocaleString()}
-                      </span>
-                    </div>
-                    <div className="text-sm font-medium">{item.percentage}%</div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
           </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <User className="h-5 w-5" />
+                By Occupation
+              </CardTitle>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search occupation..."
+                  value={occupationSearch}
+                  onChange={(e) => setOccupationSearch(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {filteredOccupationData.map((item) => (
+                <div key={item.occupation} className="flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline">{item.occupation}</Badge>
+                    <span className="text-sm text-muted-foreground">
+                      {item.count.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="text-sm font-medium">{item.percentage}%</div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>
