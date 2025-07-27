@@ -142,10 +142,10 @@ export function AppSidebar() {
                       {group.items.map((item) => (
                         <SidebarMenuItem key={item.title}>
                           <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                            <NavLink to={item.url} end>
+                            <a href={item.url} className="flex items-center gap-2">
                               <item.icon className="h-4 w-4" />
                               <span>{item.title}</span>
-                            </NavLink>
+                            </a>
                           </SidebarMenuButton>
                         </SidebarMenuItem>
                       ))}
