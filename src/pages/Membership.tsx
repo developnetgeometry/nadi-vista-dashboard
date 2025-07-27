@@ -12,8 +12,7 @@ import { PDFDownloadButton } from "@/components/PDFDownloadButton"
 import { DateRange } from "@/components/DateRangePicker"
 
 const membershipStats = [
-  { title: "Total NADI Membership", count: "2,150,217", icon: Users },
-  { title: "New Membership (from 01/07/2024)", count: "850,217", icon: UserCheck },
+  { title: "Total NADI Membership", count: "2,150,217", icon: Users }
 ]
 
 const demographicsData = [
@@ -31,8 +30,7 @@ const demographicsData = [
   { category: "Race", data: [
     { label: "Malay", count: 1290000, percentage: 60 },
     { label: "Chinese", count: 430000, percentage: 20 },
-    { label: "Indian", count: 280000, percentage: 13 },
-    { label: "Others", count: 150217, percentage: 7 }
+    { label: "Indian", count: 430217, percentage: 20 }
   ]}
 ]
 
@@ -51,14 +49,14 @@ const duspData = [
 ]
 
 const tpData = [
-  { name: "Nera", count: 15420, logo: "🔵" },
-  { name: "Afintra", count: 12350, logo: "🟢" },
-  { name: "Citaglobal", count: 18200, logo: "🟡" },
-  { name: "Perwira", count: 9800, logo: "🔴" },
-  { name: "Samudera", count: 14600, logo: "🟣" },
-  { name: "Sprimtz design", count: 11250, logo: "🟠" },
-  { name: "ETDmakmur", count: 13400, logo: "🔶" }
-]
+  { name: "Citaglobal", count: 18200, logo: "🟡", sites: 120 },
+  { name: "Nera", count: 15420, logo: "🔵", sites: 85 },
+  { name: "Samudera", count: 14600, logo: "🟣", sites: 95 },
+  { name: "ETDmakmur", count: 13400, logo: "🔶", sites: 75 },
+  { name: "Afintra", count: 12350, logo: "🟢", sites: 68 },
+  { name: "Sprimtz design", count: 11250, logo: "🟠", sites: 60 },
+  { name: "Perwira", count: 9800, logo: "🔴", sites: 52 }
+].sort((a, b) => b.count - a.count)
 
 const tpChartData = tpData.map(tp => ({
   name: tp.name,
@@ -83,6 +81,15 @@ export default function Membership() {
   const [occupationSearch, setOccupationSearch] = useState("")
   const [selectedTP, setSelectedTP] = useState("all")
   const [dateRange, setDateRange] = useState<DateRange | undefined>()
+
+  // Calculate total sites
+  const getTotalSites = () => {
+    if (selectedTP === "all") {
+      return tpData.reduce((total, tp) => total + tp.sites, 0)
+    }
+    const selectedTPData = tpData.find(tp => tp.name === selectedTP)
+    return selectedTPData ? selectedTPData.sites : 0
+  }
 
   // Filter functions
   const filteredRaceData = demographicsData.find(d => d.category === "Race")?.data.filter(item => 
@@ -168,35 +175,12 @@ export default function Membership() {
         </TabsContent>
 
         <TabsContent value="dusp-tp" className="space-y-6">
-          {/* New Membership by DUSP */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Building2 className="h-5 w-5" />
-                New Membership by DUSP
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {duspData.map((dusp) => (
-                  <Card key={dusp.name} className="text-center">
-                    <CardContent className="p-4">
-                      <div className="text-3xl mb-2">{dusp.logo}</div>
-                      <p className="font-semibold">{dusp.name}</p>
-                      <p className="text-2xl font-bold text-primary">{dusp.count.toLocaleString()}</p>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* New Membership by TP */}
+          {/* Membership by TP */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Users className="h-5 w-5" />
-                New Membership by TP
+                Membership by TP
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -210,35 +194,6 @@ export default function Membership() {
                     </CardContent>
                   </Card>
                 ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* TP Bar Chart */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
-                TP Membership Distribution
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={tpChartData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis 
-                      dataKey="name" 
-                      angle={-45}
-                      textAnchor="end"
-                      height={100}
-                      fontSize={12}
-                    />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="value" fill="hsl(var(--primary))" />
-                  </BarChart>
-                </ResponsiveContainer>
               </div>
             </CardContent>
           </Card>
@@ -265,6 +220,9 @@ export default function Membership() {
                     ))}
                   </SelectContent>
                 </Select>
+                <div className="text-sm text-muted-foreground">
+                  Total Sites: <span className="font-medium">{getTotalSites()}</span>
+                </div>
               </div>
             </CardContent>
           </Card>

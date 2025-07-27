@@ -26,6 +26,7 @@ import { useState } from "react"
 import { DateRangePicker } from "@/components/DateRangePicker"
 import { PDFDownloadButton } from "@/components/PDFDownloadButton"
 import { DateRange } from "@/components/DateRangePicker"
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts"
 
 const pillars = [
   "NADi x Entrepreneur",
@@ -204,8 +205,8 @@ export default function SmartServices() {
                                 <span className="font-bold text-blue-600">{pillarData[pillar].participants.toLocaleString()}</span>
                               </div>
                               <div className="flex justify-between items-center mb-2">
-                                <span className="text-sm text-gray-600">Total Citizens</span>
-                                <span className="font-bold text-gray-600">{pillarData[pillar].total.toLocaleString()}</span>
+                                 <span className="text-sm text-gray-600">Total KPI</span>
+                                 <span className="font-bold text-gray-600">{pillarData[pillar].total.toLocaleString()}</span>
                               </div>
                               <Progress value={pillarData[pillar].percentage} className="h-2" />
                             </div>
@@ -239,7 +240,7 @@ export default function SmartServices() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Total Citizens</p>
+                    <p className="text-sm font-medium text-gray-600">Total KPI</p>
                     <p className="text-3xl font-bold text-purple-600">{participantStats.total.toLocaleString()}</p>
                   </div>
                   <div className="p-3 bg-purple-100 rounded-xl">
@@ -249,19 +250,6 @@ export default function SmartServices() {
               </CardContent>
             </Card>
 
-            <Card className="border-0 shadow-md hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Growth Rate</p>
-                    <p className="text-3xl font-bold text-orange-600">+2.3%</p>
-                  </div>
-                  <div className="p-3 bg-orange-100 rounded-xl">
-                    <ArrowUp className="h-6 w-6 text-orange-600" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
           </div>
 
           {/* Participant Categories */}
@@ -307,80 +295,25 @@ export default function SmartServices() {
           </Card>
 
 
-          {/* DUSP Distribution */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="border-0 shadow-md">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Building2 className="h-5 w-5 text-blue-600" />
-                  Participant by DUSP
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {duspData.map((dusp, index) => (
-                    <div key={index} className="flex justify-between items-center p-4 rounded-lg hover:bg-gray-50 transition-all">
-                      <div className="flex items-center gap-4">
-                        <div className="text-2xl">{dusp.logo}</div>
-                        <div>
-                          <span className="font-semibold">{dusp.name}</span>
-                          <div className="text-xs text-gray-500">Rank #{index + 1}</div>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-xl font-bold text-blue-600">
-                          {dusp.count.toLocaleString()}
-                        </div>
-                        <div className="text-xs text-gray-500">participants</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
 
-            <Card className="border-0 shadow-md">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Building2 className="h-5 w-5 text-blue-600" />
-                  Participant by TP
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {duspData.map((dusp, index) => (
-                    <div key={index} className="flex justify-between items-center p-4 rounded-lg hover:bg-gray-50 transition-all">
-                      <div className="flex items-center gap-4">
-                        <div className="text-2xl">{dusp.logo}</div>
-                        <div>
-                          <span className="font-semibold">{dusp.name}</span>
-                          <div className="text-xs text-gray-500">Rank #{index + 1}</div>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-xl font-bold text-blue-600">
-                          {dusp.count.toLocaleString()}
-                        </div>
-                        <div className="text-xs text-gray-500">participants</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
 
         </TabsContent>
 
         <TabsContent value="program" className="space-y-6">
-          {/* Program Filters */}
+          {/* Filter section moved below the title */}
           <Card className="border-0 shadow-md">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="h-5 w-5 text-blue-600" />
+                Programs - NADi x Entrepreneur
+              </CardTitle>
+            </CardHeader>
             <CardContent className="p-6">
               <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2">
                     <Filter className="h-4 w-4 text-gray-600" />
-                    <span className="text-sm font-medium text-gray-700">Filter by:</span>
+                    <span className="text-sm font-medium text-gray-700">Filter by (NADi x Entrepreneur):</span>
                   </div>
                   <select 
                     value={selectedPillar} 
@@ -408,7 +341,7 @@ export default function SmartServices() {
                     className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="all">All Programs</option>
-                    {programData[selectedPillar]?.map((program, index) => (
+                    {programData["NADi x Entrepreneur"]?.map((program, index) => (
                       <option key={index} value={program.name}>{program.name}</option>
                     ))}
                   </select>
@@ -418,30 +351,20 @@ export default function SmartServices() {
           </Card>
 
           {/* Program Cards */}
-          <Card className="border-0 shadow-md">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BarChart3 className="h-5 w-5 text-blue-600" />
-                Programs - {selectedPillar}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {programData[selectedPillar]?.map((program, index) => (
-                  <div key={index} className="text-center p-6 border rounded-lg hover:shadow-sm transition-shadow">
-                    <div className="text-4xl mb-4">{program.icon}</div>
-                    <div>
-                      <p className="font-semibold text-lg mb-2">{program.name}</p>
-                      <p className="text-3xl font-bold text-blue-600">
-                        {program.participants.toLocaleString()}
-                      </p>
-                      <p className="text-sm text-gray-500">participants</p>
-                    </div>
-                  </div>
-                ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {programData["NADi x Entrepreneur"]?.map((program, index) => (
+              <div key={index} className="text-center p-6 border rounded-lg hover:shadow-sm transition-shadow">
+                <div className="text-4xl mb-4">{program.icon}</div>
+                <div>
+                  <p className="font-semibold text-lg mb-2">{program.name}</p>
+                  <p className="text-3xl font-bold text-blue-600">
+                    {program.participants.toLocaleString()}
+                  </p>
+                  <p className="text-sm text-gray-500">participants</p>
+                </div>
               </div>
-            </CardContent>
-          </Card>
+            ))}
+          </div>
 
           {/* Demographics for Program Tab */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -484,7 +407,7 @@ export default function SmartServices() {
             ))}
           </div>
 
-          {/* State Distribution for Program Tab */}
+          {/* State Distribution for Program Tab - Updated to Bar Chart */}
           <Card className="border-0 shadow-md">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -501,26 +424,31 @@ export default function SmartServices() {
                 />
               </div>
             </CardHeader>
-            <CardContent className="space-y-4">
-              {filteredStateData.map((state, index) => (
-                <div key={index} className="space-y-3 p-3 rounded-lg hover:bg-gray-50 transition-all">
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-blue-600"></div>
-                      <span className="font-semibold">{state.state}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg font-bold text-blue-600">
-                        {state.count.toLocaleString()}
-                      </span>
-                      <Badge variant="secondary" className="text-xs">
-                        {state.percentage}%
-                      </Badge>
-                    </div>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={400}>
+                <BarChart data={filteredStateData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="state" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="count" fill="#3b82f6" name="Participants" />
+                </BarChart>
+              </ResponsiveContainer>
+              {stateSearchTerm && (
+                <div className="mt-4">
+                  <h4 className="font-medium mb-2">Search Results:</h4>
+                  <div className="grid grid-cols-1 gap-2">
+                    {filteredStateData.slice(0, 5).map((state, index) => (
+                      <div key={index} className="flex justify-between items-center p-2 bg-muted rounded">
+                        <span>{state.state}</span>
+                        <div className="text-sm text-muted-foreground">
+                          {state.count} participants ({state.percentage}%)
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                  <Progress value={state.percentage} className="h-2" />
                 </div>
-              ))}
+              )}
             </CardContent>
           </Card>
         </TabsContent>

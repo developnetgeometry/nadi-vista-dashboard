@@ -25,7 +25,7 @@ const statusCards = [{
   count: "25",
   active: false
 }, {
-  title: "Maintenance Open",
+  title: "Docket Open",
   count: "26",
   active: false
 }];
@@ -137,51 +137,5 @@ export default function Home() {
         </Card>
       </div>
 
-      {/* Latest Updates */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Latest Events at NADI</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="border-l-4 border-primary pl-4">
-              <h4 className="font-semibold">Digital Skills Workshop</h4>
-              <p className="text-sm text-muted-foreground">15 Dec 2024 • NADI Kuala Lumpur</p>
-              <p className="text-sm mt-2">
-                Empowering communities with essential digital literacy skills
-              </p>
-            </div>
-            <div className="border-l-4 border-secondary pl-4">
-              <h4 className="font-semibold">Entrepreneur Bootcamp</h4>
-              <p className="text-sm text-muted-foreground">12 Dec 2024 • NADI Penang</p>
-              <p className="text-sm mt-2">
-                Supporting local entrepreneurs with business development
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Latest News</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <h4 className="font-semibold">NADI Expansion Program 2025</h4>
-              <p className="text-sm text-muted-foreground">10 Dec 2024</p>
-              <p className="text-sm">
-                New strategic initiatives to expand NADI reach across rural communities
-              </p>
-              <Badge variant="outline">Announcement</Badge>
-            </div>
-            <div className="space-y-2">
-              <h4 className="font-semibold">Partnership with Local Universities</h4>
-              <p className="text-sm text-muted-foreground">8 Dec 2024</p>
-              
-              <Badge variant="outline">Partnership</Badge>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
     </div>;
 }

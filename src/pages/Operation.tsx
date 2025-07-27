@@ -17,7 +17,7 @@ const operationStats = [
   { title: "Total NADI", count: "1,099", icon: Building2, color: "text-blue-600" },
   { title: "Open", count: "1,044", icon: Building2, color: "text-green-600" },
   { title: "Closed", count: "25", icon: Building2, color: "text-red-600" },
-  { title: "Maintenance Open", count: "26", icon: AlertTriangle, color: "text-orange-600" }
+  { title: "Docket Open", count: "26", icon: AlertTriangle, color: "text-orange-600" }
 ]
 
 const areaDistribution = [
@@ -392,7 +392,7 @@ export default function Operation() {
                     </DialogContent>
                   </Dialog>
                 )}
-                {stat.title === "Maintenance Open" && (
+                {stat.title === "Docket Open" && (
                   <Dialog open={maintenanceDialogOpen} onOpenChange={setMaintenanceDialogOpen}>
                     <DialogTrigger asChild>
                       <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
