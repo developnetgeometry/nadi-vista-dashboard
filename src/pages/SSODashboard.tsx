@@ -17,6 +17,9 @@ import {
   Clock
 } from "lucide-react"
 import { PieChart as RechartsPieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LineChart, Line } from "recharts"
+import { DateRangePicker } from "@/components/DateRangePicker"
+import { PDFDownloadButton } from "@/components/PDFDownloadButton"
+import { DateRange } from "@/components/DateRangePicker"
 
 // Mock data for different pillars
 const pillars = [
@@ -130,6 +133,7 @@ const mockData = {
 export default function SSODashboard() {
   const [selectedPillar, setSelectedPillar] = useState<string>("")
   const [currentData, setCurrentData] = useState<any>(null)
+  const [dateRange, setDateRange] = useState<DateRange | undefined>()
 
   useEffect(() => {
     if (selectedPillar && mockData[selectedPillar as keyof typeof mockData]) {
@@ -179,6 +183,7 @@ export default function SSODashboard() {
           <p className="text-muted-foreground">View data for your selected pillar</p>
         </div>
         <div className="flex items-center gap-4">
+          <PDFDownloadButton filename="sso-dashboard" />
           <Select value={selectedPillar} onValueChange={handlePillarChange}>
             <SelectTrigger className="w-48">
               <SelectValue placeholder="Select Pillar" />
@@ -196,6 +201,17 @@ export default function SSODashboard() {
           </Badge>
         </div>
       </div>
+
+      {/* Date Range Filter */}
+      {currentData && (
+        <div className="flex items-center gap-4">
+          <DateRangePicker
+            value={dateRange}
+            onChange={setDateRange}
+            placeholder="Filter by date range"
+          />
+        </div>
+      )}
 
       {currentData && (
         <>

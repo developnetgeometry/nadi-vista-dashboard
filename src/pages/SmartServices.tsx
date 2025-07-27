@@ -23,6 +23,9 @@ import {
   Eye
 } from "lucide-react"
 import { useState } from "react"
+import { DateRangePicker } from "@/components/DateRangePicker"
+import { PDFDownloadButton } from "@/components/PDFDownloadButton"
+import { DateRange } from "@/components/DateRangePicker"
 
 const pillars = [
   "NADi x Entrepreneur",
@@ -130,6 +133,7 @@ export default function SmartServices() {
   const [programYear, setProgramYear] = useState("all")
   const [stateSearchTerm, setStateSearchTerm] = useState("")
   const [raceSearchTerm, setRaceSearchTerm] = useState("")
+  const [dateRange, setDateRange] = useState<DateRange | undefined>()
 
   // Filter functions
   const filteredStateData = stateData.filter(state => 
@@ -150,51 +154,17 @@ export default function SmartServices() {
             Monitor participation and engagement in smart services programs
           </p>
         </div>
+        <PDFDownloadButton filename="smart-services-dashboard" />
       </div>
 
-      {/* Filters */}
-      <Card className="border-0 shadow-md">
-        <CardContent className="p-6">
-          <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Filter className="h-4 w-4 text-gray-600" />
-                <span className="text-sm font-medium text-gray-700">Filter by:</span>
-              </div>
-              <select 
-                value={selectedMonth} 
-                onChange={(e) => setSelectedMonth(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="all">All Months</option>
-                <option value="01">January</option>
-                <option value="02">February</option>
-                <option value="03">March</option>
-                <option value="04">April</option>
-                <option value="05">May</option>
-                <option value="06">June</option>
-                <option value="07">July</option>
-                <option value="08">August</option>
-                <option value="09">September</option>
-                <option value="10">October</option>
-                <option value="11">November</option>
-                <option value="12">December</option>
-              </select>
-              <select 
-                value={selectedYear} 
-                onChange={(e) => setSelectedYear(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="all">All Years</option>
-                <option value="2024">2024</option>
-                <option value="2023">2023</option>
-                <option value="2022">2022</option>
-                <option value="2021">2021</option>
-              </select>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Date Range Filter */}
+      <div className="flex items-center gap-4">
+        <DateRangePicker
+          value={dateRange}
+          onChange={setDateRange}
+          placeholder="Filter by date range"
+        />
+      </div>
 
       {/* Tabs Section */}
       <Tabs defaultValue="overview" className="space-y-6">

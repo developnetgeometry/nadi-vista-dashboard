@@ -7,6 +7,9 @@ import { Input } from "@/components/ui/input"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 import { Users, TrendingUp, MapPin, Building2, User, UserCheck, Calendar, Filter, Search } from "lucide-react"
 import { useState } from "react"
+import { DateRangePicker } from "@/components/DateRangePicker"
+import { PDFDownloadButton } from "@/components/PDFDownloadButton"
+import { DateRange } from "@/components/DateRangePicker"
 
 const membershipStats = [
   { title: "Total NADI Membership", count: "2,150,217", icon: Users },
@@ -79,6 +82,7 @@ export default function Membership() {
   const [raceSearch, setRaceSearch] = useState("")
   const [occupationSearch, setOccupationSearch] = useState("")
   const [selectedTP, setSelectedTP] = useState("all")
+  const [dateRange, setDateRange] = useState<DateRange | undefined>()
 
   // Filter functions
   const filteredRaceData = demographicsData.find(d => d.category === "Race")?.data.filter(item => 
@@ -99,51 +103,17 @@ export default function Membership() {
             Monitor membership statistics and demographics across NADI centers
           </p>
         </div>
+        <PDFDownloadButton filename="membership-dashboard" />
       </div>
 
-      {/* Filters */}
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex items-center gap-4 flex-wrap">
-            <div className="flex items-center gap-2">
-              <Filter className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium">Filter by:</span>
-            </div>
-            <Select defaultValue="2024">
-              <SelectTrigger className="w-32">
-                <Calendar className="h-4 w-4 mr-2" />
-                <SelectValue placeholder="Year" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="2024">2024</SelectItem>
-                <SelectItem value="2023">2023</SelectItem>
-                <SelectItem value="2022">2022</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select defaultValue="all">
-              <SelectTrigger className="w-40">
-                <Calendar className="h-4 w-4 mr-2" />
-                <SelectValue placeholder="Month" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Months</SelectItem>
-                <SelectItem value="1">January</SelectItem>
-                <SelectItem value="2">February</SelectItem>
-                <SelectItem value="3">March</SelectItem>
-                <SelectItem value="4">April</SelectItem>
-                <SelectItem value="5">May</SelectItem>
-                <SelectItem value="6">June</SelectItem>
-                <SelectItem value="7">July</SelectItem>
-                <SelectItem value="8">August</SelectItem>
-                <SelectItem value="9">September</SelectItem>
-                <SelectItem value="10">October</SelectItem>
-                <SelectItem value="11">November</SelectItem>
-                <SelectItem value="12">December</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Date Range Filter */}
+      <div className="flex items-center gap-4">
+        <DateRangePicker
+          value={dateRange}
+          onChange={setDateRange}
+          placeholder="Filter by date range"
+        />
+      </div>
 
       {/* Tabs */}
       <Tabs defaultValue="overview" className="space-y-6">

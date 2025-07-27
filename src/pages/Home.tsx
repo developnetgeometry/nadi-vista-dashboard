@@ -4,6 +4,10 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { CalendarDays, MapPin, Users, Building2, TrendingUp, Activity } from "lucide-react";
 import { NADIDistributionMap } from "@/components/NADIDistributionMap";
+import { DateRangePicker } from "@/components/DateRangePicker";
+import { PDFDownloadButton } from "@/components/PDFDownloadButton";
+import { useState } from "react";
+import { DateRange } from "@/components/DateRangePicker";
 const statusCards = [{
   title: "Total NADI",
   count: "1,069 / 1,099",
@@ -47,6 +51,8 @@ const nadiCategories = [{
   color: "bg-red-500"
 }];
 export default function Home() {
+  const [dateRange, setDateRange] = useState<DateRange | undefined>()
+
   return <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -57,6 +63,7 @@ export default function Home() {
           </p>
         </div>
         <div className="flex gap-2">
+          <PDFDownloadButton filename="home-overview" />
           <Button variant="outline">
             <MapPin className="h-4 w-4 mr-2" />
             View Map
@@ -66,6 +73,15 @@ export default function Home() {
             Latest Events
           </Button>
         </div>
+      </div>
+
+      {/* Date Range Filter */}
+      <div className="flex items-center gap-4">
+        <DateRangePicker
+          value={dateRange}
+          onChange={setDateRange}
+          placeholder="Filter by date range"
+        />
       </div>
 
       {/* Key Statistics Cards */}

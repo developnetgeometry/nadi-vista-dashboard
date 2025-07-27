@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useAuth } from "@/contexts/AuthContext"
 import { Building2, Users, UserCheck, Lock, ArrowRight, Cpu } from "lucide-react"
+import { PDFDownloadButton } from "@/components/PDFDownloadButton"
 
 export default function Login() {
   const [selectedLoginType, setSelectedLoginType] = useState<'dusp' | 'sso' | 'staff' | 'tp' | null>(null)
@@ -32,6 +33,10 @@ export default function Login() {
       <div className="w-full max-w-md space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">
+          <div className="flex justify-between items-center mb-4">
+            <div></div>
+            <PDFDownloadButton filename="login-page" size="sm" variant="ghost" />
+          </div>
           <h1 className="text-4xl font-bold text-primary">NADI</h1>
           <p className="text-muted-foreground">Please select your login type to continue</p>
         </div>

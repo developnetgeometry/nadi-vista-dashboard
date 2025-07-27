@@ -9,6 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input"
 import { Settings, Building2, Users, MapPin, UserCheck, AlertTriangle, Info, Download, Filter, Search } from "lucide-react"
 import { useState, useMemo } from "react"
+import { DateRangePicker } from "@/components/DateRangePicker"
+import { PDFDownloadButton } from "@/components/PDFDownloadButton"
+import { DateRange } from "@/components/DateRangePicker"
 
 const operationStats = [
   { title: "Total NADI", count: "1,099", icon: Building2, color: "text-blue-600" },
@@ -159,6 +162,7 @@ export default function Operation() {
   const [maintenanceDialogOpen, setMaintenanceDialogOpen] = useState(false)
   const [duspDialogOpen, setDuspDialogOpen] = useState(false)
   const [selectedDUSP, setSelectedDUSP] = useState<string>("")
+  const [dateRange, setDateRange] = useState<DateRange | undefined>()
   
   // Filter states - unified filter
   const [nadiAreaMonth, setNadiAreaMonth] = useState<string>("all")
@@ -305,6 +309,16 @@ export default function Operation() {
             Monitor NADI operations, maintenance status, and workforce management
           </p>
         </div>
+        <PDFDownloadButton filename="operation-dashboard" />
+      </div>
+
+      {/* Date Range Filter */}
+      <div className="flex items-center gap-4">
+        <DateRangePicker
+          value={dateRange}
+          onChange={setDateRange}
+          placeholder="Filter by date range"
+        />
       </div>
 
       <Tabs defaultValue="operation" className="w-full">
