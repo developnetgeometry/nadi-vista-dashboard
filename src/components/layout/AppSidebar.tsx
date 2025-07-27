@@ -86,8 +86,16 @@ const navigationItems = [
 
 export function AppSidebar() {
   const { state } = useSidebar()
-  const location = useLocation()
-  const currentPath = location.pathname
+  
+  // Safely handle location to prevent Router context errors
+  let currentPath = "/"
+  try {
+    const location = useLocation()
+    currentPath = location.pathname
+  } catch (error) {
+    console.error("AppSidebar: Router context not available", error)
+  }
+  
   const [openGroups, setOpenGroups] = useState(["Admin Console"])
 
   const isActive = (path: string) => currentPath === path
