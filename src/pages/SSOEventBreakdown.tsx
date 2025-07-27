@@ -4,6 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { PieChart, MapPin, TrendingUp, BarChart3, Search, ChevronLeft, ChevronRight, Calendar, Filter } from "lucide-react"
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LineChart, Line, PieChart as RechartsPieChart, Pie, Cell } from "recharts"
 import { DateRangePicker } from "@/components/DateRangePicker"
@@ -16,6 +17,59 @@ const pillars = [
   { id: "awareness", name: "Awareness" },
   { id: "lifelong-learning", name: "Lifelong Learning" }
 ]
+
+// Mock data for locations by different levels
+const locationData = {
+  states: [
+    { name: "Selangor", events: 45, attendees: 1200 },
+    { name: "Kuala Lumpur", events: 42, attendees: 1150 },
+    { name: "Johor", events: 38, attendees: 980 },
+    { name: "Penang", events: 35, attendees: 890 },
+    { name: "Perak", events: 32, attendees: 820 },
+    { name: "Kedah", events: 28, attendees: 750 },
+    { name: "Sabah", events: 25, attendees: 680 },
+    { name: "Sarawak", events: 23, attendees: 620 },
+    { name: "Negeri Sembilan", events: 20, attendees: 550 },
+    { name: "Melaka", events: 18, attendees: 480 },
+    { name: "Pahang", events: 15, attendees: 420 },
+    { name: "Kelantan", events: 12, attendees: 350 },
+    { name: "Terengganu", events: 10, attendees: 280 },
+    { name: "Perlis", events: 8, attendees: 220 },
+    { name: "Labuan", events: 5, attendees: 150 }
+  ],
+  parliament: [
+    { name: "Petaling Jaya", events: 15, attendees: 450 },
+    { name: "Subang", events: 14, attendees: 420 },
+    { name: "Puchong", events: 13, attendees: 390 },
+    { name: "Klang", events: 12, attendees: 360 },
+    { name: "Shah Alam", events: 11, attendees: 330 },
+    { name: "Bukit Bintang", events: 10, attendees: 300 },
+    { name: "Cheras", events: 9, attendees: 270 },
+    { name: "Ampang", events: 8, attendees: 240 },
+    { name: "Setapak", events: 7, attendees: 210 },
+    { name: "Damansara", events: 6, attendees: 180 },
+    { name: "Wangsa Maju", events: 5, attendees: 150 },
+    { name: "Titiwangsa", events: 4, attendees: 120 },
+    { name: "Lembah Pantai", events: 3, attendees: 90 },
+    { name: "Seputeh", events: 2, attendees: 60 },
+    { name: "Bandar Tun Razak", events: 1, attendees: 30 }
+  ],
+  dun: [
+    { name: "Sungai Buloh", events: 8, attendees: 240 },
+    { name: "Bukit Lanjan", events: 7, attendees: 210 },
+    { name: "Paya Jaras", events: 6, attendees: 180 },
+    { name: "Kota Damansara", events: 5, attendees: 150 },
+    { name: "Kinrara", events: 5, attendees: 150 },
+    { name: "Balakong", events: 4, attendees: 120 },
+    { name: "Kajang", events: 4, attendees: 120 },
+    { name: "Bangi", events: 3, attendees: 90 },
+    { name: "Seri Kembangan", events: 3, attendees: 90 },
+    { name: "Taman Templer", events: 2, attendees: 60 },
+    { name: "Bukit Gasing", events: 2, attendees: 60 },
+    { name: "Kampong Tunku", events: 1, attendees: 30 },
+    { name: "Bukit Antarabangsa", events: 1, attendees: 30 }
+  ]
+}
 
 const mockData = {
   entrepreneur: {
@@ -149,6 +203,10 @@ export default function SSOEventBreakdown() {
   const [selectedMonth, setSelectedMonth] = useState<string>("all")
   const [selectedYear, setSelectedYear] = useState<string>("2024")
   const [dateRange, setDateRange] = useState<DateRange | undefined>()
+  const [participantTrendsYear, setParticipantTrendsYear] = useState<string>("2024")
+  const [searchState, setSearchState] = useState<string>("")
+  const [searchParliament, setSearchParliament] = useState<string>("")
+  const [searchDun, setSearchDun] = useState<string>("")
   const itemsPerPage = 5
 
   const months = [
@@ -297,7 +355,8 @@ export default function SSOEventBreakdown() {
       {currentData && (
         <>
           {/* Charts Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Charts Section */}
+          <div className="space-y-6">
             {/* Events by Type */}
             <Card>
               <CardHeader>
@@ -340,184 +399,145 @@ export default function SSOEventBreakdown() {
               </CardContent>
             </Card>
 
-            {/* Events by Location with Search */}
+            {/* Events by Location with Tabs */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <MapPin className="h-5 w-5" />
                   Events by Location
                 </CardTitle>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search locations..."
-                    value={searchLocation}
-                    onChange={(e) => setSearchLocation(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={filteredLocations}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="location" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="events" fill="#8884d8" name="Events" />
-                    <Bar dataKey="attendees" fill="#82ca9d" name="Attendees" />
-                  </BarChart>
-                </ResponsiveContainer>
+                <Tabs defaultValue="state" className="w-full">
+                  <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="state">State</TabsTrigger>
+                    <TabsTrigger value="parliament">Parliament</TabsTrigger>
+                    <TabsTrigger value="dun">DUN</TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="state" className="space-y-4">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Search states..."
+                        value={searchState}
+                        onChange={(e) => setSearchState(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                    <ResponsiveContainer width="100%" height={400}>
+                      <BarChart data={locationData.states.slice(0, 10)}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} />
+                        <YAxis />
+                        <Tooltip />
+                        <Bar dataKey="events" fill="#8884d8" name="Events" />
+                        <Bar dataKey="attendees" fill="#82ca9d" name="Attendees" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                    {searchState && (
+                      <div className="mt-4">
+                        <h4 className="font-medium mb-2">Search Results:</h4>
+                        <div className="grid grid-cols-1 gap-2">
+                          {locationData.states
+                            .filter(state => state.name.toLowerCase().includes(searchState.toLowerCase()))
+                            .slice(0, 5)
+                            .map((state, index) => (
+                              <div key={index} className="flex justify-between items-center p-2 bg-muted rounded">
+                                <span>{state.name}</span>
+                                <div className="text-sm text-muted-foreground">
+                                  {state.events} events, {state.attendees} attendees
+                                </div>
+                              </div>
+                            ))}
+                        </div>
+                      </div>
+                    )}
+                  </TabsContent>
+
+                  <TabsContent value="parliament" className="space-y-4">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Search parliament constituencies..."
+                        value={searchParliament}
+                        onChange={(e) => setSearchParliament(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                    <ResponsiveContainer width="100%" height={400}>
+                      <BarChart data={locationData.parliament.slice(0, 10)}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} />
+                        <YAxis />
+                        <Tooltip />
+                        <Bar dataKey="events" fill="#8884d8" name="Events" />
+                        <Bar dataKey="attendees" fill="#82ca9d" name="Attendees" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                    {searchParliament && (
+                      <div className="mt-4">
+                        <h4 className="font-medium mb-2">Search Results:</h4>
+                        <div className="grid grid-cols-1 gap-2">
+                          {locationData.parliament
+                            .filter(p => p.name.toLowerCase().includes(searchParliament.toLowerCase()))
+                            .slice(0, 5)
+                            .map((parliament, index) => (
+                              <div key={index} className="flex justify-between items-center p-2 bg-muted rounded">
+                                <span>{parliament.name}</span>
+                                <div className="text-sm text-muted-foreground">
+                                  {parliament.events} events, {parliament.attendees} attendees
+                                </div>
+                              </div>
+                            ))}
+                        </div>
+                      </div>
+                    )}
+                  </TabsContent>
+
+                  <TabsContent value="dun" className="space-y-4">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Search DUN constituencies..."
+                        value={searchDun}
+                        onChange={(e) => setSearchDun(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                    <ResponsiveContainer width="100%" height={400}>
+                      <BarChart data={locationData.dun.slice(0, 10)}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} />
+                        <YAxis />
+                        <Tooltip />
+                        <Bar dataKey="events" fill="#8884d8" name="Events" />
+                        <Bar dataKey="attendees" fill="#82ca9d" name="Attendees" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                    {searchDun && (
+                      <div className="mt-4">
+                        <h4 className="font-medium mb-2">Search Results:</h4>
+                        <div className="grid grid-cols-1 gap-2">
+                          {locationData.dun
+                            .filter(dun => dun.name.toLowerCase().includes(searchDun.toLowerCase()))
+                            .slice(0, 5)
+                            .map((dun, index) => (
+                              <div key={index} className="flex justify-between items-center p-2 bg-muted rounded">
+                                <span>{dun.name}</span>
+                                <div className="text-sm text-muted-foreground">
+                                  {dun.events} events, {dun.attendees} attendees
+                                </div>
+                              </div>
+                            ))}
+                        </div>
+                      </div>
+                    )}
+                  </TabsContent>
+                </Tabs>
               </CardContent>
             </Card>
           </div>
-
-          {/* Registration vs Attendance - Full Width */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BarChart3 className="h-5 w-5" />
-                Registration vs Actual Attendance Analysis
-              </CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Comprehensive comparison of registration numbers and actual attendance with completion rates
-              </p>
-              <div className="flex items-center gap-4 mt-4">
-                <div className="relative flex-1 max-w-md">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search programs..."
-                    value={searchProgram}
-                    onChange={(e) => {
-                      setSearchProgram(e.target.value)
-                      setCurrentPage(1)
-                    }}
-                    className="pl-10"
-                  />
-                </div>
-                <Badge variant="outline" className="text-primary border-primary">
-                  {filteredPrograms.length} / {currentData.registrationVsAttendance.length} programs
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                <div className="p-4 bg-primary/5 rounded-lg text-center">
-                  <div className="text-2xl font-bold text-primary">
-                    {Math.round(filteredPrograms.reduce((sum: number, item: any) => sum + (item.attended / item.registered * 100), 0) / filteredPrograms.length) || 0}%
-                  </div>
-                  <p className="text-sm text-muted-foreground">Average Attendance Rate</p>
-                </div>
-                <div className="p-4 bg-secondary/5 rounded-lg text-center">
-                  <div className="text-2xl font-bold text-secondary">
-                    {filteredPrograms.reduce((sum: number, item: any) => sum + item.registered, 0)}
-                  </div>
-                  <p className="text-sm text-muted-foreground">Total Registrations</p>
-                </div>
-                <div className="p-4 bg-accent/5 rounded-lg text-center">
-                  <div className="text-2xl font-bold text-accent">
-                    {filteredPrograms.reduce((sum: number, item: any) => sum + item.attended, 0)}
-                  </div>
-                  <p className="text-sm text-muted-foreground">Total Attendance</p>
-                </div>
-              </div>
-              
-              <ResponsiveContainer width="100%" height={400}>
-                <BarChart data={filteredPrograms}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis 
-                    dataKey="event" 
-                    angle={-45}
-                    textAnchor="end"
-                    height={100}
-                    interval={0}
-                    fontSize={12}
-                  />
-                  <YAxis />
-                  <Tooltip 
-                    formatter={(value, name) => [value, name === "registered" ? "Registered" : "Attended"]}
-                    labelFormatter={(label) => `Event: ${label}`}
-                  />
-                  <Bar dataKey="registered" fill="#ffc658" name="Registered" />
-                  <Bar dataKey="attended" fill="#8884d8" name="Attended" />
-                </BarChart>
-              </ResponsiveContainer>
-
-              {/* Event Details Table with Pagination */}
-              <div className="mt-6 overflow-x-auto">
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-lg font-semibold">Event Performance Details</h4>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    Showing {startIndex + 1}-{Math.min(endIndex, filteredPrograms.length)} of {filteredPrograms.length} events
-                  </div>
-                </div>
-                <div className="border rounded-lg">
-                  <div className="grid grid-cols-4 gap-4 p-4 bg-muted/50 font-medium">
-                    <div>Event Name</div>
-                    <div>Registered</div>
-                    <div>Attended</div>
-                    <div>Attendance Rate</div>
-                  </div>
-                  {paginatedPrograms.map((event: any, index: number) => (
-                    <div key={index} className="grid grid-cols-4 gap-4 p-4 border-t">
-                      <div className="font-medium">{event.event}</div>
-                      <div>{event.registered}</div>
-                      <div>{event.attended}</div>
-                      <div>
-                        <Badge 
-                          variant={event.attended / event.registered >= 0.8 ? "default" : "secondary"}
-                          className={event.attended / event.registered >= 0.8 ? "bg-green-500" : ""}
-                        >
-                          {Math.round((event.attended / event.registered) * 100)}%
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                
-                {/* Pagination Controls */}
-                {totalPages > 1 && (
-                  <div className="flex items-center justify-between mt-4">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                      disabled={currentPage === 1}
-                      className="flex items-center gap-2"
-                    >
-                      <ChevronLeft className="h-4 w-4" />
-                      Previous
-                    </Button>
-                    
-                    <div className="flex items-center gap-2">
-                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                        <Button
-                          key={page}
-                          variant={currentPage === page ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => setCurrentPage(page)}
-                          className="w-8 h-8 p-0"
-                        >
-                          {page}
-                        </Button>
-                      ))}
-                    </div>
-                    
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                      disabled={currentPage === totalPages}
-                      className="flex items-center gap-2"
-                    >
-                      Next
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
 
           {/* Participation Trends - Full Width at Bottom */}
           <Card>
@@ -526,9 +546,20 @@ export default function SSOEventBreakdown() {
                 <TrendingUp className="h-5 w-5" />
                 Participation Trends (Full Year)
               </CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Monthly participation trends throughout the year (not affected by date filters)
-              </p>
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-muted-foreground">
+                  Monthly participation trends throughout the year
+                </p>
+                <select 
+                  value={participantTrendsYear} 
+                  onChange={(e) => setParticipantTrendsYear(e.target.value)}
+                  className="px-3 py-1 border border-gray-300 rounded-md text-sm"
+                >
+                  <option value="2024">2024</option>
+                  <option value="2023">2023</option>
+                  <option value="2022">2022</option>
+                </select>
+              </div>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={400}>
