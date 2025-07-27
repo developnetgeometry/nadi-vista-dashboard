@@ -4,6 +4,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Users, UserCheck, TrendingUp, Award, Activity, Target } from "lucide-react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LineChart, Line, PieChart as RechartsPieChart, Pie, Cell } from "recharts";
+import { DateRangePicker } from "@/components/DateRangePicker";
+import { PDFDownloadButton } from "@/components/PDFDownloadButton";
+import { DateRange } from "@/components/DateRangePicker";
 
 // Mock data for different pillars
 const pillars = [{
@@ -237,6 +240,7 @@ const mockData = {
 export default function SSOParticipantStats() {
   const [selectedPillar, setSelectedPillar] = useState<string>("entrepreneur");
   const [currentData, setCurrentData] = useState<any>(null);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
   useEffect(() => {
     if (selectedPillar && mockData[selectedPillar as keyof typeof mockData]) {
       setCurrentData(mockData[selectedPillar as keyof typeof mockData]);
@@ -253,6 +257,7 @@ export default function SSOParticipantStats() {
           <p className="text-muted-foreground">Detailed insights on participant engagement and performance</p>
         </div>
         <div className="flex items-center gap-4">
+          <PDFDownloadButton filename="sso-participant-stats" />
           <Select value={selectedPillar} onValueChange={handlePillarChange}>
             <SelectTrigger className="w-48">
               <SelectValue placeholder="Select Pillar" />
@@ -268,6 +273,17 @@ export default function SSOParticipantStats() {
           </Badge>
         </div>
       </div>
+
+      {/* Date Range Filter */}
+      {currentData && (
+        <div className="flex items-center gap-4">
+          <DateRangePicker
+            value={dateRange}
+            onChange={setDateRange}
+            placeholder="Filter by date range"
+          />
+        </div>
+      )}
 
       {currentData && <>
           {/* Key Metrics */}

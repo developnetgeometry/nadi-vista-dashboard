@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
 import { Calendar, Clock, MapPin, Users, Search, Filter } from "lucide-react"
+import { DateRangePicker } from "@/components/DateRangePicker"
+import { PDFDownloadButton } from "@/components/PDFDownloadButton"
+import { DateRange } from "@/components/DateRangePicker"
 
 const pillars = [
   { id: "entrepreneur", name: "Entrepreneur" },
@@ -144,6 +147,7 @@ export default function SSOTakwim() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedGroup, setSelectedGroup] = useState("all")
   const [currentEvents, setCurrentEvents] = useState<any>({ nadi2u: [], nadi4u: [] })
+  const [dateRange, setDateRange] = useState<DateRange | undefined>()
 
   useEffect(() => {
     if (selectedPillar && mockEvents[selectedPillar as keyof typeof mockEvents]) {
@@ -203,6 +207,7 @@ export default function SSOTakwim() {
           <p className="text-muted-foreground">View events for your selected pillar</p>
         </div>
         <div className="flex items-center gap-4">
+          <PDFDownloadButton filename="sso-takwim" />
           <Select value={selectedPillar} onValueChange={handlePillarChange}>
             <SelectTrigger className="w-48">
               <SelectValue placeholder="Select Pillar" />
@@ -219,6 +224,15 @@ export default function SSOTakwim() {
             {pillars.find(p => p.id === selectedPillar)?.name}
           </Badge>
         </div>
+      </div>
+
+      {/* Date Range Filter */}
+      <div className="flex items-center gap-4">
+        <DateRangePicker
+          value={dateRange}
+          onChange={setDateRange}
+          placeholder="Filter by date range"
+        />
       </div>
 
       {/* Filters */}

@@ -6,6 +6,9 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { PieChart, MapPin, TrendingUp, BarChart3, Search, ChevronLeft, ChevronRight, Calendar, Filter } from "lucide-react"
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LineChart, Line, PieChart as RechartsPieChart, Pie, Cell } from "recharts"
+import { DateRangePicker } from "@/components/DateRangePicker"
+import { PDFDownloadButton } from "@/components/PDFDownloadButton"
+import { DateRange } from "@/components/DateRangePicker"
 
 // Mock data for different pillars
 const pillars = [
@@ -145,6 +148,7 @@ export default function SSOEventBreakdown() {
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [selectedMonth, setSelectedMonth] = useState<string>("all")
   const [selectedYear, setSelectedYear] = useState<string>("2024")
+  const [dateRange, setDateRange] = useState<DateRange | undefined>()
   const itemsPerPage = 5
 
   const months = [
@@ -216,6 +220,7 @@ export default function SSOEventBreakdown() {
           <p className="text-muted-foreground">Detailed analysis and visualization of event data</p>
         </div>
         <div className="flex items-center gap-4">
+          <PDFDownloadButton filename="sso-event-breakdown" />
           <Select value={selectedPillar} onValueChange={handlePillarChange}>
             <SelectTrigger className="w-48">
               <SelectValue placeholder="Select Pillar" />
@@ -229,6 +234,15 @@ export default function SSOEventBreakdown() {
             </SelectContent>
           </Select>
         </div>
+      </div>
+
+      {/* Date Range Filter */}
+      <div className="flex items-center gap-4">
+        <DateRangePicker
+          value={dateRange}
+          onChange={setDateRange}
+          placeholder="Filter by date range"
+        />
       </div>
 
       {/* Filters Section */}

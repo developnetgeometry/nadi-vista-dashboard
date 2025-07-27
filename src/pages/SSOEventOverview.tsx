@@ -3,6 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Users, Clock, Activity, TrendingUp } from "lucide-react";
+import { DateRangePicker } from "@/components/DateRangePicker";
+import { PDFDownloadButton } from "@/components/PDFDownloadButton";
+import { DateRange } from "@/components/DateRangePicker";
 
 // Mock data for different pillars
 const pillars = [{
@@ -109,6 +112,7 @@ const mockData = {
 export default function SSOEventOverview() {
   const [selectedPillar, setSelectedPillar] = useState<string>("entrepreneur");
   const [currentData, setCurrentData] = useState<any>(null);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
   useEffect(() => {
     if (selectedPillar && mockData[selectedPillar as keyof typeof mockData]) {
       setCurrentData(mockData[selectedPillar as keyof typeof mockData]);
@@ -125,6 +129,7 @@ export default function SSOEventOverview() {
           <p className="text-muted-foreground">Comprehensive view of events for your selected pillar</p>
         </div>
         <div className="flex items-center gap-4">
+          <PDFDownloadButton filename="sso-event-overview" />
           <Select value={selectedPillar} onValueChange={handlePillarChange}>
             <SelectTrigger className="w-48">
               <SelectValue placeholder="Select Pillar" />
@@ -140,6 +145,17 @@ export default function SSOEventOverview() {
           </Badge>
         </div>
       </div>
+
+      {/* Date Range Filter */}
+      {currentData && (
+        <div className="flex items-center gap-4">
+          <DateRangePicker
+            value={dateRange}
+            onChange={setDateRange}
+            placeholder="Filter by date range"
+          />
+        </div>
+      )}
 
       {currentData && <>
           {/* Key Metrics */}
