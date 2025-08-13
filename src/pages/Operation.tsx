@@ -641,16 +641,9 @@ export default function Operation() {
                       </div>
                       <div>
                         <p className="text-sm font-medium text-muted-foreground">{officer.role}</p>
-                        <p className="text-2xl font-bold">{officer.occupied}/{officer.total}</p>
-                        <div className="flex gap-4 text-sm mt-1">
-                          <span className="text-green-600">Occupied: {officer.occupied}</span>
-                          <span className="text-red-600">Vacancy: {officer.vacancy}</span>
-                        </div>
+                        <p className="text-2xl font-bold">{officer.total}</p>
                       </div>
                     </div>
-                  </div>
-                  <div className="mt-4">
-                    <Progress value={officer.occupied / officer.total * 100} className="h-2" />
                   </div>
                 </CardContent>
               </Card>)}
