@@ -532,6 +532,25 @@ export default function Operation() {
               </Card>)}
           </div>
 
+          {/* NADI Distribution by TP */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {nadiByTP.map(item => <Card key={item.tp} className="cursor-pointer hover:shadow-md transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 bg-muted rounded-lg">
+                        <Building2 className={`h-6 w-6 ${item.color}`} />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-sm">{item.tp}</p>
+                        <p className="text-2xl font-bold">{item.count}</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>)}
+          </div>
+
           {/* Total NADI by State */}
           <Card>
             <CardHeader>
@@ -549,32 +568,7 @@ export default function Operation() {
         </TabsContent>
 
         <TabsContent value="officer" className="space-y-6 mt-6">
-          {/* Total NADI by TP */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5" />
-                Total NADI by TP
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                {nadiByTP.map(item => <Card key={item.tp} className="cursor-pointer hover:shadow-lg transition-all duration-200 border-0 shadow-sm">
-                    <CardContent className="p-6 text-center">
-                      <div className="flex flex-col items-center space-y-3">
-                        <div className={`p-3 rounded-lg ${item.bgColor}`}>
-                          <Building2 className={`h-6 w-6 ${item.iconColor}`} />
-                        </div>
-                        <div>
-                          <p className={`text-lg font-semibold ${item.color}`}>{item.tp}</p>
-                          <p className="text-3xl font-bold text-gray-900 mt-1">{item.count}</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>)}
-              </div>
-            </CardContent>
-          </Card>
+          <FilterComponent month={officerFilterMonth} setMonth={setOfficerFilterMonth} year={officerFilterYear} setYear={setOfficerFilterYear} title="Filter Officer Data" />
 
           {/* Officer Management */}
           <Card>
