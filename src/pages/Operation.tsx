@@ -371,10 +371,14 @@ export default function Operation() {
     if (selectedDUSPForTP === "all") {
       return nadiByTP.sort((a, b) => b.count - a.count);
     }
-    return nadiByTPForDUSP[selectedDUSPForTP]?.map(tp => {
+    const tpDataForDusp = nadiByTPForDUSP[selectedDUSPForTP];
+    if (!tpDataForDusp) return [];
+    
+    return tpDataForDusp.map(tp => {
       const originalTP = nadiByTP.find(item => item.tp === tp.tp);
       return originalTP ? { ...originalTP, count: tp.count } : null;
-    }).filter(Boolean).sort((a, b) => b.count - a.count) || [];
+    }).filter((item): item is NonNullable<typeof item> => item !== null)
+      .sort((a, b) => b.count - a.count);
   }, [selectedDUSPForTP]);
 
   return <div className="space-y-6">
