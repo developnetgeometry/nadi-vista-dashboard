@@ -27,6 +27,7 @@ import { DateRangePicker } from "@/components/DateRangePicker"
 import { PDFDownloadButton } from "@/components/PDFDownloadButton"
 import { DateRange } from "@/components/DateRangePicker"
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 const pillars = [
   "NADi x Entrepreneur",
@@ -126,6 +127,40 @@ const stateData = [
   { state: "Perak", count: 358, percentage: 9 }
 ]
 
+// TP data organized by DUSP
+const tpDataByDusp = {
+  "TM": [
+    { name: "Citaglobal", count: 18200, logo: "🟡" },
+    { name: "Nera", count: 15420, logo: "🔵" },
+    { name: "Samudera", count: 14600, logo: "🟣" }
+  ],
+  "MAXIS": [
+    { name: "ETDmakmur", count: 13400, logo: "🔶" },
+    { name: "Afintra", count: 12350, logo: "🟢" }
+  ],
+  "CELCOMDIGI": [
+    { name: "Sprimtz design", count: 11250, logo: "🟠" },
+    { name: "Perwira", count: 9800, logo: "🔴" }
+  ],
+  "REDTONE": [
+    { name: "Teknikal Plus", count: 8900, logo: "🟤" },
+    { name: "Digital World", count: 7500, logo: "⚪" }
+  ]
+}
+
+// All TP data (default view)
+const allTpData = [
+  { name: "Citaglobal", count: 18200, logo: "🟡" },
+  { name: "Nera", count: 15420, logo: "🔵" },
+  { name: "Samudera", count: 14600, logo: "🟣" },
+  { name: "ETDmakmur", count: 13400, logo: "🔶" },
+  { name: "Afintra", count: 12350, logo: "🟢" },
+  { name: "Sprimtz design", count: 11250, logo: "🟠" },
+  { name: "Perwira", count: 9800, logo: "🔴" },
+  { name: "Teknikal Plus", count: 8900, logo: "🟤" },
+  { name: "Digital World", count: 7500, logo: "⚪" }
+]
+
 export default function SmartServices() {
   const [selectedMonth, setSelectedMonth] = useState("all")
   const [selectedYear, setSelectedYear] = useState("all")
@@ -135,6 +170,7 @@ export default function SmartServices() {
   const [stateSearchTerm, setStateSearchTerm] = useState("")
   const [raceSearchTerm, setRaceSearchTerm] = useState("")
   const [dateRange, setDateRange] = useState<DateRange | undefined>()
+  const [selectedDusp, setSelectedDusp] = useState("all")
 
   // Filter functions
   const filteredStateData = stateData.filter(state => 
@@ -144,6 +180,11 @@ export default function SmartServices() {
   const filteredRaceData = demographicsData.find(d => d.category === "Race")?.data.filter(race =>
     race.label.toLowerCase().includes(raceSearchTerm.toLowerCase())
   ) || []
+
+  // Filter TP data based on selected DUSP
+  const filteredTpData = selectedDusp === "all" 
+    ? allTpData.sort((a, b) => b.count - a.count)
+    : tpDataByDusp[selectedDusp]?.sort((a, b) => b.count - a.count) || []
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -369,22 +410,31 @@ export default function SmartServices() {
           {/* Total Participant by TP */}
           <Card className="border-0 shadow-md">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5 text-blue-600" />
-                Total Participant by TP
-              </CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="h-5 w-5 text-blue-600" />
+                  Total Participant by TP
+                </CardTitle>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-gray-700">Filter by DUSP:</span>
+                  <Select value={selectedDusp} onValueChange={setSelectedDusp}>
+                    <SelectTrigger className="w-48">
+                      <SelectValue placeholder="Select DUSP" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All DUSP</SelectItem>
+                      <SelectItem value="TM">TM</SelectItem>
+                      <SelectItem value="MAXIS">MAXIS</SelectItem>
+                      <SelectItem value="CELCOMDIGI">CELCOMDIGI</SelectItem>
+                      <SelectItem value="REDTONE">REDTONE</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
-                {[
-                  { name: "Citaglobal", count: 18200, logo: "🟡" },
-                  { name: "Nera", count: 15420, logo: "🔵" },
-                  { name: "Samudera", count: 14600, logo: "🟣" },
-                  { name: "ETDmakmur", count: 13400, logo: "🔶" },
-                  { name: "Afintra", count: 12350, logo: "🟢" },
-                  { name: "Sprimtz design", count: 11250, logo: "🟠" },
-                  { name: "Perwira", count: 9800, logo: "🔴" }
-                ].sort((a, b) => b.count - a.count).map((tp) => (
+                {filteredTpData.map((tp) => (
                   <Card key={tp.name} className="text-center hover:shadow-sm transition-shadow">
                     <CardContent className="p-4">
                       <div className="text-2xl mb-2">{tp.logo}</div>
@@ -394,6 +444,11 @@ export default function SmartServices() {
                   </Card>
                 ))}
               </div>
+              {filteredTpData.length === 0 && (
+                <div className="text-center py-8 text-gray-500">
+                  No TP data available for selected DUSP
+                </div>
+              )}
             </CardContent>
           </Card>
 
