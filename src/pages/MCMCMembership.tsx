@@ -219,7 +219,7 @@ export default function MCMCMembership() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Building2 className="h-5 w-5" />
-                New Membership by DUSP
+                Membership by DUSP
               </CardTitle>
             </CardHeader>
             <CardContent>
