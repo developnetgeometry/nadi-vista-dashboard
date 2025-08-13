@@ -225,6 +225,7 @@ export default function Operation() {
   const [maintenanceDialogOpen, setMaintenanceDialogOpen] = useState(false);
   const [duspDialogOpen, setDuspDialogOpen] = useState(false);
   const [selectedDUSP, setSelectedDUSP] = useState<string>("");
+  const [selectedDUSPForTP, setSelectedDUSPForTP] = useState<string>("all");
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
 
   // Filter states - unified filter
@@ -364,6 +365,18 @@ export default function Operation() {
     }];
     return data.filter(item => item.state.toLowerCase().includes(stateSearch.toLowerCase()));
   }, [stateSearch]);
+
+  // Filter NADI TP data based on selected DUSP
+  const filteredNadiTPData = useMemo(() => {
+    if (selectedDUSPForTP === "all") {
+      return nadiByTP.sort((a, b) => b.count - a.count);
+    }
+    return nadiByTPForDUSP[selectedDUSPForTP]?.map(tp => {
+      const originalTP = nadiByTP.find(item => item.tp === tp.tp);
+      return originalTP ? { ...originalTP, count: tp.count } : null;
+    }).filter(Boolean).sort((a, b) => b.count - a.count) || [];
+  }, [selectedDUSPForTP]);
+
   return <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -510,46 +523,89 @@ export default function Operation() {
             </CardContent>
           </Card>
 
-          {/* NADI Distribution by DUSP */}
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            {nadiByDUSP.map(item => <Card key={item.dusp} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => {
-            setSelectedDUSP(item.dusp);
-            setDuspDialogOpen(true);
-          }}>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="p-2 bg-muted rounded-lg">
-                        <Building2 className={`h-6 w-6 ${item.color}`} />
+          {/* Total NADI by DUSP */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Building2 className="h-5 w-5" />
+                Total NADI by DUSP
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                {nadiByDUSP.map(item => <Card key={item.dusp} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => {
+                setSelectedDUSP(item.dusp);
+                setDuspDialogOpen(true);
+              }}>
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className="p-2 bg-muted rounded-lg">
+                            <Building2 className={`h-6 w-6 ${item.color}`} />
+                          </div>
+                          <div>
+                            <p className="font-semibold text-sm">{item.dusp}</p>
+                            <p className="text-2xl font-bold">{item.count}</p>
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">{item.dusp}</p>
-                        <p className="text-2xl font-bold">{item.count}</p>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>)}
-          </div>
+                    </CardContent>
+                  </Card>)}
+              </div>
+            </CardContent>
+          </Card>
 
-          {/* NADI Distribution by TP */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {nadiByTP.map(item => <Card key={item.tp} className="cursor-pointer hover:shadow-md transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="p-2 bg-muted rounded-lg">
-                        <Building2 className={`h-6 w-6 ${item.color}`} />
+          {/* Total NADI by TP */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <Building2 className="h-5 w-5" />
+                  Total NADI by TP
+                </CardTitle>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-muted-foreground">Filter by DUSP:</span>
+                  <Select value={selectedDUSPForTP} onValueChange={setSelectedDUSPForTP}>
+                    <SelectTrigger className="w-48">
+                      <SelectValue placeholder="Select DUSP" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All DUSP</SelectItem>
+                      <SelectItem value="TM TECH">TM TECH</SelectItem>
+                      <SelectItem value="MAXIS">MAXIS</SelectItem>
+                      <SelectItem value="CELCOMDIGI">CELCOMDIGI</SelectItem>
+                      <SelectItem value="TIME">TIME</SelectItem>
+                      <SelectItem value="DIGI">DIGI</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {filteredNadiTPData.map(item => <Card key={item.tp} className="cursor-pointer hover:shadow-md transition-shadow">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className="p-2 bg-muted rounded-lg">
+                            <Building2 className={`h-6 w-6 ${item.color}`} />
+                          </div>
+                          <div>
+                            <p className="font-semibold text-sm">{item.tp}</p>
+                            <p className="text-2xl font-bold">{item.count}</p>
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-semibold text-sm">{item.tp}</p>
-                        <p className="text-2xl font-bold">{item.count}</p>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>)}
-          </div>
+                    </CardContent>
+                  </Card>)}
+              </div>
+              {filteredNadiTPData.length === 0 && (
+                <div className="text-center py-8 text-muted-foreground">
+                  No TP data available for selected DUSP
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
           {/* Total NADI by State */}
           <Card>
