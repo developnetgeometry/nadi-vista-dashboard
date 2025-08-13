@@ -93,12 +93,21 @@ const participantCategories = [
 ]
 
 const demographicsData = [
+  { category: "Gender", data: [
+    { label: "Male", count: 2250, percentage: 56 },
+    { label: "Female", count: 1730, percentage: 44 }
+  ]},
   { category: "Age Group", data: [
     { label: "12-17", count: 796, percentage: 20 },
     { label: "18-25", count: 1194, percentage: 30 },
     { label: "26-35", count: 955, percentage: 24 },
     { label: "36-50", count: 716, percentage: 18 },
     { label: "50+", count: 319, percentage: 8 }
+  ]},
+  { category: "Race", data: [
+    { label: "Malay", count: 2388, percentage: 60 },
+    { label: "Chinese", count: 796, percentage: 20 },
+    { label: "Indian", count: 796, percentage: 20 }
   ]}
 ]
 
@@ -160,6 +169,8 @@ export default function MCMCSmartServices() {
   const [stateSearchTerm, setStateSearchTerm] = useState("")
   const [dateRange, setDateRange] = useState<DateRange | undefined>()
   const [selectedDusp, setSelectedDusp] = useState("all")
+  const [genderSearch, setGenderSearch] = useState("")
+  const [raceSearch, setRaceSearch] = useState("")
 
   // Filter functions
   const filteredStateData = stateData.filter(state => 
@@ -170,6 +181,15 @@ export default function MCMCSmartServices() {
   const filteredTpData = selectedDusp === "all" 
     ? tpData
     : tpDataByDusp[selectedDusp]?.sort((a, b) => b.count - a.count) || []
+
+  // Filter functions for demographics
+  const filteredGenderData = demographicsData.find(d => d.category === "Gender")?.data.filter(item =>
+    item.label.toLowerCase().includes(genderSearch.toLowerCase())
+  ) || []
+
+  const filteredRaceData = demographicsData.find(d => d.category === "Race")?.data.filter(item =>
+    item.label.toLowerCase().includes(raceSearch.toLowerCase())
+  ) || []
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -493,8 +513,41 @@ export default function MCMCSmartServices() {
             ))}
           </div>
 
-          {/* Demographics for Program Tab - Age Group Only */}
-          <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
+          {/* Demographics for Program Tab */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Gender */}
+            <Card className="border-0 shadow-md">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="h-5 w-5 text-blue-600" />
+                  By Gender
+                </CardTitle>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search gender..."
+                    value={genderSearch}
+                    onChange={(e) => setGenderSearch(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {filteredGenderData.map((item) => (
+                  <div key={item.label} className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline">{item.label}</Badge>
+                      <span className="text-sm text-muted-foreground">
+                        {item.count.toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="text-sm font-medium">{item.percentage}%</div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* Age Group */}
             <Card className="border-0 shadow-md">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -503,18 +556,47 @@ export default function MCMCSmartServices() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {demographicsData[0].data.map((item, itemIndex) => (
-                  <div key={itemIndex} className="flex justify-between items-center p-3 rounded-lg hover:bg-gray-50 transition-all">
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 rounded-full bg-blue-600"></div>
-                      <Badge variant="outline" className="text-blue-600 border-blue-200">
-                        {item.label}
-                      </Badge>
-                      <span className="text-sm text-gray-600 font-medium">
+                {demographicsData.find(d => d.category === "Age Group")?.data.map((item) => (
+                  <div key={item.label} className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline">{item.label}</Badge>
+                      <span className="text-sm text-muted-foreground">
                         {item.count.toLocaleString()}
                       </span>
                     </div>
-                    <div className="text-sm font-bold text-blue-600">{item.percentage}%</div>
+                    <div className="text-sm font-medium">{item.percentage}%</div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* Race with Search */}
+            <Card className="border-0 shadow-md">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="h-5 w-5 text-blue-600" />
+                  By Race
+                </CardTitle>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search race..."
+                    value={raceSearch}
+                    onChange={(e) => setRaceSearch(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {filteredRaceData.map((item) => (
+                  <div key={item.label} className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline">{item.label}</Badge>
+                      <span className="text-sm text-muted-foreground">
+                        {item.count.toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="text-sm font-medium">{item.percentage}%</div>
                   </div>
                 ))}
               </CardContent>
