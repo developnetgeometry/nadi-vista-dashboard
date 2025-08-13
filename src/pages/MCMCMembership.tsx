@@ -13,8 +13,7 @@ import { PDFDownloadButton } from "@/components/PDFDownloadButton"
 import { DateRange } from "@/components/DateRangePicker"
 
 const membershipStats = [
-  { title: "Total NADI Membership", count: "2,150,217", icon: Users },
-  { title: "Total Participant by DUSP", count: "637,268", icon: Building2 }
+  { title: "Total NADI Membership", count: "2,150,217", icon: Users }
 ]
 
 const demographicsData = [
