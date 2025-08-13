@@ -531,6 +531,21 @@ export default function Operation() {
                 </CardContent>
               </Card>)}
           </div>
+
+          {/* Total NADI by State */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Total NADI by State</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <SearchComponent search={stateSearch} setSearch={setStateSearch} placeholder="Search state..." />
+              {filteredStateData.map(item => <div key={item.state} className="flex justify-between items-center">
+                  <span>{item.state}</span>
+                  <Badge variant="secondary">{item.count}</Badge>
+                </div>)}
+            </CardContent>
+          </Card>
+
         </TabsContent>
 
         <TabsContent value="officer" className="space-y-6 mt-6">
@@ -561,45 +576,30 @@ export default function Operation() {
             </CardContent>
           </Card>
 
-          {/* Officer Management and Total NADI by State */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <UserCheck className="h-5 w-5" />
-                  NADI Officer Breakdown
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {officerStats.map(officer => <div key={officer.role} className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="font-medium">{officer.role}</span>
-                      <span className="text-sm text-muted-foreground">
-                        {officer.occupied}/{officer.total}
-                      </span>
-                    </div>
-                    <Progress value={officer.occupied / officer.total * 100} className="h-2" />
-                    <div className="flex justify-between text-sm">
-                      <span className="text-green-600">Occupied: {officer.occupied}</span>
-                      <span className="text-red-600">Vacancies: {officer.vacancy}</span>
-                    </div>
-                  </div>)}
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Total NADI by State</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <SearchComponent search={stateSearch} setSearch={setStateSearch} placeholder="Search state..." />
-                {filteredStateData.map(item => <div key={item.state} className="flex justify-between items-center">
-                    <span>{item.state}</span>
-                    <Badge variant="secondary">{item.count}</Badge>
-                  </div>)}
-              </CardContent>
-            </Card>
-          </div>
+          {/* Officer Management */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <UserCheck className="h-5 w-5" />
+                NADI Officer Breakdown
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {officerStats.map(officer => <div key={officer.role} className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="font-medium">{officer.role}</span>
+                    <span className="text-sm text-muted-foreground">
+                      {officer.occupied}/{officer.total}
+                    </span>
+                  </div>
+                  <Progress value={officer.occupied / officer.total * 100} className="h-2" />
+                  <div className="flex justify-between text-sm">
+                    <span className="text-green-600">Occupied: {officer.occupied}</span>
+                    <span className="text-red-600">Vacancies: {officer.vacancy}</span>
+                  </div>
+                </div>)}
+            </CardContent>
+          </Card>
 
           {/* Filter for Gender and Race only */}
           <Card>
