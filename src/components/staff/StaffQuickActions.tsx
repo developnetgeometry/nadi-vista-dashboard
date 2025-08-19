@@ -46,13 +46,6 @@ const quickActions = [
     icon: CreditCard,
     url: "/staff/payroll",
     color: "orange"
-  },
-  {
-    title: "Replacement Leave",
-    description: "Track replacement leave balance",
-    icon: RefreshCw,
-    url: "/staff/replacement",
-    color: "teal"
   }
 ]
 
