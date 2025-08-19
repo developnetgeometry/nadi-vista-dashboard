@@ -1,5 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Calendar, MapPin, Info } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Calendar, MapPin, Info, Eye } from "lucide-react"
+import { NavLink } from "react-router-dom"
 
 export function CalendarSummary() {
   const currentMonth = new Date().toLocaleDateString('en-GB', { 
@@ -45,8 +47,18 @@ export function CalendarSummary() {
         <div className="flex items-start gap-2 p-3 bg-muted/50 rounded-lg">
           <Info className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
           <div className="text-xs text-muted-foreground">
-            Hover over calendar dates to view detailed information
+            View detailed calendar with public holidays and off days
           </div>
+        </div>
+
+        {/* View Full Calendar Button */}
+        <div className="pt-2">
+          <NavLink to="/staff/calendar">
+            <Button size="sm" className="w-full justify-start">
+              <Eye className="h-4 w-4 mr-2" />
+              View Full Calendar
+            </Button>
+          </NavLink>
         </div>
       </CardContent>
     </Card>
