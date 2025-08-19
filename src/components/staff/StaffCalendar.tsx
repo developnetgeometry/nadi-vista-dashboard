@@ -3,7 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Calendar } from "@/components/ui/calendar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { format } from "date-fns"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { format, isSameMonth } from "date-fns"
 import { CalendarIcon, MapPin, Info, Eye } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -27,15 +28,47 @@ const holidaysAndEvents = {
 export function StaffCalendar() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date())
   const [viewMode, setViewMode] = useState<"month" | "year">("month")
-  const currentMonth = new Date().toLocaleDateString('en-GB', { 
+  const currentDate = new Date()
+  const currentMonth = currentDate.toLocaleDateString('en-GB', { 
     month: 'long',
     year: 'numeric'
   })
+  const currentMonthName = currentDate.toLocaleDateString('en-GB', { 
+    month: 'long'
+  }).toUpperCase()
 
   const getDateInfo = (date: Date) => {
     const dateKey = format(date, "yyyy-MM-dd")
     return holidaysAndEvents[dateKey as keyof typeof holidaysAndEvents]
   }
+
+  // Get current month holidays and off days
+  const getCurrentMonthData = () => {
+    const holidays = Object.entries(holidaysAndEvents).filter(([dateStr]) => 
+      isSameMonth(new Date(dateStr), currentDate)
+    )
+    
+    // Calculate weekends in current month
+    const year = currentDate.getFullYear()
+    const month = currentDate.getMonth()
+    const daysInMonth = new Date(year, month + 1, 0).getDate()
+    let weekendDays = 0
+    
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(year, month, day)
+      if (date.getDay() === 0 || date.getDay() === 6) {
+        weekendDays++
+      }
+    }
+    
+    return {
+      holidays: holidays.length,
+      offDays: weekendDays,
+      holidayDetails: holidays
+    }
+  }
+
+  const monthData = getCurrentMonthData()
 
   const modifiers = {
     holiday: Object.keys(holidaysAndEvents).map(dateStr => new Date(dateStr)),
@@ -86,25 +119,39 @@ export function StaffCalendar() {
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Current Month Info */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="text-center p-3 bg-muted/50 rounded-lg">
-            <div className="text-sm text-muted-foreground">Current Month</div>
-            <div className="font-semibold text-foreground">{currentMonth}</div>
-          </div>
-          <div className="text-center p-3 bg-destructive/10 rounded-lg">
-            <div className="text-sm text-muted-foreground">Public Holidays</div>
-            <div className="text-xl font-bold text-destructive">
-              {Object.values(holidaysAndEvents).filter(event => 
-                new Date(Object.keys(holidaysAndEvents).find(key => 
-                  holidaysAndEvents[key as keyof typeof holidaysAndEvents] === event
-                )!).getMonth() === new Date().getMonth()
-              ).length}
+        {/* Calendar Header - Current Month Display */}
+        <div className="bg-destructive text-destructive-foreground p-4 rounded-lg">
+          <div className="text-center">
+            <h3 className="text-lg font-bold">CALENDAR {currentMonthName}</h3>
+            <div className="text-sm mt-1">
+              Display current month for total public holidays and list off days by NADI Location (Manager & Assistant Manager)
             </div>
           </div>
-          <div className="text-center p-3 bg-muted/30 rounded-lg">
-            <div className="text-sm text-muted-foreground">Weekend Days</div>
-            <div className="text-xl font-bold text-muted-foreground">8-10</div>
+        </div>
+
+        {/* Current Month Summary */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-3">
+            <div className="text-sm font-medium text-muted-foreground">When mouse-over, display as detail below:</div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                <span className="text-sm">- Date and Description</span>
+              </div>
+            </div>
+          </div>
+          <div className="space-y-3">
+            <div className="p-4 bg-primary/10 rounded-lg">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Public Holiday:</span>
+                  <span className="font-bold text-primary">{monthData.holidays}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Off Day:</span>
+                  <span className="font-bold text-primary">{monthData.offDays}</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -112,15 +159,17 @@ export function StaffCalendar() {
         <div className="space-y-4">
           <div className="flex flex-col lg:flex-row gap-6">
             <div className="flex-1">
-              <Calendar
-                mode="single"
-                selected={selectedDate}
-                onSelect={setSelectedDate}
-                modifiers={modifiers}
-                modifiersStyles={modifiersStyles}
-                className={cn("pointer-events-auto border rounded-lg p-4")}
-                showOutsideDays={true}
-              />
+              <TooltipProvider>
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={setSelectedDate}
+                  modifiers={modifiers}
+                  modifiersStyles={modifiersStyles}
+                  className={cn("pointer-events-auto border rounded-lg p-4")}
+                  showOutsideDays={true}
+                />
+              </TooltipProvider>
             </div>
             
             {/* Date Details Panel */}
@@ -210,8 +259,8 @@ export function StaffCalendar() {
         <div className="flex items-start gap-2 p-3 bg-muted/50 rounded-lg">
           <Info className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
           <div className="text-xs text-muted-foreground">
-            Click on any date to view detailed information. Public holidays are marked in red, weekends in gray. 
-            Holiday dates may vary based on official announcements.
+            Click on any date to view detailed information. Hover over highlighted dates to see event details.
+            Public holidays are marked in red, weekends in gray. Holiday dates may vary based on official announcements.
           </div>
         </div>
       </CardContent>
