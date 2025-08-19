@@ -2,7 +2,6 @@ import { StaffWelcomeHeader } from "@/components/staff/StaffWelcomeHeader"
 import { StaffStatsCards } from "@/components/staff/StaffStatsCards"
 import { StaffLeaveOverview } from "@/components/staff/StaffLeaveOverview"
 import { StaffQuickActions } from "@/components/staff/StaffQuickActions"
-import { StaffCalendar } from "@/components/staff/StaffCalendar"
 import { TrainingSummary } from "@/components/staff/TrainingSummary"
 import { ReplacementLeaveSummary } from "@/components/staff/ReplacementLeaveSummary"
 import { CalendarSummary } from "@/components/staff/CalendarSummary"
@@ -33,9 +32,6 @@ const StaffHome = () => {
         {/* Calendar Summary */}
         <CalendarSummary />
       </div>
-
-      {/* Interactive Calendar */}
-      <StaffCalendar />
 
       {/* Training Summary */}
       <TrainingSummary />
