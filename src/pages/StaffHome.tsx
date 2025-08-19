@@ -9,7 +9,7 @@ import { PayrollSummary } from "@/components/staff/PayrollSummary"
 
 const StaffHome = () => {
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-8 animate-fade-in">
       {/* Welcome Header */}
       <StaffWelcomeHeader />
 
@@ -17,7 +17,7 @@ const StaffHome = () => {
       <StaffStatsCards />
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Leave Overview */}
         <StaffLeaveOverview />
         
@@ -25,7 +25,7 @@ const StaffHome = () => {
         <ReplacementLeaveSummary />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Payroll Summary */}
         <PayrollSummary />
         

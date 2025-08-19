@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card"
-import { User } from "lucide-react"
+import { User, Sparkles } from "lucide-react"
 
 export function StaffWelcomeHeader() {
   const currentDate = new Date().toLocaleDateString('en-GB', { 
@@ -10,24 +10,28 @@ export function StaffWelcomeHeader() {
   })
 
   return (
-    <Card className="border-none bg-gradient-to-r from-primary/5 via-primary/3 to-transparent">
-      <CardContent className="p-8">
+    <Card className="border-none bg-gradient-to-r from-primary/10 via-primary/5 to-transparent relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent opacity-50" />
+      <div className="absolute top-4 right-4 opacity-10">
+        <Sparkles className="h-32 w-32 text-primary" />
+      </div>
+      <CardContent className="p-8 relative">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-6">
-            <div className="p-4 bg-primary/10 rounded-2xl">
+            <div className="p-5 bg-primary/15 rounded-2xl shadow-sm">
               <User className="h-10 w-10 text-primary" />
             </div>
-            <div className="space-y-1">
-              <h1 className="text-3xl font-bold text-foreground">
+            <div className="space-y-2">
+              <h1 className="text-4xl font-bold text-foreground tracking-tight">
                 Welcome Back!
               </h1>
-              <p className="text-lg text-muted-foreground">Wan Ikhwan Syamirul</p>
-              <p className="text-sm text-muted-foreground">{currentDate}</p>
+              <p className="text-xl text-primary font-medium">Wan Ikhwan Syamirul</p>
+              <p className="text-sm text-muted-foreground font-medium">{currentDate}</p>
             </div>
           </div>
           <div className="text-right hidden md:block">
-            <div className="text-2xl font-bold text-primary">NADI</div>
-            <p className="text-sm text-muted-foreground">Staff Portal</p>
+            <div className="text-3xl font-bold text-primary mb-1">NADI</div>
+            <p className="text-sm text-muted-foreground font-medium">Staff Portal</p>
           </div>
         </div>
       </CardContent>

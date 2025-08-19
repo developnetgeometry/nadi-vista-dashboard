@@ -73,24 +73,26 @@ export function CalendarSummary() {
   const monthData = getMonthData(parseInt(selectedMonth), selectedMonthData?.year || 2025)
 
   return (
-    <Card className="hover:shadow-md transition-shadow">
-      <CardHeader className="pb-4">
-        <CardTitle className="flex items-center gap-2">
-          <Calendar className="h-5 w-5 text-primary" />
+    <Card className="shadow-md border-0 hover:shadow-lg transition-all duration-300">
+      <CardHeader className="pb-6">
+        <CardTitle className="flex items-center gap-3 text-xl">
+          <div className="p-2 bg-red-100 rounded-lg">
+            <Calendar className="h-6 w-6 text-red-600" />
+          </div>
           Calendar Overview
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-8">
         {/* Calendar Header - Month Selector */}
-        <div className="bg-destructive text-destructive-foreground p-4 rounded-lg">
-          <div className="text-center space-y-3">
-            <h3 className="text-lg font-bold">CALENDAR {selectedMonthName}</h3>
-            <div className="text-sm">
+        <div className="bg-gradient-to-r from-red-500 to-red-600 text-white p-6 rounded-xl shadow-lg">
+          <div className="text-center space-y-4">
+            <h3 className="text-2xl font-bold tracking-wide">CALENDAR {selectedMonthName}</h3>
+            <div className="text-sm opacity-90 leading-relaxed">
               Display current month for total public holidays and list off days by NADI Location (Manager & Assistant Manager)
             </div>
             <div className="flex justify-center">
               <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                <SelectTrigger className="w-48 bg-destructive-foreground text-destructive border-destructive-foreground">
+                <SelectTrigger className="w-56 bg-white/20 text-white border-white/30 backdrop-blur-sm hover:bg-white/30 transition-colors">
                   <SelectValue placeholder="Select month" />
                 </SelectTrigger>
                 <SelectContent>
@@ -106,25 +108,34 @@ export function CalendarSummary() {
         </div>
 
         {/* Selected Month Summary */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-3">
-            <div className="text-sm font-medium text-muted-foreground">When mouse-over, display as detail below:</div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                <span className="text-sm">- Date and Description</span>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="space-y-4">
+            <div className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
+              <div className="text-sm font-semibold text-blue-800 mb-3">Interactive Features</div>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 p-3 bg-white/70 rounded-lg">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <span className="text-sm text-blue-800">Mouse-over calendar dates for details</span>
+                </div>
+                <div className="flex items-center gap-2 p-3 bg-white/70 rounded-lg">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <span className="text-sm text-blue-800">Date and description display</span>
+                </div>
               </div>
             </div>
           </div>
-          <div className="space-y-3">
-            <div className="p-4 bg-primary/10 rounded-lg">
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Public Holiday:</span>
-                  <span className="font-bold text-primary">{monthData.holidays}</span>
+          <div className="space-y-4">
+            <div className="p-6 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl border border-primary/20">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="text-center p-4 bg-white/70 rounded-lg">
+                  <div className="text-sm text-muted-foreground mb-1">Public Holidays</div>
+                  <div className="text-3xl font-bold text-red-600">{monthData.holidays}</div>
+                  <div className="text-xs text-red-500">days</div>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Off Day:</span>
-                  <span className="font-bold text-primary">{monthData.offDays}</span>
+                <div className="text-center p-4 bg-white/70 rounded-lg">
+                  <div className="text-sm text-muted-foreground mb-1">Off Days</div>
+                  <div className="text-3xl font-bold text-blue-600">{monthData.offDays}</div>
+                  <div className="text-xs text-blue-500">days</div>
                 </div>
               </div>
             </div>
@@ -133,19 +144,25 @@ export function CalendarSummary() {
 
         {/* Holiday Details for Selected Month */}
         {monthData.holidayDetails.length > 0 && (
-          <div className="space-y-3">
-            <h4 className="font-medium text-sm text-muted-foreground uppercase tracking-wide">
+          <div className="space-y-4">
+            <h4 className="font-semibold text-lg text-foreground flex items-center gap-2">
+              <div className="w-1 h-6 bg-red-500 rounded-full"></div>
               {selectedMonthData?.label} {selectedMonthData?.year} Public Holidays
             </h4>
-            <div className="space-y-2">
+            <div className="grid gap-3">
               {monthData.holidayDetails.map(([dateStr, holiday]) => (
-                <div key={dateStr} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                  <div>
-                    <div className="font-medium text-sm">{holiday.name}</div>
-                    <div className="text-xs text-muted-foreground">{holiday.description}</div>
+                <div key={dateStr} className="flex items-center justify-between p-4 bg-gradient-to-r from-red-50 to-pink-50 rounded-xl border border-red-100 hover:shadow-sm transition-shadow">
+                  <div className="space-y-1">
+                    <div className="font-semibold text-foreground">{holiday.name}</div>
+                    <div className="text-sm text-muted-foreground">{holiday.description}</div>
                   </div>
-                  <div className="text-sm text-muted-foreground">
-                    {new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                  <div className="text-right">
+                    <div className="text-lg font-bold text-red-600">
+                      {new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric' })}
+                    </div>
+                    <div className="text-xs text-red-500">
+                      {new Date(dateStr).toLocaleDateString('en-GB', { month: 'short' })}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -154,24 +171,31 @@ export function CalendarSummary() {
         )}
 
         {/* Location Info */}
-        <div className="p-3 bg-muted/50 rounded-lg">
-          <div className="text-sm text-muted-foreground">Based on NADI Location</div>
-          <div className="text-xs text-primary font-medium">Manager & Assistant Manager</div>
+        <div className="p-4 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border">
+          <div className="flex items-center gap-3 mb-2">
+            <MapPin className="h-5 w-5 text-primary" />
+            <h4 className="font-semibold text-foreground">Location Information</h4>
+          </div>
+          <div className="space-y-1">
+            <div className="text-sm text-muted-foreground">Based on NADI Location</div>
+            <div className="text-sm text-primary font-semibold">Malaysia Federal Territory</div>
+            <div className="text-xs text-muted-foreground">Manager & Assistant Manager</div>
+          </div>
         </div>
 
         {/* Interactive Info */}
-        <div className="flex items-start gap-2 p-3 bg-muted/50 rounded-lg">
-          <Info className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-          <div className="text-xs text-muted-foreground">
-            View detailed calendar with public holidays and off days
+        <div className="flex items-start gap-3 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
+          <Info className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+          <div className="text-sm text-blue-800 leading-relaxed">
+            View detailed calendar with public holidays and off days. Select different months to see holiday variations throughout the year.
           </div>
         </div>
 
         {/* View Full Calendar Button */}
         <div className="pt-2">
           <NavLink to="/staff/calendar">
-            <Button size="sm" className="w-full justify-start">
-              <Eye className="h-4 w-4 mr-2" />
+            <Button size="lg" className="w-full justify-center h-12 text-base font-semibold shadow-md hover:shadow-lg transition-all">
+              <Eye className="h-5 w-5 mr-2" />
               View Full Calendar
             </Button>
           </NavLink>
