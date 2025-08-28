@@ -26,14 +26,13 @@ export function PDFDownloadButton({
   const extractDataFromPage = async () => {
     console.log("Starting comprehensive PDF data extraction...")
     const data: any = {
-      title: "NADI Operation Dashboard Report",
+      title: "Dashboard Report",
       date: new Date().toLocaleDateString('en-GB', { 
         day: 'numeric', 
         month: 'long', 
         year: 'numeric' 
       }),
-      sections: [],
-      charts: []
+      sections: []
     }
 
     // Extract dashboard header info
@@ -42,84 +41,43 @@ export function PDFDownloadButton({
     
     if (headerTitle) {
       data.dashboardTitle = headerTitle
+      data.title = `${headerTitle} Report`
     }
     if (headerSubtitle) {
       data.dashboardSubtitle = headerSubtitle
     }
 
-    // Capture chart sections as images
-    const chartSections = [
-      { selector: '[data-component="operation-stats"]', title: 'Operation Statistics' },
-      { selector: '[data-area-item]', title: 'NADI by Area Progress Charts', parentSelector: '.space-y-4' },
-      { selector: '[data-dusp-item]', title: 'NADI by DUSP Cards', parentSelector: '.grid.grid-cols-2' },
-      { selector: '[data-tp-item]', title: 'NADI by TP Cards', parentSelector: '.grid.grid-cols-2' },
-      { selector: '[data-gender-item]', title: 'Gender Demographics', parentSelector: '.space-y-4' },
-      { selector: '[data-race-item]', title: 'Race Demographics', parentSelector: '.space-y-4' }
+    // 1. Extract Stats Cards (multiple possible selectors)
+    const statsSelectors = [
+      '[data-component="operation-stats"]',
+      '[data-component="events-overview"]',
+      '[data-component="stats-card"]'
     ]
-
-    for (const section of chartSections) {
-      try {
-        let element: HTMLElement | null = null
+    
+    for (const selector of statsSelectors) {
+      const statsContainer = document.querySelector(selector)
+      if (statsContainer) {
+        const statCards = statsContainer.querySelectorAll('[data-stat-title], .card, [class*="Card"]')
+        const stats: any[] = []
         
-        if (section.parentSelector) {
-          // Find the parent container for multiple items
-          const firstItem = document.querySelector(section.selector)
-          if (firstItem) {
-            element = firstItem.closest(section.parentSelector) as HTMLElement
-            if (!element) {
-              // Fallback to the card container
-              element = firstItem.closest('.card, [class*="Card"]') as HTMLElement
-            }
-          }
-        } else {
-          element = document.querySelector(section.selector) as HTMLElement
-        }
-        
-        if (element && element.offsetWidth > 0 && element.offsetHeight > 0) {
-          const canvas = await html2canvas(element, {
-            backgroundColor: '#ffffff',
-            scale: 2,
-            useCORS: true,
-            logging: false,
-            height: element.scrollHeight,
-            windowHeight: element.scrollHeight
-          })
+        statCards.forEach((card) => {
+          // Try multiple patterns for title and value
+          const titleElement = card.querySelector('p.text-sm.font-medium.text-muted-foreground, .text-sm.font-medium, [class*="CardTitle"], .card-title')
+          const valueElement = card.querySelector('p.text-2xl.font-bold, .text-2xl.font-bold, p.text-3xl.font-bold, .text-3xl.font-bold, .text-xl.font-bold')
           
-          data.charts.push({
-            title: section.title,
-            imageData: canvas.toDataURL('image/png'),
-            width: canvas.width,
-            height: canvas.height
-          })
-          console.log(`Captured chart: ${section.title}`)
-        } else {
-          console.log(`Element not found or invalid for: ${section.title}`)
-        }
-      } catch (error) {
-        console.log(`Failed to capture ${section.title}:`, error)
-      }
-    }
-
-    // 1. Extract Operation Statistics
-    const statsContainer = document.querySelector('[data-component="operation-stats"]')
-    if (statsContainer) {
-      const statCards = statsContainer.querySelectorAll('[data-stat-title]')
-      const stats: any[] = []
-      
-      statCards.forEach((card) => {
-        const titleElement = card.querySelector('p.text-sm.font-medium.text-muted-foreground')
-        const valueElement = card.querySelector('p.text-2xl.font-bold')
+          const title = titleElement?.textContent?.trim()
+          const value = valueElement?.textContent?.trim()
+          
+          if (title && value) {
+            stats.push({ title, value })
+          }
+        })
         
-        const title = titleElement?.textContent?.trim()
-        const value = valueElement?.textContent?.trim()
-        
-        if (title && value) {
-          stats.push({ title, value })
+        if (stats.length > 0) {
+          const sectionTitle = selector.includes('events') ? 'Event Statistics' : 
+                             selector.includes('operation') ? 'Operation Statistics' : 'Statistics'
+          data.sections.push({ type: 'stats', title: sectionTitle, data: stats })
         }
-      })
-      
-      if (stats.length > 0) {
-        data.sections.push({ type: 'stats', title: 'Operation Statistics', data: stats })
       }
     }
 
@@ -209,7 +167,7 @@ export function PDFDownloadButton({
       }
     }
 
-    // 6. Extract NADI Officer Statistics (if on officer tab)
+    // 6. Extract Officer Statistics
     const officerCards = document.querySelectorAll('[data-officer-role]')
     if (officerCards.length > 0) {
       const officerData: any[] = []
@@ -226,7 +184,83 @@ export function PDFDownloadButton({
       })
       
       if (officerData.length > 0) {
-        data.sections.push({ type: 'officers', title: 'NADI Officer Statistics', data: officerData })
+        data.sections.push({ type: 'officers', title: 'Officer Statistics', data: officerData })
+      }
+    }
+
+    // 7. Extract Staff Dashboard Data
+    const staffCards = document.querySelectorAll('[data-component="staff-card"], [data-component="payroll-summary"], [data-component="leave-summary"]')
+    if (staffCards.length > 0) {
+      const staffData: any[] = []
+      staffCards.forEach((card) => {
+        const titleElement = card.querySelector('.card-title, [class*="CardTitle"], h3, h2')
+        const valueElements = card.querySelectorAll('.text-xl.font-bold, .text-2xl.font-bold, .font-semibold')
+        
+        const title = titleElement?.textContent?.trim()
+        if (title) {
+          const values: string[] = []
+          valueElements.forEach((el) => {
+            const value = el.textContent?.trim()
+            if (value) values.push(value)
+          })
+          
+          staffData.push({
+            title: title,
+            values: values.join(', ')
+          })
+        }
+      })
+      
+      if (staffData.length > 0) {
+        data.sections.push({ type: 'staff', title: 'Staff Information', data: staffData })
+      }
+    }
+
+    // 8. Extract Chart/Visualization Data
+    const chartContainers = document.querySelectorAll('[data-component="events-by-type"], [data-component="events-by-location"], .recharts-wrapper, [class*="chart"]')
+    if (chartContainers.length > 0) {
+      const chartData: any[] = []
+      chartContainers.forEach((container, index) => {
+        const titleElement = container.closest('.card')?.querySelector('[class*="CardTitle"], .card-title, h3, h2')
+        const title = titleElement?.textContent?.trim() || `Chart ${index + 1}`
+        
+        chartData.push({ title })
+      })
+      
+      if (chartData.length > 0) {
+        data.sections.push({ type: 'charts', title: 'Visualizations', data: chartData })
+      }
+    }
+
+    // 9. Extract Tables
+    const tables = document.querySelectorAll('table')
+    if (tables.length > 0) {
+      const tableData: any[] = []
+      tables.forEach((table, index) => {
+        const rows = table.querySelectorAll('tbody tr')
+        const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent?.trim() || '')
+        
+        if (rows.length > 0) {
+          const tableRows: any[] = []
+          rows.forEach((row) => {
+            const cells = Array.from(row.querySelectorAll('td')).map(td => td.textContent?.trim() || '')
+            if (cells.length > 0) {
+              tableRows.push(cells)
+            }
+          })
+          
+          if (tableRows.length > 0) {
+            tableData.push({
+              title: `Table ${index + 1}`,
+              headers,
+              rows: tableRows.slice(0, 10) // Limit to first 10 rows
+            })
+          }
+        }
+      })
+      
+      if (tableData.length > 0) {
+        data.sections.push({ type: 'tables', title: 'Data Tables', data: tableData })
       }
     }
 
@@ -472,6 +506,67 @@ export function PDFDownloadButton({
             currentY += 12
           })
           currentY += 10
+
+        } else if (section.type === 'staff') {
+          // Staff information
+          section.data.forEach((item: any) => {
+            pdf.setFontSize(11)
+            pdf.setFont('helvetica', 'bold')
+            pdf.text(`${item.title}`, margin + 5, currentY)
+            currentY += 8
+            
+            pdf.setFontSize(10)
+            pdf.setFont('helvetica', 'normal')
+            pdf.text(`${item.values}`, margin + 10, currentY)
+            currentY += 12
+          })
+          currentY += 10
+
+        } else if (section.type === 'charts') {
+          // Chart information
+          section.data.forEach((item: any) => {
+            pdf.setFontSize(11)
+            pdf.setFont('helvetica', 'normal')
+            pdf.text(`📊 ${item.title}`, margin + 5, currentY)
+            currentY += 8
+          })
+          currentY += 10
+
+        } else if (section.type === 'tables') {
+          // Table data
+          section.data.forEach((table: any) => {
+            // Table title
+            pdf.setFontSize(12)
+            pdf.setFont('helvetica', 'bold')
+            pdf.text(`${table.title}`, margin + 5, currentY)
+            currentY += 10
+            
+            // Table headers
+            if (table.headers && table.headers.length > 0) {
+              pdf.setFontSize(9)
+              pdf.setFont('helvetica', 'bold')
+              const colWidth = contentWidth / table.headers.length
+              table.headers.forEach((header: string, index: number) => {
+                pdf.text(header, margin + (index * colWidth), currentY)
+              })
+              currentY += 8
+              
+              // Table rows
+              pdf.setFont('helvetica', 'normal')
+              table.rows.forEach((row: string[]) => {
+                row.forEach((cell: string, index: number) => {
+                  pdf.text(cell.substring(0, 20), margin + (index * colWidth), currentY)
+                })
+                currentY += 6
+                
+                if (currentY > pageHeight - 40) {
+                  pdf.addPage()
+                  currentY = margin
+                }
+              })
+            }
+            currentY += 15
+          })
         }
       })
 
