@@ -407,8 +407,8 @@ export default function Operation() {
         <TabsContent value="operation" className="space-y-6 mt-6">
 
       {/* Operation Statistics */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {operationStats.map(stat => <Card key={stat.title}>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4" data-component="operation-stats">
+        {operationStats.map(stat => <Card key={stat.title} data-stat-title={stat.title}>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">

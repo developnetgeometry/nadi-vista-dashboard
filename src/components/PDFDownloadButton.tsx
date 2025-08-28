@@ -23,8 +23,9 @@ export function PDFDownloadButton({
   const [isGenerating, setIsGenerating] = React.useState(false)
 
   const extractDataFromPage = () => {
+    console.log("Starting PDF data extraction...")
     const data: any = {
-      title: "NADI Staff Dashboard Report",
+      title: "NADI Operation Dashboard Report",
       date: new Date().toLocaleDateString('en-GB', { 
         day: 'numeric', 
         month: 'long', 
@@ -33,168 +34,78 @@ export function PDFDownloadButton({
       sections: []
     }
 
-    // Extract staff welcome info
-    const welcomeSection = document.querySelector('[data-component="staff-welcome"]')
-    if (welcomeSection) {
-      const nameElement = welcomeSection.querySelector('p.text-xl.text-primary')
-      const titleElement = welcomeSection.querySelector('h1')
-      data.staffName = nameElement?.textContent?.trim() || "Staff Member"
-      data.welcomeTitle = titleElement?.textContent?.trim() || ""
-    }
+    console.log("Initial data structure:", data)
 
-    // Extract stats cards
-    const statsCards = document.querySelectorAll('[data-component="stats-card"]')
-    if (statsCards.length > 0) {
+    // Extract operation statistics
+    console.log("Looking for operation stats...")
+    const statsContainer = document.querySelector('[data-component="operation-stats"]')
+    console.log("Found stats container:", !!statsContainer)
+    
+    if (statsContainer) {
+      const statCards = statsContainer.querySelectorAll('[data-stat-title]')
+      console.log("Found stat cards:", statCards.length)
+      
       const stats: any[] = []
-      statsCards.forEach(card => {
-        const titleElement = card.querySelector('p.text-sm.font-medium.text-muted-foreground')
-        const valueElement = card.querySelector('p.text-3xl.font-bold')
-        const unitElement = card.querySelector('p.text-xs.text-muted-foreground.font-medium')
+      statCards.forEach((card, index) => {
+        console.log(`Processing card ${index}:`, card)
         
-        if (titleElement && valueElement) {
-          stats.push({ 
-            title: titleElement.textContent?.trim(),
-            value: valueElement.textContent?.trim(),
-            unit: unitElement?.textContent?.trim() || ""
-          })
+        const titleElement = card.querySelector('p.text-sm.font-medium.text-muted-foreground')
+        const valueElement = card.querySelector('p.text-2xl.font-bold')
+        
+        const title = titleElement?.textContent?.trim()
+        const value = valueElement?.textContent?.trim()
+        
+        console.log(`Card ${index} - Title: ${title}, Value: ${value}`)
+        
+        if (title && value) {
+          stats.push({ title, value })
         }
       })
+      
+      console.log("Extracted stats:", stats)
       if (stats.length > 0) {
-        data.sections.push({ type: 'stats', title: 'Dashboard Statistics', data: stats })
+        data.sections.push({ type: 'stats', title: 'Operation Statistics', data: stats })
+      }
+    } else {
+      console.log("Stats container not found, trying fallback method...")
+      // Fallback: look for the grid structure
+      const gridContainer = document.querySelector('.grid.grid-cols-2.md\\:grid-cols-4')
+      if (gridContainer) {
+        console.log("Found grid container")
+        const cards = gridContainer.querySelectorAll('div[class*="Card"]')
+        console.log("Found cards in grid:", cards.length)
+        
+        const stats: any[] = []
+        cards.forEach((card, index) => {
+          const titleEl = card.querySelector('p.text-sm.font-medium.text-muted-foreground')
+          const valueEl = card.querySelector('p.text-2xl.font-bold')
+          
+          if (titleEl && valueEl) {
+            stats.push({
+              title: titleEl.textContent?.trim(),
+              value: valueEl.textContent?.trim()
+            })
+          }
+        })
+        
+        if (stats.length > 0) {
+          data.sections.push({ type: 'stats', title: 'Operation Statistics', data: stats })
+        }
       }
     }
 
-    // Extract payroll info
-    const payrollCard = document.querySelector('[data-component="payroll-summary"]')
-    if (payrollCard) {
-      const payrollData: any = {}
-      
-      // Find salary and allowances by looking for specific text content
-      const salaryDiv = Array.from(payrollCard.querySelectorAll('div')).find(div => 
-        div.textContent?.includes('Monthly Salary')
-      )?.parentElement
-      const allowanceDiv = Array.from(payrollCard.querySelectorAll('div')).find(div => 
-        div.textContent?.includes('Allowances')
-      )?.parentElement
-      const statusDiv = Array.from(payrollCard.querySelectorAll('div')).find(div => 
-        div.textContent?.includes('Payroll')
-      )?.parentElement
-      
-      if (salaryDiv) {
-        const salaryValue = salaryDiv.querySelector('div.text-xl.font-bold')
-        if (salaryValue) payrollData.salary = salaryValue.textContent?.trim()
-      }
-      
-      if (allowanceDiv) {
-        const allowanceValue = allowanceDiv.querySelector('div.text-xl.font-bold')
-        if (allowanceValue) payrollData.allowances = allowanceValue.textContent?.trim()
-      }
-      
-      if (statusDiv) {
-        const statusValue = statusDiv.querySelector('div.text-lg.font-semibold')
-        if (statusValue) payrollData.status = statusValue.textContent?.trim()
-      }
-      
-      if (Object.keys(payrollData).length > 0) {
-        data.sections.push({ type: 'payroll', title: 'Payroll Information', data: payrollData })
-      }
+    // Extract dashboard header info
+    const headerTitle = document.querySelector('h1.text-3xl.font-bold')?.textContent?.trim()
+    const headerSubtitle = document.querySelector('p.text-muted-foreground')?.textContent?.trim()
+    
+    if (headerTitle) {
+      data.dashboardTitle = headerTitle
+    }
+    if (headerSubtitle) {
+      data.dashboardSubtitle = headerSubtitle
     }
 
-    // Extract attendance info
-    const attendanceCard = document.querySelector('[data-component="attendance-summary"]')
-    if (attendanceCard) {
-      const attendanceData: any = {}
-      
-      // Look for Check In and Check Out sections
-      const checkInSection = Array.from(attendanceCard.querySelectorAll('span')).find(span => 
-        span.textContent?.includes('Check In')
-      )?.parentElement
-      const checkOutSection = Array.from(attendanceCard.querySelectorAll('span')).find(span => 
-        span.textContent?.includes('Check Out')
-      )?.parentElement
-      
-      if (checkInSection) {
-        const checkInValue = checkInSection.querySelector('span:last-child')
-        if (checkInValue) attendanceData.checkIn = checkInValue.textContent?.trim()
-      }
-      
-      if (checkOutSection) {
-        const checkOutValue = checkOutSection.querySelector('span:last-child')
-        if (checkOutValue) attendanceData.checkOut = checkOutValue.textContent?.trim()
-      }
-      
-      // Extract time summary
-      const mcmcTimeDiv = Array.from(attendanceCard.querySelectorAll('div')).find(div => 
-        div.textContent?.includes('MCMC Time')
-      )?.parentElement
-      const totalTimeDiv = Array.from(attendanceCard.querySelectorAll('div')).find(div => 
-        div.textContent?.includes('Total Time')
-      )?.parentElement
-      
-      if (mcmcTimeDiv) {
-        const timeValue = mcmcTimeDiv.querySelector('div.font-mono.font-bold')
-        if (timeValue) attendanceData.mcmcTime = timeValue.textContent?.trim()
-      }
-      
-      if (totalTimeDiv) {
-        const timeValue = totalTimeDiv.querySelector('div.font-mono.font-bold')
-        if (timeValue) attendanceData.totalTime = timeValue.textContent?.trim()
-      }
-      
-      if (Object.keys(attendanceData).length > 0) {
-        data.sections.push({ type: 'attendance', title: 'Attendance Summary', data: attendanceData })
-      }
-    }
-
-    // Extract leave info
-    const leaveCard = document.querySelector('[data-component="leave-summary"]')
-    if (leaveCard) {
-      const leaveData: any = {}
-      
-      // Find entitled, taken, and balance values
-      const entitledDiv = Array.from(leaveCard.querySelectorAll('div')).find(div => 
-        div.textContent?.includes('Entitled')
-      )?.parentElement
-      const takenDiv = Array.from(leaveCard.querySelectorAll('div')).find(div => 
-        div.textContent?.includes('Taken')
-      )?.parentElement
-      const balanceDiv = Array.from(leaveCard.querySelectorAll('div')).find(div => 
-        div.textContent?.includes('Balance')
-      )?.parentElement
-      
-      if (entitledDiv) {
-        const value = entitledDiv.querySelector('div.text-lg.font-bold')
-        if (value) leaveData.entitled = value.textContent?.trim()
-      }
-      
-      if (takenDiv) {
-        const value = takenDiv.querySelector('div.text-lg.font-bold')
-        if (value) leaveData.taken = value.textContent?.trim()
-      }
-      
-      if (balanceDiv) {
-        const value = balanceDiv.querySelector('div.text-lg.font-bold')
-        if (value) leaveData.balance = value.textContent?.trim()
-      }
-      
-      // Extract leave status badges
-      const badges = leaveCard.querySelectorAll('[class*="Badge"]')
-      const statusData: any = {}
-      badges.forEach(badge => {
-        const text = badge.textContent?.trim()
-        if (text?.includes('Pending:')) statusData.pending = text
-        if (text?.includes('Approved:')) statusData.approved = text
-        if (text?.includes('Rejected:')) statusData.rejected = text
-      })
-      
-      // Merge status data with leave data
-      const finalLeaveData = { ...leaveData, ...statusData }
-      
-      if (Object.keys(finalLeaveData).length > 0) {
-        data.sections.push({ type: 'leave', title: 'Leave Application Summary', data: finalLeaveData })
-      }
-    }
-
+    console.log("Final extracted data:", data)
     return data
   }
 
@@ -225,7 +136,7 @@ export function PDFDownloadButton({
       pdf.setTextColor(255, 255, 255)
       pdf.setFontSize(24)
       pdf.setFont('helvetica', 'bold')
-      pdf.text('NADI Staff Dashboard Report', margin, 25)
+      pdf.text(data.title || 'NADI Operation Dashboard Report', margin, 25)
       
       // Date
       pdf.setFontSize(12)
@@ -234,21 +145,23 @@ export function PDFDownloadButton({
       
       currentY = 55
 
-      // Staff Information
-      if (data.staffName) {
+      // Dashboard Information
+      if (data.dashboardTitle || data.dashboardSubtitle) {
         pdf.setTextColor(0, 0, 0)
         pdf.setFontSize(16)
         pdf.setFont('helvetica', 'bold')
-        pdf.text('Staff Information', margin, currentY)
+        pdf.text('Dashboard Overview', margin, currentY)
         currentY += 10
         
         pdf.setFontSize(12)
         pdf.setFont('helvetica', 'normal')
-        pdf.text(`Name: ${data.staffName}`, margin + 5, currentY)
-        currentY += 8
+        if (data.dashboardTitle) {
+          pdf.text(`Title: ${data.dashboardTitle}`, margin + 5, currentY)
+          currentY += 8
+        }
         
-        if (data.subtitle) {
-          pdf.text(`Position: ${data.subtitle}`, margin + 5, currentY)
+        if (data.dashboardSubtitle) {
+          pdf.text(`Description: ${data.dashboardSubtitle}`, margin + 5, currentY)
           currentY += 15
         } else {
           currentY += 10
@@ -324,7 +237,7 @@ export function PDFDownloadButton({
       pdf.setTextColor(255, 255, 255)
       pdf.setFontSize(10)
       pdf.setFont('helvetica', 'normal')
-      pdf.text('NADI Staff Management System', margin, footerY + 3)
+      pdf.text('NADI Operation Management System', margin, footerY + 3)
       pdf.text(`Page 1 of ${pdf.getNumberOfPages()}`, pageWidth - margin - 30, footerY + 3)
       
       // Add timestamp to filename
