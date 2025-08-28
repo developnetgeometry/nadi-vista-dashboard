@@ -747,17 +747,22 @@ export function PDFDownloadButton({
       const contentWidth = pageWidth - (2 * margin)
       let currentY = margin
 
-      // Header (removed blue color, keeping text)
-      pdf.setFillColor(40, 40, 40) // Dark gray instead of blue
-      pdf.rect(0, 0, pageWidth, 40, 'F')
-      
-      // Dashboard info only (no title or date)
-      pdf.setTextColor(255, 255, 255)
-      pdf.setFontSize(16)
+      // Header - Clean black text, no background colors
+      pdf.setTextColor(0, 0, 0) // Black text
+      pdf.setFontSize(18)
       pdf.setFont('helvetica', 'bold')
-      pdf.text(`${data.dashboardTitle} - ${data.dashboardSubtitle}`, margin, 25)
+      pdf.text(`${data.dashboardTitle}`, margin, currentY)
+      currentY += 8
       
-      currentY = 45
+      pdf.setFontSize(12)
+      pdf.setFont('helvetica', 'normal')
+      pdf.text(`${data.dashboardSubtitle}`, margin, currentY)
+      currentY += 15
+      
+      // Add separator line
+      pdf.setLineWidth(0.3)
+      pdf.line(margin, currentY, pageWidth - margin, currentY)
+      currentY += 15
 
       // Filter information below dashboard overview  
       if (data.filterInfo && Object.keys(data.filterInfo).length > 0) {
@@ -787,67 +792,43 @@ export function PDFDownloadButton({
           currentY = margin
         }
 
-        // Section title
-        pdf.setFillColor(248, 250, 252) // Light gray background
-        pdf.rect(margin, currentY - 5, contentWidth, 12, 'F')
-        
+        // Section title - Clean, no background
         pdf.setTextColor(0, 0, 0)
         pdf.setFontSize(14)
         pdf.setFont('helvetica', 'bold')
-        pdf.text(section.title, margin + 2, currentY + 3)
-        currentY += 20
+        pdf.text(section.title, margin, currentY)
+        currentY += 12
+        
+        // Add simple underline
+        pdf.setLineWidth(0.2)
+        pdf.line(margin, currentY, margin + 60, currentY)
+        currentY += 10
 
         if (section.type === 'stats') {
-          // Stats in a grid format
-          const statsPerRow = 2
-          const colWidth = contentWidth / statsPerRow
-          let col = 0
-          let row = 0
-
+          // Stats in clean rows
           section.data.forEach((stat: any) => {
-            const x = margin + (col * colWidth)
-            const y = currentY + (row * 25)
-
-            // Stat box
-            pdf.setFillColor(245, 245, 245)
-            pdf.rect(x + 2, y - 3, colWidth - 8, 20, 'F')
-            
-            pdf.setFontSize(10)
-            pdf.setFont('helvetica', 'normal')
-            pdf.text(stat.title, x + 5, y + 5)
-            
             pdf.setFontSize(12)
             pdf.setFont('helvetica', 'bold')
-            pdf.text(stat.value, x + 5, y + 15)
-
-            col++
-            if (col >= statsPerRow) {
-              col = 0
-              row++
-            }
+            pdf.text(stat.title, margin + 5, currentY)
+            
+            pdf.setFontSize(14)
+            pdf.setFont('helvetica', 'bold')
+            pdf.text(stat.value, margin + 100, currentY)
+            
+            currentY += 12
           })
           
-          currentY += Math.ceil(section.data.length / statsPerRow) * 25 + 10
+          currentY += 10
 
         } else if (section.type === 'area') {
-          // Area distribution with progress bars
+          // Area distribution - text only, no progress bars
           section.data.forEach((area: any) => {
-            // Area label
             pdf.setFontSize(11)
             pdf.setFont('helvetica', 'normal')
             pdf.text(`${area.area}`, margin + 5, currentY)
             pdf.text(`${area.count} centers (${area.percentage}%)`, margin + 80, currentY)
             
-            // Progress bar background
-            pdf.setFillColor(229, 231, 235) // gray-200
-            pdf.rect(margin + 5, currentY + 3, 100, 4, 'F')
-            
-            // Progress bar fill
-            const fillWidth = (area.percentage / 100) * 100
-            pdf.setFillColor(59, 130, 246) // blue-500
-            pdf.rect(margin + 5, currentY + 3, fillWidth, 4, 'F')
-            
-            currentY += 15
+            currentY += 10
           })
           currentY += 10
 
@@ -890,26 +871,16 @@ export function PDFDownloadButton({
           currentY += 10
 
         } else if (section.type === 'gender' || section.type === 'race') {
-          // Gender/Race with progress bars
+          // Gender/Race - text only, no progress bars
           section.data.forEach((item: any) => {
             const key = section.type === 'gender' ? item.gender : item.race
             
-            // Label
             pdf.setFontSize(11)
             pdf.setFont('helvetica', 'normal')
             pdf.text(`${key}`, margin + 5, currentY)
-            pdf.text(`${item.count} (${item.percentage}%)`, margin + 120, currentY)
+            pdf.text(`${item.count} (${item.percentage}%)`, margin + 100, currentY)
             
-            // Progress bar background
-            pdf.setFillColor(229, 231, 235)
-            pdf.rect(margin + 5, currentY + 3, 80, 3, 'F')
-            
-            // Progress bar fill
-            const fillWidth = (item.percentage / 100) * 80
-            pdf.setFillColor(16, 185, 129) // green-500
-            pdf.rect(margin + 5, currentY + 3, fillWidth, 3, 'F')
-            
-            currentY += 12
+            currentY += 10
           })
           currentY += 10
 
@@ -1116,24 +1087,14 @@ export function PDFDownloadButton({
           currentY += 10
 
         } else if (section.type === 'category-breakdown') {
-          // Category breakdown with progress bars
+          // Category breakdown - text only, no progress bars  
           section.data.forEach((category: any) => {
-            // Category label
             pdf.setFontSize(11)
             pdf.setFont('helvetica', 'normal')
             pdf.text(`${category.category}`, margin + 5, currentY)
             pdf.text(`${category.percentage}`, margin + 120, currentY)
             
-            // Progress bar background
-            pdf.setFillColor(229, 231, 235)
-            pdf.rect(margin + 5, currentY + 3, 80, 3, 'F')
-            
-            // Progress bar fill
-            const fillWidth = (parseInt(category.percentage) / 100) * 80
-            pdf.setFillColor(59, 130, 246) // blue-500
-            pdf.rect(margin + 5, currentY + 3, fillWidth, 3, 'F')
-            
-            currentY += 12
+            currentY += 10
           })
           currentY += 10
         } else if (section.type === 'age-groups') {
@@ -1210,17 +1171,18 @@ export function PDFDownloadButton({
         }
       }
 
-      // Footer on all pages
+      // Footer on all pages - Clean black text, no background
       const totalPages = pdf.getNumberOfPages()
       for (let i = 1; i <= totalPages; i++) {
         pdf.setPage(i)
         const footerY = pageHeight - 15
-        // Footer on all pages (removed blue color)
-        pdf.setFillColor(40, 40, 40) // Dark gray instead of blue
-        pdf.rect(0, footerY - 5, pageWidth, 20, 'F')
         
-        pdf.setTextColor(255, 255, 255)
-        pdf.setFontSize(10)
+        // Simple line separator above footer
+        pdf.setLineWidth(0.2)
+        pdf.line(margin, footerY - 3, pageWidth - margin, footerY - 3)
+        
+        pdf.setTextColor(0, 0, 0) // Black text
+        pdf.setFontSize(9)
         pdf.setFont('helvetica', 'normal')
         pdf.text('NADI Operation Management System', margin, footerY + 3)
         pdf.text(`Page ${i} of ${totalPages}`, pageWidth - margin - 30, footerY + 3)
