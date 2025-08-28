@@ -65,13 +65,13 @@ export function PDFDownloadButton({
           }
         });
 
-        if (stats.length > 0) {
-          data.sections.push({
-            type: "stats",
-            title: "Statistics", 
-            data: stats
-          });
-        }
+          if (stats.length > 0) {
+            data.sections.push({
+              type: "stats-cards",
+              title: "Key Statistics", 
+              data: stats
+            });
+          }
       }
 
       // Smart Services Participant Categories
