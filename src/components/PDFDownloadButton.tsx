@@ -600,7 +600,7 @@ export function PDFDownloadButton({
 
           if (stats.length > 0) {
             data.sections.push({
-              type: "stats",
+              type: "stats-cards",
               title: "Key Statistics",
               data: stats
             });
