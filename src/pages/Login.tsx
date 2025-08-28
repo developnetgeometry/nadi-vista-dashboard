@@ -44,7 +44,7 @@ export default function Login() {
         </div>
 
         {/* Login Options */}
-        <div className="space-y-4">
+        <div className="space-y-4" data-component="login-options">
           {/* DUSP Login */}
           <Card 
             className={`cursor-pointer transition-all duration-200 hover:shadow-lg ${
@@ -53,6 +53,7 @@ export default function Login() {
                 : 'hover:bg-muted/50'
             }`}
             onClick={() => setSelectedLoginType('dusp')}
+            data-login-type="dusp"
           >
             <CardContent className="p-6">
               <div className="flex items-center space-x-4">

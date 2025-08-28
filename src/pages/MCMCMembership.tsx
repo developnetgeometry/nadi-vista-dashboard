@@ -154,9 +154,9 @@ export default function MCMCMembership() {
 
         <TabsContent value="overview" className="space-y-6">
           {/* Key Membership Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6" data-component="membership-stats">
             {membershipStats.map((stat) => (
-              <Card key={stat.title}>
+              <Card key={stat.title} data-stat-title={stat.title}>
                 <CardContent className="p-6">
                   <div className="flex items-center space-x-4">
                     <div className="p-3 bg-primary/10 rounded-lg">
@@ -173,7 +173,7 @@ export default function MCMCMembership() {
           </div>
 
           {/* New Membership by Area */}
-          <Card>
+          <Card data-component="membership-by-area">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <MapPin className="h-5 w-5" />
@@ -182,7 +182,7 @@ export default function MCMCMembership() {
             </CardHeader>
             <CardContent className="space-y-4">
               {areaData.map((area) => (
-                <div key={area.area} className="space-y-2">
+                <div key={area.area} className="space-y-2" data-area-item data-area-name={area.area} data-area-count={area.count} data-area-percentage={area.percentage}>
                   <div className="flex justify-between text-sm">
                     <span className="font-medium">{area.area}</span>
                     <span className="text-muted-foreground">
@@ -215,7 +215,7 @@ export default function MCMCMembership() {
           </Card>
 
           {/* New Membership by DUSP - KEEP FOR MCMC */}
-          <Card>
+          <Card data-component="membership-by-dusp">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Building2 className="h-5 w-5" />
@@ -225,7 +225,7 @@ export default function MCMCMembership() {
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {duspData.map((dusp) => (
-                  <Card key={dusp.name} className="text-center">
+                  <Card key={dusp.name} className="text-center" data-dusp-item data-dusp-name={dusp.name} data-dusp-count={dusp.count}>
                     <CardContent className="p-4">
                       <div className="text-2xl mb-2">{dusp.logo}</div>
                       <p className="font-semibold text-sm">{dusp.name}</p>

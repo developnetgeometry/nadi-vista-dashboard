@@ -222,8 +222,8 @@ export default function MCMCSmartServices() {
 
         <TabsContent value="overview" className="space-y-6">
           {/* Key Participation Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="border-0 shadow-md hover:shadow-lg transition-shadow">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" data-component="participation-stats">
+            <Card className="border-0 shadow-md hover:shadow-lg transition-shadow" data-stat-title="Total Participants">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
@@ -341,7 +341,7 @@ export default function MCMCSmartServices() {
           </Card>
 
           {/* Participant by DUSP - KEEP FOR MCMC */}
-          <Card className="border-0 shadow-md">
+          <Card className="border-0 shadow-md" data-component="participant-by-dusp">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Building2 className="h-5 w-5 text-blue-600" />
@@ -351,7 +351,7 @@ export default function MCMCSmartServices() {
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                 {duspData.map((dusp) => (
-                  <Card key={dusp.name} className="text-center hover:shadow-sm transition-shadow">
+                  <Card key={dusp.name} className="text-center hover:shadow-sm transition-shadow" data-dusp-item data-dusp-name={dusp.name} data-dusp-count={dusp.count}>
                     <CardContent className="p-6">
                       <div className="text-3xl mb-4">{dusp.logo}</div>
                       <div>

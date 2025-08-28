@@ -85,8 +85,8 @@ export default function Home() {
       </div>
 
       {/* Key Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
-        {statusCards.map((card, index) => <Card key={card.title} className={card.active ? "border-primary" : ""}>
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6" data-component="home-stats">
+        {statusCards.map((card, index) => <Card key={card.title} className={card.active ? "border-primary" : ""} data-stat-title={card.title}>
             <CardContent className="p-6">
               <div className="flex items-center space-x-2">
                 <div className="p-2 bg-primary/10 rounded-lg">
@@ -105,7 +105,7 @@ export default function Home() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* NADI4U Category Breakdown */}
-        <Card>
+        <Card data-component="category-breakdown">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5" />
@@ -113,7 +113,7 @@ export default function Home() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {nadiCategories.map(category => <div key={category.name} className="space-y-2">
+            {nadiCategories.map(category => <div key={category.name} className="space-y-2" data-category-item data-category-name={category.name} data-category-percentage={category.percentage}>
                 <div className="flex justify-between text-sm">
                   <span className="font-medium">{category.name}</span>
                   <span className="text-muted-foreground">{category.percentage}%</span>
@@ -124,7 +124,7 @@ export default function Home() {
         </Card>
 
         {/* NADI Distribution Map */}
-        <Card>
+        <Card data-component="distribution-map">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <MapPin className="h-5 w-5" />

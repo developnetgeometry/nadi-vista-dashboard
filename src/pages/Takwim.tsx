@@ -55,7 +55,7 @@ export default function Takwim() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
+        <Card data-component="calendar-view">
           <CardHeader><CardTitle>Calendar View</CardTitle></CardHeader>
           <CardContent>
             <div className="h-64 bg-muted rounded-lg flex items-center justify-center">
@@ -67,11 +67,11 @@ export default function Takwim() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card data-component="upcoming-events">
           <CardHeader><CardTitle>Upcoming Events</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             {filteredEvents.map((event) => (
-              <div key={event.id} className="border rounded-lg p-4 space-y-2">
+              <div key={event.id} className="border rounded-lg p-4 space-y-2" data-event-item data-event-title={event.title} data-event-participants={event.participants}>
                 <div className="flex justify-between items-start">
                   <h4 className="font-semibold">{event.title}</h4>
                   <Badge>{event.category}</Badge>

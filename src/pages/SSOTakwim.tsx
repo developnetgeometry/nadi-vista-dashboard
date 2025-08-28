@@ -293,13 +293,13 @@ export default function SSOTakwim() {
             </Card>
 
             {/* Events List */}
-            <Card>
+            <Card data-component="nadi2u-events">
               <CardHeader>
                 <CardTitle>NADI2U Events</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 max-h-80 overflow-y-auto">
                 {filterEvents(currentEvents.nadi2u).map((event: any) => (
-                  <div key={event.id} className="border rounded-lg p-4 space-y-3 cursor-pointer hover:bg-muted/50 transition-colors">
+                  <div key={event.id} className="border rounded-lg p-4 space-y-3 cursor-pointer hover:bg-muted/50 transition-colors" data-event-item data-event-title={event.title} data-event-participants={event.participants}>
                     <div className="flex justify-between items-start">
                       <div className="space-y-1">
                         <h4 className="font-semibold">{event.title}</h4>

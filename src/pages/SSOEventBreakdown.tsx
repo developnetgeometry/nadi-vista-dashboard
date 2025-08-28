@@ -358,7 +358,7 @@ export default function SSOEventBreakdown() {
           {/* Charts Section */}
           <div className="space-y-6">
             {/* Events by Type */}
-            <Card>
+            <Card data-component="events-by-type">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <PieChart className="h-5 w-5" />

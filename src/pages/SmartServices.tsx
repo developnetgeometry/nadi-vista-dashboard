@@ -217,8 +217,8 @@ export default function SmartServices() {
 
         <TabsContent value="overview" className="space-y-6">
           {/* Key Participation Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="border-0 shadow-md hover:shadow-lg transition-shadow">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" data-component="participation-stats">
+            <Card className="border-0 shadow-md hover:shadow-lg transition-shadow" data-stat-title="Total Participants">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
@@ -294,7 +294,7 @@ export default function SmartServices() {
           </div>
 
           {/* Participant Categories */}
-          <Card className="border-0 shadow-md">
+          <Card className="border-0 shadow-md" data-component="participant-categories">
             <CardHeader>
               <div className="flex justify-between items-center">
                 <CardTitle className="flex items-center gap-2">

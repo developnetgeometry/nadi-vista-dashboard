@@ -159,8 +159,8 @@ export default function SSOEventOverview() {
 
       {currentData && <>
           {/* Key Metrics */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <Card>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6" data-component="event-metrics">
+            <Card data-stat-title="Total Events">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Events</CardTitle>
                 <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -190,7 +190,7 @@ export default function SSOEventOverview() {
           {/* Upcoming and Recent Events */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Upcoming Events */}
-            <Card>
+            <Card data-component="upcoming-events">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <TrendingUp className="h-5 w-5" />
@@ -199,7 +199,7 @@ export default function SSOEventOverview() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {currentData.upcomingEvents.map((event: any, index: number) => <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                  {currentData.upcomingEvents.map((event: any, index: number) => <div key={index} className="flex items-center justify-between p-3 border rounded-lg" data-event-item data-event-name={event.name} data-event-participants={event.participants}>
                       <div>
                         <h4 className="font-medium">{event.name}</h4>
                         <p className="text-sm text-muted-foreground">{event.date}</p>

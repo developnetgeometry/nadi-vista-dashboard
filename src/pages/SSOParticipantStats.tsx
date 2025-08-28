@@ -287,8 +287,8 @@ export default function SSOParticipantStats() {
 
       {currentData && <>
           {/* Key Metrics */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <Card>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6" data-component="participant-metrics">
+            <Card data-stat-title="Total Participants">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Participants</CardTitle>
                 <Users className="h-4 w-4 text-muted-foreground" />
@@ -336,7 +336,7 @@ export default function SSOParticipantStats() {
           {/* Charts Section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Participant Growth */}
-            <Card>
+            <Card data-component="participant-growth">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <TrendingUp className="h-5 w-5" />
@@ -358,7 +358,7 @@ export default function SSOParticipantStats() {
             </Card>
 
             {/* Age Distribution */}
-            <Card>
+            <Card data-component="age-distribution">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Users className="h-5 w-5" />

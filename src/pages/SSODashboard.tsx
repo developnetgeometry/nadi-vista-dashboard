@@ -216,8 +216,8 @@ export default function SSODashboard() {
       {currentData && (
         <>
           {/* Events Overview */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6" data-component="events-overview">
+            <Card data-stat-title="Total Events">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Events</CardTitle>
                 <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -289,7 +289,7 @@ export default function SSODashboard() {
           {/* Charts Section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Events by Type */}
-            <Card>
+            <Card data-component="events-by-type">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <PieChart className="h-5 w-5" />
@@ -320,7 +320,7 @@ export default function SSODashboard() {
             </Card>
 
             {/* Events by Location */}
-            <Card>
+            <Card data-component="events-by-location">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <MapPin className="h-5 w-5" />

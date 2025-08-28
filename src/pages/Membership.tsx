@@ -145,9 +145,9 @@ export default function Membership() {
 
         <TabsContent value="overview" className="space-y-6">
           {/* Key Membership Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6" data-component="membership-stats">
             {membershipStats.map((stat) => (
-              <Card key={stat.title}>
+              <Card key={stat.title} data-stat-title={stat.title}>
                 <CardContent className="p-6">
                   <div className="flex items-center space-x-4">
                     <div className="p-3 bg-primary/10 rounded-lg">
@@ -164,7 +164,7 @@ export default function Membership() {
           </div>
 
           {/* New Membership by Area */}
-          <Card>
+          <Card data-component="membership-by-area">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <MapPin className="h-5 w-5" />
@@ -173,7 +173,7 @@ export default function Membership() {
             </CardHeader>
             <CardContent className="space-y-4">
               {areaData.map((area) => (
-                <div key={area.area} className="space-y-2">
+                <div key={area.area} className="space-y-2" data-area-item data-area-name={area.area} data-area-count={area.count} data-area-percentage={area.percentage}>
                   <div className="flex justify-between text-sm">
                     <span className="font-medium">{area.area}</span>
                     <span className="text-muted-foreground">
