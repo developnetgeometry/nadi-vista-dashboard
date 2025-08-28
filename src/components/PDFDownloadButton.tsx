@@ -36,6 +36,7 @@ export function PDFDownloadButton({
       sections: [] as any[],
       dashboardTitle: "NADI",
       dashboardSubtitle: "Administrator",
+      activeTab: "",
       filterInfo: {} as any
     };
 
@@ -267,10 +268,40 @@ export function PDFDownloadButton({
       const headerTitle = document.querySelector('h1')?.textContent?.trim();
       const headerSubtitle = document.querySelector('p.text-muted-foreground')?.textContent?.trim();
       
-      if (headerTitle) {
-        data.dashboardTitle = headerTitle;
-        data.title = `${headerTitle} Report`;
+      // Get page-specific title based on current route
+      let pageTitle = "Dashboard";
+      const currentPath = window.location.pathname;
+      
+      if (currentPath.includes('/membership')) {
+        pageTitle = "Membership Dashboard";
+      } else if (currentPath.includes('/smart-services')) {
+        pageTitle = "Smart Services Dashboard";
+      } else if (currentPath.includes('/operation')) {
+        pageTitle = "Operation Dashboard";
+      } else if (currentPath.includes('/finance')) {
+        pageTitle = "Finance Dashboard";
+      } else if (currentPath.includes('/takwim') || currentPath.includes('/sso-takwim') || currentPath.includes('/tp-takwim')) {
+        pageTitle = "Takwim Dashboard";
+      } else if (currentPath.includes('/claim') || currentPath.includes('/mcmc-claim') || currentPath.includes('/tp-claim')) {
+        pageTitle = "Claim Dashboard";
+      } else if (currentPath.includes('/sso')) {
+        pageTitle = "SSO Dashboard";
+      } else if (currentPath.includes('/tp')) {
+        pageTitle = "TP Dashboard";
+      } else if (currentPath.includes('/mcmc')) {
+        pageTitle = "MCMC Dashboard";
+      } else if (headerTitle) {
+        pageTitle = headerTitle;
       }
+      
+      // Get active tab name
+      const activeTabTrigger = document.querySelector('[data-state="active"][role="tab"]');
+      const activeTabName = activeTabTrigger?.textContent?.trim() || "";
+      
+      data.dashboardTitle = pageTitle;
+      data.activeTab = activeTabName;
+      data.title = `${pageTitle} Report`;
+      
       if (headerSubtitle) {
         data.dashboardSubtitle = headerSubtitle;
       }
@@ -752,7 +783,15 @@ export function PDFDownloadButton({
       pdf.setFontSize(18)
       pdf.setFont('helvetica', 'bold')
       pdf.text(`${data.dashboardTitle}`, margin, currentY)
-      currentY += 8
+      currentY += 10
+      
+      // Show active tab below title if available
+      if (data.activeTab) {
+        pdf.setFontSize(14)
+        pdf.setFont('helvetica', 'normal')
+        pdf.text(`${data.activeTab}`, margin, currentY)
+        currentY += 8
+      }
       
       pdf.setFontSize(12)
       pdf.setFont('helvetica', 'normal')
