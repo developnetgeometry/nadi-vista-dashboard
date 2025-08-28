@@ -968,40 +968,64 @@ export function PDFDownloadButton({
         currentY += 25
 
         if (section.type === 'stats') {
-          // Stats in clean rows
+          // Stats in side-by-side grid layout
+          const statsPerRow = 2
+          const statWidth = (contentWidth - 10) / statsPerRow
+          let col = 0
+          let row = 0
+
           section.data.forEach((stat: any) => {
-            pdf.setFontSize(12)
+            const x = margin + 5 + (col * (statWidth + 5))
+            const y = currentY + (row * 20)
+            
+            pdf.setFontSize(11)
             pdf.setFont('helvetica', 'bold')
-            pdf.text(stat.title, margin + 5, currentY)
+            pdf.text(stat.title, x, y)
+            
+            pdf.setFontSize(13)
+            pdf.setFont('helvetica', 'bold')
+            pdf.text(stat.value, x, y + 8)
+            
+            col++
+            if (col >= statsPerRow) {
+              col = 0
+              row++
+            }
+          })
+          
+          currentY += Math.ceil(section.data.length / statsPerRow) * 20 + 15
+
+        } else if (section.type === 'stats-cards') {
+          // Main overview stats cards - display in grid layout (side by side)
+          const cardsPerRow = 2
+          const cardWidth = (contentWidth - 10) / cardsPerRow
+          let col = 0
+          let row = 0
+
+          section.data.forEach((stat: any) => {
+            const x = margin + 5 + (col * (cardWidth + 5))
+            const y = currentY + (row * 25)
+            
+            // Card-like box for each stat
+            pdf.setLineWidth(0.2)
+            pdf.rect(x, y - 3, cardWidth - 5, 18, 'S')
+            
+            pdf.setFontSize(10)
+            pdf.setFont('helvetica', 'normal')
+            pdf.text(stat.title, x + 3, y + 3)
             
             pdf.setFontSize(14)
             pdf.setFont('helvetica', 'bold')
-            pdf.text(stat.value, margin + 100, currentY)
+            pdf.text(stat.value, x + 3, y + 12)
             
-            currentY += 12
+            col++
+            if (col >= cardsPerRow) {
+              col = 0
+              row++
+            }
           })
           
-          currentY += 10
-
-        } else if (section.type === 'stats-cards') {
-          // Main overview stats cards - display prominently
-          section.data.forEach((stat: any) => {
-            // Card-like box for each stat
-            pdf.setLineWidth(0.2)
-            pdf.rect(margin + 5, currentY - 3, contentWidth - 10, 15, 'S')
-            
-            pdf.setFontSize(11)
-            pdf.setFont('helvetica', 'normal')
-            pdf.text(stat.title, margin + 8, currentY + 3)
-            
-            pdf.setFontSize(16)
-            pdf.setFont('helvetica', 'bold')
-            pdf.text(stat.value, margin + 8, currentY + 10)
-            
-            currentY += 20
-          })
-          
-          currentY += 10
+          currentY += Math.ceil(section.data.length / cardsPerRow) * 25 + 10
 
         } else if (section.type === 'area') {
           // Area distribution with progress bars
