@@ -360,7 +360,18 @@ export function PDFDownloadButton({
           chartCards.forEach(card => {
             const titleEl = card.querySelector('h3, [class*="CardTitle"]');
             if (titleEl && titleEl.textContent?.includes('Participation by State')) {
-              // Found the state participation card, now extract the data
+              // Capture the bar chart as an image
+              const chartContainer = card.querySelector('.recharts-responsive-container');
+              if (chartContainer) {
+                data.sections.push({
+                  type: "state-bar-chart",
+                  title: "Participation by State",
+                  chartElement: chartContainer,
+                  data: [] // Will be populated with state details for explanatory text
+                });
+              }
+              
+              // Extract state data for explanatory text below the chart
               const stateSearchResults = card.querySelectorAll('.grid.grid-cols-1 .flex.justify-between.items-center');
               if (stateSearchResults.length > 0) {
                 const stateData: any[] = [];
@@ -383,14 +394,14 @@ export function PDFDownloadButton({
                 });
 
                 if (stateData.length > 0) {
-                  data.sections.push({
-                    type: "state-participation",
-                    title: "Participation by State",
-                    data: stateData
-                  });
+                  // Update the chart section with explanatory data
+                  const chartSection = data.sections.find(s => s.type === "state-bar-chart");
+                  if (chartSection) {
+                    chartSection.data = stateData;
+                  }
                 }
               } else {
-                // If no search results visible, use default state data from the chart
+                // Use default state data if search results not visible
                 const defaultStateData = [
                   { state: "Selangor", count: "598", percentage: "15%" },
                   { state: "Kuala Lumpur", count: "478", percentage: "12%" },
@@ -399,11 +410,17 @@ export function PDFDownloadButton({
                   { state: "Perak", count: "358", percentage: "9%" }
                 ];
                 
-                data.sections.push({
-                  type: "state-participation",
-                  title: "Participation by State",
-                  data: defaultStateData
-                });
+                const chartSection = data.sections.find(s => s.type === "state-bar-chart");
+                if (chartSection) {
+                  chartSection.data = defaultStateData;
+                } else {
+                  // If no chart container found, create text-only section
+                  data.sections.push({
+                    type: "state-participation",
+                    title: "Participation by State",
+                    data: defaultStateData
+                  });
+                }
               }
             }
           });
@@ -763,7 +780,7 @@ export function PDFDownloadButton({
       // Chart screenshots removed - using structured text data only
 
       // Sections (for any remaining text data)
-      data.sections.forEach((section: any) => {
+      for (const section of data.sections) {
         // Check if we need a new page
         if (currentY > pageHeight - 80) {
           pdf.addPage()
@@ -1142,8 +1159,56 @@ export function PDFDownloadButton({
             currentY += 10
           })
           currentY += 10
+        } else if (section.type === 'state-bar-chart') {
+          // State bar chart with visual chart and explanatory text
+          if (section.chartElement) {
+            // Capture chart as image
+            try {
+              const canvas = await html2canvas(section.chartElement, {
+                backgroundColor: 'white',
+                scale: 2,
+                logging: false
+              })
+              
+              const imgData = canvas.toDataURL('image/png')
+              const imgWidth = 150 // Fit chart in PDF
+              const imgHeight = (canvas.height * imgWidth) / canvas.width
+              
+              // Check if chart fits on current page
+              if (currentY + imgHeight > pageHeight - 40) {
+                pdf.addPage()
+                currentY = margin
+              }
+              
+              pdf.addImage(imgData, 'PNG', margin, currentY, imgWidth, imgHeight)
+              currentY += imgHeight + 15
+            } catch (error) {
+              console.error('Error capturing chart:', error)
+              // Fallback to text if chart capture fails
+              pdf.setFontSize(11)
+              pdf.setFont('helvetica', 'italic')
+              pdf.text('Chart visualization not available', margin + 5, currentY)
+              currentY += 15
+            }
+          }
+          
+          // Add explanatory text below the chart
+          if (section.data && section.data.length > 0) {
+            pdf.setFontSize(12)
+            pdf.setFont('helvetica', 'bold')
+            pdf.text('State Breakdown:', margin + 5, currentY)
+            currentY += 10
+            
+            section.data.forEach((item: any) => {
+              pdf.setFontSize(11)
+              pdf.setFont('helvetica', 'normal')
+              pdf.text(`${item.state} ${item.count} participants (${item.percentage})`, margin + 5, currentY)
+              currentY += 8
+            })
+            currentY += 10
+          }
         }
-      })
+      }
 
       // Footer on all pages
       const totalPages = pdf.getNumberOfPages()
