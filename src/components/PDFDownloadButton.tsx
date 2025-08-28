@@ -274,6 +274,87 @@ export function PDFDownloadButton({
         data.dashboardSubtitle = headerSubtitle;
       }
 
+      // Capture filter information and add to title
+      const filterTabContent = document.querySelector('[role="tabpanel"]:not([hidden])');
+      
+      // Check for TP filter in membership demographic tab
+      if (window.location.pathname.includes('/membership')) {
+        const tpSelectTrigger = document.querySelector('[data-state="active"] select, [data-state="active"] [role="combobox"]');
+        if (tpSelectTrigger) {
+          const selectedValue = tpSelectTrigger.getAttribute('value') || tpSelectTrigger.textContent?.trim();
+          if (selectedValue && selectedValue !== 'all' && selectedValue !== 'All TPs' && !selectedValue.includes('Select')) {
+            data.title += ` - ${selectedValue}`;
+          }
+        }
+      }
+
+      // Check for pillar filter in smart services
+      if (window.location.pathname.includes('/smart-services')) {
+        const pillarSelects = document.querySelectorAll('select');
+        pillarSelects.forEach(select => {
+          const selectedValue = select.value;
+          if (selectedValue && selectedValue !== 'NADi x Entrepreneur' && selectedValue.includes('NADi x')) {
+            data.title += ` - ${selectedValue}`;
+          }
+        });
+      }
+
+      // Home page data capture - specifically target Home stats
+      if (window.location.pathname === '/' || window.location.pathname.includes('/home')) {
+        const homeStatsElement = document.querySelector('[data-component="home-stats"]');
+        if (homeStatsElement) {
+          const statCards = homeStatsElement.querySelectorAll('[data-stat-title]');
+          const stats: any[] = [];
+
+          statCards.forEach(card => {
+            const title = card.getAttribute('data-stat-title');
+            const valueEl = card.querySelector('p.text-2xl.font-bold');
+            
+            if (title && valueEl) {
+              stats.push({
+                title: title,
+                value: extractCleanText(valueEl)
+              });
+            }
+          });
+
+          if (stats.length > 0) {
+            data.sections.push({
+              type: "stats",
+              title: "Key Statistics",
+              data: stats
+            });
+          }
+        }
+
+        // Category breakdown for Home
+        const categoryBreakdownElement = document.querySelector('[data-component="category-breakdown"]');
+        if (categoryBreakdownElement) {
+          const categoryItems = categoryBreakdownElement.querySelectorAll('[data-category-item]');
+          const categories: any[] = [];
+
+          categoryItems.forEach(item => {
+            const name = item.getAttribute('data-category-name');
+            const percentage = item.getAttribute('data-category-percentage');
+            
+            if (name && percentage) {
+              categories.push({
+                category: name,
+                percentage: percentage + '%'
+              });
+            }
+          });
+
+          if (categories.length > 0) {
+            data.sections.push({
+              type: "category-breakdown", 
+              title: "NADI4U Category Breakdown",
+              data: categories
+            });
+          }
+        }
+      }
+
     } catch (error) {
       console.error('Error extracting data:', error);
     }
@@ -675,6 +756,28 @@ export function PDFDownloadButton({
               pdf.text(`(${item.percentage})`, margin + 140, currentY)
             }
             currentY += 10
+          })
+          currentY += 10
+
+        } else if (section.type === 'category-breakdown') {
+          // Category breakdown with progress bars
+          section.data.forEach((category: any) => {
+            // Category label
+            pdf.setFontSize(11)
+            pdf.setFont('helvetica', 'normal')
+            pdf.text(`${category.category}`, margin + 5, currentY)
+            pdf.text(`${category.percentage}`, margin + 120, currentY)
+            
+            // Progress bar background
+            pdf.setFillColor(229, 231, 235)
+            pdf.rect(margin + 5, currentY + 3, 80, 3, 'F')
+            
+            // Progress bar fill
+            const fillWidth = (parseInt(category.percentage) / 100) * 80
+            pdf.setFillColor(59, 130, 246) // blue-500
+            pdf.rect(margin + 5, currentY + 3, fillWidth, 3, 'F')
+            
+            currentY += 12
           })
           currentY += 10
         }
