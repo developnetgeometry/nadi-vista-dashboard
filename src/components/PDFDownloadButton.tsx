@@ -24,7 +24,7 @@ export function PDFDownloadButton({
 
   const extractDataFromPage = () => {
     const data: any = {
-      title: document.title || "Staff Dashboard Report",
+      title: "NADI Staff Dashboard Report",
       date: new Date().toLocaleDateString('en-GB', { 
         day: 'numeric', 
         month: 'long', 
@@ -36,10 +36,10 @@ export function PDFDownloadButton({
     // Extract staff welcome info
     const welcomeSection = document.querySelector('[data-component="staff-welcome"]')
     if (welcomeSection) {
-      const name = welcomeSection.querySelector('h1')?.textContent || "Staff Member"
-      const subtitle = welcomeSection.querySelector('p')?.textContent || ""
-      data.staffName = name
-      data.subtitle = subtitle
+      const nameElement = welcomeSection.querySelector('p.text-xl.text-primary')
+      const titleElement = welcomeSection.querySelector('h1')
+      data.staffName = nameElement?.textContent?.trim() || "Staff Member"
+      data.welcomeTitle = titleElement?.textContent?.trim() || ""
     }
 
     // Extract stats cards
@@ -47,14 +47,20 @@ export function PDFDownloadButton({
     if (statsCards.length > 0) {
       const stats: any[] = []
       statsCards.forEach(card => {
-        const title = card.querySelector('h3, [class*="text-2xl"]')?.textContent?.trim()
-        const value = card.querySelector('[class*="text-lg"], [class*="text-xl"]')?.textContent?.trim()
-        if (title && value) {
-          stats.push({ title, value })
+        const titleElement = card.querySelector('p.text-sm.font-medium.text-muted-foreground')
+        const valueElement = card.querySelector('p.text-3xl.font-bold')
+        const unitElement = card.querySelector('p.text-xs.text-muted-foreground.font-medium')
+        
+        if (titleElement && valueElement) {
+          stats.push({ 
+            title: titleElement.textContent?.trim(),
+            value: valueElement.textContent?.trim(),
+            unit: unitElement?.textContent?.trim() || ""
+          })
         }
       })
       if (stats.length > 0) {
-        data.sections.push({ type: 'stats', title: 'Statistics Overview', data: stats })
+        data.sections.push({ type: 'stats', title: 'Dashboard Statistics', data: stats })
       }
     }
 
@@ -62,13 +68,32 @@ export function PDFDownloadButton({
     const payrollCard = document.querySelector('[data-component="payroll-summary"]')
     if (payrollCard) {
       const payrollData: any = {}
-      const salaryEl = payrollCard.querySelector('[class*="Monthly Salary"]')?.parentElement?.querySelector('[class*="RM"]')
-      const allowanceEl = payrollCard.querySelector('[class*="Allowances"]')?.parentElement?.querySelector('[class*="RM"]')
-      const statusEl = payrollCard.querySelector('[class*="Payroll"]')?.parentElement?.querySelector('[class*="font-semibold"]')
       
-      if (salaryEl) payrollData.salary = salaryEl.textContent
-      if (allowanceEl) payrollData.allowances = allowanceEl.textContent
-      if (statusEl) payrollData.status = statusEl.textContent
+      // Find salary and allowances by looking for specific text content
+      const salaryDiv = Array.from(payrollCard.querySelectorAll('div')).find(div => 
+        div.textContent?.includes('Monthly Salary')
+      )?.parentElement
+      const allowanceDiv = Array.from(payrollCard.querySelectorAll('div')).find(div => 
+        div.textContent?.includes('Allowances')
+      )?.parentElement
+      const statusDiv = Array.from(payrollCard.querySelectorAll('div')).find(div => 
+        div.textContent?.includes('Payroll')
+      )?.parentElement
+      
+      if (salaryDiv) {
+        const salaryValue = salaryDiv.querySelector('div.text-xl.font-bold')
+        if (salaryValue) payrollData.salary = salaryValue.textContent?.trim()
+      }
+      
+      if (allowanceDiv) {
+        const allowanceValue = allowanceDiv.querySelector('div.text-xl.font-bold')
+        if (allowanceValue) payrollData.allowances = allowanceValue.textContent?.trim()
+      }
+      
+      if (statusDiv) {
+        const statusValue = statusDiv.querySelector('div.text-lg.font-semibold')
+        if (statusValue) payrollData.status = statusValue.textContent?.trim()
+      }
       
       if (Object.keys(payrollData).length > 0) {
         data.sections.push({ type: 'payroll', title: 'Payroll Information', data: payrollData })
@@ -79,11 +104,42 @@ export function PDFDownloadButton({
     const attendanceCard = document.querySelector('[data-component="attendance-summary"]')
     if (attendanceCard) {
       const attendanceData: any = {}
-      const checkInEl = attendanceCard.querySelector('[class*="Check In"]')?.parentElement?.querySelector('div:last-child')
-      const checkOutEl = attendanceCard.querySelector('[class*="Check Out"]')?.parentElement?.querySelector('div:last-child')
       
-      if (checkInEl) attendanceData.checkIn = checkInEl.textContent
-      if (checkOutEl) attendanceData.checkOut = checkOutEl.textContent
+      // Look for Check In and Check Out sections
+      const checkInSection = Array.from(attendanceCard.querySelectorAll('span')).find(span => 
+        span.textContent?.includes('Check In')
+      )?.parentElement
+      const checkOutSection = Array.from(attendanceCard.querySelectorAll('span')).find(span => 
+        span.textContent?.includes('Check Out')
+      )?.parentElement
+      
+      if (checkInSection) {
+        const checkInValue = checkInSection.querySelector('span:last-child')
+        if (checkInValue) attendanceData.checkIn = checkInValue.textContent?.trim()
+      }
+      
+      if (checkOutSection) {
+        const checkOutValue = checkOutSection.querySelector('span:last-child')
+        if (checkOutValue) attendanceData.checkOut = checkOutValue.textContent?.trim()
+      }
+      
+      // Extract time summary
+      const mcmcTimeDiv = Array.from(attendanceCard.querySelectorAll('div')).find(div => 
+        div.textContent?.includes('MCMC Time')
+      )?.parentElement
+      const totalTimeDiv = Array.from(attendanceCard.querySelectorAll('div')).find(div => 
+        div.textContent?.includes('Total Time')
+      )?.parentElement
+      
+      if (mcmcTimeDiv) {
+        const timeValue = mcmcTimeDiv.querySelector('div.font-mono.font-bold')
+        if (timeValue) attendanceData.mcmcTime = timeValue.textContent?.trim()
+      }
+      
+      if (totalTimeDiv) {
+        const timeValue = totalTimeDiv.querySelector('div.font-mono.font-bold')
+        if (timeValue) attendanceData.totalTime = timeValue.textContent?.trim()
+      }
       
       if (Object.keys(attendanceData).length > 0) {
         data.sections.push({ type: 'attendance', title: 'Attendance Summary', data: attendanceData })
@@ -94,16 +150,48 @@ export function PDFDownloadButton({
     const leaveCard = document.querySelector('[data-component="leave-summary"]')
     if (leaveCard) {
       const leaveData: any = {}
-      const entitledEl = leaveCard.querySelector('[class*="Entitled"]')?.parentElement?.querySelector('[class*="font-bold"]')
-      const takenEl = leaveCard.querySelector('[class*="Taken"]')?.parentElement?.querySelector('[class*="font-bold"]')
-      const balanceEl = leaveCard.querySelector('[class*="Balance"]')?.parentElement?.querySelector('[class*="font-bold"]')
       
-      if (entitledEl) leaveData.entitled = entitledEl.textContent
-      if (takenEl) leaveData.taken = takenEl.textContent
-      if (balanceEl) leaveData.balance = balanceEl.textContent
+      // Find entitled, taken, and balance values
+      const entitledDiv = Array.from(leaveCard.querySelectorAll('div')).find(div => 
+        div.textContent?.includes('Entitled')
+      )?.parentElement
+      const takenDiv = Array.from(leaveCard.querySelectorAll('div')).find(div => 
+        div.textContent?.includes('Taken')
+      )?.parentElement
+      const balanceDiv = Array.from(leaveCard.querySelectorAll('div')).find(div => 
+        div.textContent?.includes('Balance')
+      )?.parentElement
       
-      if (Object.keys(leaveData).length > 0) {
-        data.sections.push({ type: 'leave', title: 'Leave Application Summary', data: leaveData })
+      if (entitledDiv) {
+        const value = entitledDiv.querySelector('div.text-lg.font-bold')
+        if (value) leaveData.entitled = value.textContent?.trim()
+      }
+      
+      if (takenDiv) {
+        const value = takenDiv.querySelector('div.text-lg.font-bold')
+        if (value) leaveData.taken = value.textContent?.trim()
+      }
+      
+      if (balanceDiv) {
+        const value = balanceDiv.querySelector('div.text-lg.font-bold')
+        if (value) leaveData.balance = value.textContent?.trim()
+      }
+      
+      // Extract leave status badges
+      const badges = leaveCard.querySelectorAll('[class*="Badge"]')
+      const statusData: any = {}
+      badges.forEach(badge => {
+        const text = badge.textContent?.trim()
+        if (text?.includes('Pending:')) statusData.pending = text
+        if (text?.includes('Approved:')) statusData.approved = text
+        if (text?.includes('Rejected:')) statusData.rejected = text
+      })
+      
+      // Merge status data with leave data
+      const finalLeaveData = { ...leaveData, ...statusData }
+      
+      if (Object.keys(finalLeaveData).length > 0) {
+        data.sections.push({ type: 'leave', title: 'Leave Application Summary', data: finalLeaveData })
       }
     }
 

@@ -1,4 +1,5 @@
 import { StaffWelcomeHeader } from "@/components/staff/StaffWelcomeHeader"
+import { PDFDownloadButton } from "@/components/PDFDownloadButton"
 import { StaffStatsCards } from "@/components/staff/StaffStatsCards"
 import { StaffLeaveOverview } from "@/components/staff/StaffLeaveOverview"
 import { StaffQuickActions } from "@/components/staff/StaffQuickActions"
@@ -10,6 +11,15 @@ import { PayrollSummary } from "@/components/staff/PayrollSummary"
 const StaffHome = () => {
   return (
     <div className="space-y-8 animate-fade-in">
+      {/* PDF Download Button */}
+      <div className="flex justify-end">
+        <PDFDownloadButton 
+          filename="staff-dashboard-report" 
+          variant="outline"
+          size="sm"
+        />
+      </div>
+      
       {/* Welcome Header */}
       <StaffWelcomeHeader />
 
