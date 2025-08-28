@@ -366,6 +366,33 @@ export function PDFDownloadButton({
 
       // Smart Services specific data capture
       if (window.location.pathname.includes('/smart-services')) {
+        // Capture main stats cards from overview tab
+        const participationStatsElement = document.querySelector('[data-component="participation-stats"]');
+        if (participationStatsElement) {
+          const statCards = participationStatsElement.querySelectorAll('[data-stat-title]');
+          const stats: any[] = [];
+
+          statCards.forEach(card => {
+            const title = card.getAttribute('data-stat-title');
+            const valueEl = card.querySelector('p.text-3xl.font-bold, p.text-2xl.font-bold');
+            
+            if (title && valueEl) {
+              stats.push({
+                title: title,
+                value: extractCleanText(valueEl)
+              });
+            }
+          });
+
+          if (stats.length > 0) {
+            data.sections.push({
+              type: "stats-cards",
+              title: "Key Statistics",
+              data: stats
+            });
+          }
+        }
+        
         // Capture participant categories with pillar filter
         const participantCategoriesCard = document.querySelector('[data-component="participant-categories"]');
         if (participantCategoriesCard) {
@@ -872,6 +899,26 @@ export function PDFDownloadButton({
             pdf.text(stat.value, margin + 100, currentY)
             
             currentY += 12
+          })
+          
+          currentY += 10
+
+        } else if (section.type === 'stats-cards') {
+          // Main overview stats cards - display prominently
+          section.data.forEach((stat: any) => {
+            // Card-like box for each stat
+            pdf.setLineWidth(0.2)
+            pdf.rect(margin + 5, currentY - 3, contentWidth - 10, 15, 'S')
+            
+            pdf.setFontSize(11)
+            pdf.setFont('helvetica', 'normal')
+            pdf.text(stat.title, margin + 8, currentY + 3)
+            
+            pdf.setFontSize(16)
+            pdf.setFont('helvetica', 'bold')
+            pdf.text(stat.value, margin + 8, currentY + 10)
+            
+            currentY += 20
           })
           
           currentY += 10
