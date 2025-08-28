@@ -7,7 +7,7 @@ export function StaffWelcomeHeader() {
     month: 'long',
     day: 'numeric'
   });
-  return <Card className="border-none bg-gradient-to-r from-primary/10 via-primary/5 to-transparent relative overflow-hidden">
+  return <Card data-component="staff-welcome" className="border-none bg-gradient-to-r from-primary/10 via-primary/5 to-transparent relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent opacity-50" />
       <div className="absolute top-4 right-4 opacity-10">
         <Sparkles className="h-32 w-32 text-primary" />

@@ -40,7 +40,7 @@ export function StaffStatsCards() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       {stats.map((stat, index) => (
-        <Card key={index} className="hover:shadow-lg transition-all duration-300 border-0 shadow-md group">
+        <Card key={index} data-component="stats-card" className="hover:shadow-lg transition-all duration-300 border-0 shadow-md group">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
               <div className={`p-3 rounded-xl bg-${stat.color}-100 group-hover:bg-${stat.color}-200 transition-colors`}>

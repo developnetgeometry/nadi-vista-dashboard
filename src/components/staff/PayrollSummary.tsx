@@ -6,7 +6,7 @@ export function PayrollSummary() {
   const currentMonth = new Date().toLocaleDateString('en-GB', { month: 'long' })
 
   return (
-    <Card className="hover:shadow-md transition-shadow">
+    <Card data-component="payroll-summary" className="hover:shadow-md transition-shadow">
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center gap-2">
           <CreditCard className="h-5 w-5 text-primary" />

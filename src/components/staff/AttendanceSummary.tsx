@@ -10,7 +10,7 @@ export function AttendanceSummary() {
   })
 
   return (
-    <Card className="group hover:shadow-lg transition-all duration-300 border-0 bg-gradient-to-br from-purple-50/50 to-violet-50/50 hover:from-purple-50 hover:to-violet-50">
+    <Card data-component="attendance-summary" className="group hover:shadow-lg transition-all duration-300 border-0 bg-gradient-to-br from-purple-50/50 to-violet-50/50 hover:from-purple-50 hover:to-violet-50">
       <CardHeader className="pb-3 space-y-2">
         <div className="flex items-center justify-between">
           <div className="p-2 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">

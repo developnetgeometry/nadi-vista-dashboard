@@ -5,7 +5,7 @@ import { Calendar, FileText, Plus, List, Clock, TrendingUp } from "lucide-react"
 
 export function LeaveApplicationSummary() {
   return (
-    <Card className="group hover:shadow-lg transition-all duration-300 border-0 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 hover:from-blue-50 hover:to-indigo-50">
+    <Card data-component="leave-summary" className="group hover:shadow-lg transition-all duration-300 border-0 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 hover:from-blue-50 hover:to-indigo-50">
       <CardHeader className="pb-3 space-y-2">
         <div className="flex items-center justify-between">
           <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
