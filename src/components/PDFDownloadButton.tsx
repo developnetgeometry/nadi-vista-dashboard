@@ -35,7 +35,7 @@ export function PDFDownloadButton({
       }),
       sections: [] as any[],
       dashboardTitle: "NADI",
-      dashboardSubtitle: "Administrator",
+      dashboardSubtitle: "",
       activeTab: "",
       filterInfo: {} as any
     };
@@ -233,11 +233,28 @@ export function PDFDownloadButton({
         // Capture demographic data
         const demographicSections = activeTabContent.querySelectorAll('.space-y-4');
         demographicSections.forEach(section => {
-          const titleEl = section.querySelector('h3, .font-semibold, [data-title]');
+          // Look for the section header/title more specifically
+          const titleEl = section.querySelector('h3, .text-lg.font-semibold, [class*="CardTitle"]') || 
+                         section.closest('.border-0.shadow-md')?.querySelector('h3, [class*="CardTitle"]') ||
+                         section.parentElement?.querySelector('h3, [class*="CardTitle"]');
+          
           const items = section.querySelectorAll('.flex.justify-between.items-center');
           
           if (titleEl && items.length > 0) {
             const demographicItems: any[] = [];
+            let sectionTitle = extractCleanText(titleEl);
+            
+            // If title is just the first item name, try to get a better title
+            if (items.length > 0) {
+              const firstItemText = extractCleanText(items[0].querySelector('[data-radix-collection-item], .inline-flex') || items[0]);
+              if (sectionTitle === firstItemText || sectionTitle.includes(firstItemText)) {
+                // Look for a better section title
+                const cardTitle = section.closest('.border-0')?.querySelector('[class*="CardTitle"], h3');
+                if (cardTitle) {
+                  sectionTitle = extractCleanText(cardTitle);
+                }
+              }
+            }
 
             items.forEach(item => {
               const badgeEl = item.querySelector('[data-radix-collection-item], .inline-flex');
@@ -256,7 +273,7 @@ export function PDFDownloadButton({
             if (demographicItems.length > 0) {
               data.sections.push({
                 type: "demographic",
-                title: extractCleanText(titleEl),
+                title: sectionTitle,
                 data: demographicItems
               });
             }
@@ -831,17 +848,17 @@ export function PDFDownloadButton({
           currentY = margin
         }
 
-        // Section title - Clean, no background
+        // Section title - Card-like formatting with border
         pdf.setTextColor(0, 0, 0)
         pdf.setFontSize(14)
         pdf.setFont('helvetica', 'bold')
-        pdf.text(section.title, margin, currentY)
-        currentY += 12
         
-        // Add simple underline
-        pdf.setLineWidth(0.2)
-        pdf.line(margin, currentY, margin + 60, currentY)
-        currentY += 10
+        // Draw card border - track starting position
+        pdf.setLineWidth(0.3)
+        const cardStartY = currentY - 5
+        
+        pdf.text(section.title, margin + 3, currentY + 8)
+        currentY += 25
 
         if (section.type === 'stats') {
           // Stats in clean rows
@@ -1208,6 +1225,12 @@ export function PDFDownloadButton({
             currentY += 10
           }
         }
+        
+        // Complete card-like formatting with bottom border
+        const cardEndY = currentY - 10
+        pdf.setLineWidth(0.3)
+        pdf.rect(margin - 2, cardStartY, contentWidth + 4, cardEndY - cardStartY + 10, 'S') // Complete card border
+        currentY += 15 // Extra space between cards
       }
 
       // Footer on all pages - Clean black text, no background
