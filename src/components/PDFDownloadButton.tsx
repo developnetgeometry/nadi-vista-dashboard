@@ -282,10 +282,21 @@ export function PDFDownloadButton({
       if (window.location.pathname.includes('/membership')) {
         const activeTab = document.querySelector('[data-state="active"][role="tabpanel"]');
         if (activeTab) {
-          // Look for TP select in demographic tab
-          const tpSelect = activeTab.querySelector('select');
-          if (tpSelect && tpSelect.value && tpSelect.value !== 'all') {
-            filterInfo.tp = tpSelect.value;
+          // Look for shadcn Select component with TP filter
+          const tpSelectTrigger = activeTab.querySelector('[role="combobox"]');
+          if (tpSelectTrigger) {
+            // Try multiple ways to get the selected value
+            const selectedValueText = tpSelectTrigger.textContent?.trim() || '';
+            const selectedValue = tpSelectTrigger.getAttribute('aria-activedescendant') || 
+                                 tpSelectTrigger.getAttribute('data-value') || 
+                                 selectedValueText;
+            
+            console.log('TP Select detected:', { selectedValue, selectedValueText, tpSelectTrigger });
+            
+            if (selectedValue && selectedValue !== 'all' && selectedValue !== 'All TPs' && 
+                !selectedValue.includes('Select') && !selectedValue.includes('Building2')) {
+              filterInfo.tp = selectedValue;
+            }
           }
         }
       }
