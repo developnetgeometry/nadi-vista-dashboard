@@ -338,40 +338,69 @@ export function PDFDownloadButton({
         }
       }
 
-      // Add captured chart images
-      data.charts.forEach((chart: any) => {
-        // Check if we need a new page
-        const imageHeight = (chart.height * contentWidth) / chart.width
-        if (currentY + imageHeight > pageHeight - 40) {
+      // Add captured chart images in 2-column grid layout
+      for (let i = 0; i < data.charts.length; i += 2) {
+        const leftChart = data.charts[i]
+        const rightChart = data.charts[i + 1]
+        
+        // Calculate dimensions for 2-column layout
+        const columnWidth = (contentWidth - 10) / 2 // 10mm gap between columns
+        const leftImageHeight = (leftChart.height * columnWidth) / leftChart.width
+        const rightImageHeight = rightChart ? (rightChart.height * columnWidth) / rightChart.width : 0
+        const maxRowHeight = Math.max(leftImageHeight, rightImageHeight)
+        
+        // Check if we need a new page for this row
+        if (currentY + maxRowHeight + 40 > pageHeight - 40) {
           pdf.addPage()
           currentY = margin
         }
 
+        // Left chart
         // Chart title
         pdf.setFillColor(248, 250, 252)
-        pdf.rect(margin, currentY - 5, contentWidth, 12, 'F')
+        pdf.rect(margin, currentY - 5, columnWidth, 12, 'F')
         
         pdf.setTextColor(0, 0, 0)
-        pdf.setFontSize(14)
+        pdf.setFontSize(12)
         pdf.setFont('helvetica', 'bold')
-        pdf.text(chart.title, margin + 2, currentY + 3)
-        currentY += 20
-
-        // Add the chart image
-        const maxWidth = contentWidth
-        const scaledHeight = (chart.height * maxWidth) / chart.width
+        pdf.text(leftChart.title, margin + 2, currentY + 3)
         
+        // Add the left chart image
         pdf.addImage(
-          chart.imageData,
+          leftChart.imageData,
           'PNG',
           margin,
-          currentY,
-          maxWidth,
-          scaledHeight
+          currentY + 15,
+          columnWidth,
+          leftImageHeight
         )
+
+        // Right chart (if exists)
+        if (rightChart) {
+          const rightX = margin + columnWidth + 10
+          
+          // Chart title
+          pdf.setFillColor(248, 250, 252)
+          pdf.rect(rightX, currentY - 5, columnWidth, 12, 'F')
+          
+          pdf.setTextColor(0, 0, 0)
+          pdf.setFontSize(12)
+          pdf.setFont('helvetica', 'bold')
+          pdf.text(rightChart.title, rightX + 2, currentY + 3)
+          
+          // Add the right chart image
+          pdf.addImage(
+            rightChart.imageData,
+            'PNG',
+            rightX,
+            currentY + 15,
+            columnWidth,
+            rightImageHeight
+          )
+        }
         
-        currentY += scaledHeight + 15
-      })
+        currentY += maxRowHeight + 35
+      }
 
       // Sections (for any remaining text data)
       data.sections.forEach((section: any) => {
