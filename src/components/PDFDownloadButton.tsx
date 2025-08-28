@@ -1,7 +1,7 @@
+
 import React from "react"
 import { Button } from "@/components/ui/button"
 import { Download } from "lucide-react"
-import html2canvas from "html2canvas"
 import jsPDF from "jspdf"
 import { toast } from "@/hooks/use-toast"
 
@@ -23,7 +23,7 @@ export function PDFDownloadButton({
   const [isGenerating, setIsGenerating] = React.useState(false)
 
   const extractDataFromPage = () => {
-    console.log("Starting PDF data extraction...")
+    console.log("Starting comprehensive PDF data extraction...")
     const data: any = {
       title: "NADI Operation Dashboard Report",
       date: new Date().toLocaleDateString('en-GB', { 
@@ -34,68 +34,8 @@ export function PDFDownloadButton({
       sections: []
     }
 
-    console.log("Initial data structure:", data)
-
-    // Extract operation statistics
-    console.log("Looking for operation stats...")
-    const statsContainer = document.querySelector('[data-component="operation-stats"]')
-    console.log("Found stats container:", !!statsContainer)
-    
-    if (statsContainer) {
-      const statCards = statsContainer.querySelectorAll('[data-stat-title]')
-      console.log("Found stat cards:", statCards.length)
-      
-      const stats: any[] = []
-      statCards.forEach((card, index) => {
-        console.log(`Processing card ${index}:`, card)
-        
-        const titleElement = card.querySelector('p.text-sm.font-medium.text-muted-foreground')
-        const valueElement = card.querySelector('p.text-2xl.font-bold')
-        
-        const title = titleElement?.textContent?.trim()
-        const value = valueElement?.textContent?.trim()
-        
-        console.log(`Card ${index} - Title: ${title}, Value: ${value}`)
-        
-        if (title && value) {
-          stats.push({ title, value })
-        }
-      })
-      
-      console.log("Extracted stats:", stats)
-      if (stats.length > 0) {
-        data.sections.push({ type: 'stats', title: 'Operation Statistics', data: stats })
-      }
-    } else {
-      console.log("Stats container not found, trying fallback method...")
-      // Fallback: look for the grid structure
-      const gridContainer = document.querySelector('.grid.grid-cols-2.md\\:grid-cols-4')
-      if (gridContainer) {
-        console.log("Found grid container")
-        const cards = gridContainer.querySelectorAll('div[class*="Card"]')
-        console.log("Found cards in grid:", cards.length)
-        
-        const stats: any[] = []
-        cards.forEach((card, index) => {
-          const titleEl = card.querySelector('p.text-sm.font-medium.text-muted-foreground')
-          const valueEl = card.querySelector('p.text-2xl.font-bold')
-          
-          if (titleEl && valueEl) {
-            stats.push({
-              title: titleEl.textContent?.trim(),
-              value: valueEl.textContent?.trim()
-            })
-          }
-        })
-        
-        if (stats.length > 0) {
-          data.sections.push({ type: 'stats', title: 'Operation Statistics', data: stats })
-        }
-      }
-    }
-
     // Extract dashboard header info
-    const headerTitle = document.querySelector('h1.text-3xl.font-bold')?.textContent?.trim()
+    const headerTitle = document.querySelector('h1')?.textContent?.trim()
     const headerSubtitle = document.querySelector('p.text-muted-foreground')?.textContent?.trim()
     
     if (headerTitle) {
@@ -105,7 +45,182 @@ export function PDFDownloadButton({
       data.dashboardSubtitle = headerSubtitle
     }
 
-    console.log("Final extracted data:", data)
+    // 1. Extract Operation Statistics
+    const statsContainer = document.querySelector('[data-component="operation-stats"]')
+    if (statsContainer) {
+      const statCards = statsContainer.querySelectorAll('[data-stat-title]')
+      const stats: any[] = []
+      
+      statCards.forEach((card) => {
+        const titleElement = card.querySelector('p.text-sm.font-medium.text-muted-foreground')
+        const valueElement = card.querySelector('p.text-2xl.font-bold')
+        
+        const title = titleElement?.textContent?.trim()
+        const value = valueElement?.textContent?.trim()
+        
+        if (title && value) {
+          stats.push({ title, value })
+        }
+      })
+      
+      if (stats.length > 0) {
+        data.sections.push({ type: 'stats', title: 'Operation Statistics', data: stats })
+      }
+    }
+
+    // 2. Extract NADI by Area data
+    const areaCards = document.querySelectorAll('[data-area-item]')
+    if (areaCards.length > 0) {
+      const areaData: any[] = []
+      areaCards.forEach((card) => {
+        const areaName = card.getAttribute('data-area-name')
+        const areaCount = card.getAttribute('data-area-count')
+        const areaPercentage = card.getAttribute('data-area-percentage')
+        
+        if (areaName && areaCount && areaPercentage) {
+          areaData.push({
+            area: areaName,
+            count: areaCount,
+            percentage: areaPercentage
+          })
+        }
+      })
+      
+      if (areaData.length > 0) {
+        data.sections.push({ type: 'area', title: 'NADI by Area Distribution', data: areaData })
+      }
+    }
+
+    // 3. Extract NADI by DUSP data
+    const duspCards = document.querySelectorAll('[data-dusp-item]')
+    if (duspCards.length > 0) {
+      const duspData: any[] = []
+      duspCards.forEach((card) => {
+        const duspName = card.getAttribute('data-dusp-name')
+        const duspCount = card.getAttribute('data-dusp-count')
+        
+        if (duspName && duspCount) {
+          duspData.push({
+            dusp: duspName,
+            count: duspCount
+          })
+        }
+      })
+      
+      if (duspData.length > 0) {
+        data.sections.push({ type: 'dusp', title: 'Total NADI by DUSP', data: duspData })
+      }
+    }
+
+    // 4. Extract NADI by TP data
+    const tpCards = document.querySelectorAll('[data-tp-item]')
+    if (tpCards.length > 0) {
+      const tpData: any[] = []
+      tpCards.forEach((card) => {
+        const tpName = card.getAttribute('data-tp-name')
+        const tpCount = card.getAttribute('data-tp-count')
+        
+        if (tpName && tpCount) {
+          tpData.push({
+            tp: tpName,
+            count: tpCount
+          })
+        }
+      })
+      
+      if (tpData.length > 0) {
+        data.sections.push({ type: 'tp', title: 'Total NADI by TP', data: tpData })
+      }
+    }
+
+    // 5. Extract NADI by State data
+    const stateItems = document.querySelectorAll('[data-state-item]')
+    if (stateItems.length > 0) {
+      const stateData: any[] = []
+      stateItems.forEach((item) => {
+        const stateName = item.getAttribute('data-state-name')
+        const stateCount = item.getAttribute('data-state-count')
+        
+        if (stateName && stateCount) {
+          stateData.push({
+            state: stateName,
+            count: stateCount
+          })
+        }
+      })
+      
+      if (stateData.length > 0) {
+        data.sections.push({ type: 'state', title: 'Total NADI by State', data: stateData })
+      }
+    }
+
+    // 6. Extract NADI Officer Statistics (if on officer tab)
+    const officerCards = document.querySelectorAll('[data-officer-role]')
+    if (officerCards.length > 0) {
+      const officerData: any[] = []
+      officerCards.forEach((card) => {
+        const role = card.getAttribute('data-officer-role')
+        const total = card.getAttribute('data-officer-total')
+        
+        if (role && total) {
+          officerData.push({
+            role: role,
+            total: total
+          })
+        }
+      })
+      
+      if (officerData.length > 0) {
+        data.sections.push({ type: 'officers', title: 'NADI Officer Statistics', data: officerData })
+      }
+    }
+
+    // 7. Extract Gender and Race data (if visible)
+    const genderItems = document.querySelectorAll('[data-gender-item]')
+    if (genderItems.length > 0) {
+      const genderData: any[] = []
+      genderItems.forEach((item) => {
+        const gender = item.getAttribute('data-gender-name')
+        const count = item.getAttribute('data-gender-count')
+        const percentage = item.getAttribute('data-gender-percentage')
+        
+        if (gender && count && percentage) {
+          genderData.push({
+            gender: gender,
+            count: count,
+            percentage: percentage
+          })
+        }
+      })
+      
+      if (genderData.length > 0) {
+        data.sections.push({ type: 'gender', title: 'Officers by Gender', data: genderData })
+      }
+    }
+
+    const raceItems = document.querySelectorAll('[data-race-item]')
+    if (raceItems.length > 0) {
+      const raceData: any[] = []
+      raceItems.forEach((item) => {
+        const race = item.getAttribute('data-race-name')
+        const count = item.getAttribute('data-race-count')
+        const percentage = item.getAttribute('data-race-percentage')
+        
+        if (race && count && percentage) {
+          raceData.push({
+            race: race,
+            count: count,
+            percentage: percentage
+          })
+        }
+      })
+      
+      if (raceData.length > 0) {
+        data.sections.push({ type: 'race', title: 'Officers by Race', data: raceData })
+      }
+    }
+
+    console.log("Final comprehensive extracted data:", data)
     return data
   }
 
@@ -169,9 +284,9 @@ export function PDFDownloadButton({
       }
 
       // Sections
-      data.sections.forEach((section: any, index: number) => {
+      data.sections.forEach((section: any) => {
         // Check if we need a new page
-        if (currentY > pageHeight - 60) {
+        if (currentY > pageHeight - 80) {
           pdf.addPage()
           currentY = margin
         }
@@ -193,7 +308,7 @@ export function PDFDownloadButton({
           let col = 0
           let row = 0
 
-          section.data.forEach((stat: any, statIndex: number) => {
+          section.data.forEach((stat: any) => {
             const x = margin + (col * colWidth)
             const y = currentY + (row * 25)
 
@@ -217,28 +332,81 @@ export function PDFDownloadButton({
           })
           
           currentY += Math.ceil(section.data.length / statsPerRow) * 25 + 10
-        } else {
-          // Other sections as key-value pairs
-          Object.entries(section.data).forEach(([key, value]: [string, any]) => {
+
+        } else if (section.type === 'area') {
+          // Area distribution with percentages
+          section.data.forEach((area: any) => {
             pdf.setFontSize(11)
             pdf.setFont('helvetica', 'normal')
-            pdf.text(`${key.charAt(0).toUpperCase() + key.slice(1)}: ${value}`, margin + 5, currentY)
+            pdf.text(`${area.area}: ${area.count} centers (${area.percentage}%)`, margin + 5, currentY)
+            currentY += 8
+          })
+          currentY += 10
+
+        } else if (section.type === 'dusp' || section.type === 'tp' || section.type === 'state') {
+          // DUSP, TP, State data in columns
+          const itemsPerRow = 2
+          const colWidth = contentWidth / itemsPerRow
+          let col = 0
+          let row = 0
+
+          section.data.forEach((item: any) => {
+            const x = margin + (col * colWidth)
+            const y = currentY + (row * 12)
+
+            const key = section.type === 'dusp' ? item.dusp : 
+                       section.type === 'tp' ? item.tp : item.state
+            
+            pdf.setFontSize(10)
+            pdf.setFont('helvetica', 'normal')
+            pdf.text(`${key}: ${item.count}`, x + 5, y)
+
+            col++
+            if (col >= itemsPerRow) {
+              col = 0
+              row++
+            }
+          })
+          
+          currentY += Math.ceil(section.data.length / itemsPerRow) * 12 + 15
+
+        } else if (section.type === 'officers') {
+          // Officer statistics
+          section.data.forEach((officer: any) => {
+            pdf.setFontSize(11)
+            pdf.setFont('helvetica', 'normal')
+            pdf.text(`${officer.role}: ${officer.total}`, margin + 5, currentY)
+            currentY += 8
+          })
+          currentY += 10
+
+        } else if (section.type === 'gender' || section.type === 'race') {
+          // Gender/Race with percentages
+          section.data.forEach((item: any) => {
+            const key = section.type === 'gender' ? item.gender : item.race
+            pdf.setFontSize(11)
+            pdf.setFont('helvetica', 'normal')
+            pdf.text(`${key}: ${item.count} (${item.percentage}%)`, margin + 5, currentY)
             currentY += 8
           })
           currentY += 10
         }
       })
 
-      // Footer
-      const footerY = pageHeight - 15
-      pdf.setFillColor(59, 130, 246)
-      pdf.rect(0, footerY - 5, pageWidth, 20, 'F')
-      
-      pdf.setTextColor(255, 255, 255)
-      pdf.setFontSize(10)
-      pdf.setFont('helvetica', 'normal')
-      pdf.text('NADI Operation Management System', margin, footerY + 3)
-      pdf.text(`Page 1 of ${pdf.getNumberOfPages()}`, pageWidth - margin - 30, footerY + 3)
+      // Footer on all pages
+      const totalPages = pdf.getNumberOfPages()
+      for (let i = 1; i <= totalPages; i++) {
+        pdf.setPage(i)
+        const footerY = pageHeight - 15
+        pdf.setFillColor(59, 130, 246)
+        pdf.rect(0, footerY - 5, pageWidth, 20, 'F')
+        
+        pdf.setTextColor(255, 255, 255)
+        pdf.setFontSize(10)
+        pdf.setFont('helvetica', 'normal')
+        pdf.text('NADI Operation Management System', margin, footerY + 3)
+        pdf.text(`Page ${i} of ${totalPages}`, pageWidth - margin - 30, footerY + 3)
+      }
       
       // Add timestamp to filename
       const timestamp = new Date().toISOString().slice(0, 19).replace(/[:]/g, '-')
@@ -248,7 +416,7 @@ export function PDFDownloadButton({
       
       toast({
         title: "PDF Downloaded",
-        description: `Professional report saved as ${finalFilename}`,
+        description: `Comprehensive report saved as ${finalFilename}`,
       })
     } catch (error) {
       console.error('Error generating PDF:', error)

@@ -12,6 +12,7 @@ import { useState, useMemo } from "react";
 import { DateRangePicker } from "@/components/DateRangePicker";
 import { PDFDownloadButton } from "@/components/PDFDownloadButton";
 import { DateRange } from "@/components/DateRangePicker";
+
 const operationStats = [{
   title: "Total NADI",
   count: "1,099",
@@ -33,6 +34,7 @@ const operationStats = [{
   icon: AlertTriangle,
   color: "text-orange-600"
 }];
+
 const areaDistribution = [{
   area: "Urban",
   count: 440,
@@ -54,6 +56,7 @@ const areaDistribution = [{
   percentage: 10,
   color: "bg-red-500"
 }];
+
 const nadiByDUSP = [{
   dusp: "TM TECH",
   count: 10,
@@ -75,6 +78,7 @@ const nadiByDUSP = [{
   count: 20,
   color: "text-red-600"
 }];
+
 const nadiByTP = [{
   tp: "MYNIC",
   count: 45,
@@ -100,6 +104,7 @@ const nadiByTP = [{
   bgColor: "bg-orange-50",
   iconColor: "text-orange-600"
 }];
+
 const nadiByTPForDUSP = {
   "TM TECH": [{
     tp: "MYNIC",
@@ -137,6 +142,7 @@ const nadiByTPForDUSP = {
     count: 8
   }]
 };
+
 const officerStats = [{
   role: "Manager",
   total: 550,
@@ -148,6 +154,7 @@ const officerStats = [{
   occupied: 489,
   vacancy: 60
 }];
+
 const nadiDetails = [{
   name: "NADI Bukit Jalil",
   dusp: "TM",
@@ -220,6 +227,7 @@ const openDockets = [{
   totalNadi: 120,
   totalDocketOpen: 3
 }];
+
 export default function Operation() {
   const [closedDialogOpen, setClosedDialogOpen] = useState(false);
   const [maintenanceDialogOpen, setMaintenanceDialogOpen] = useState(false);
@@ -238,6 +246,7 @@ export default function Operation() {
   const [genderSearch, setGenderSearch] = useState<string>("");
   const [raceSearch, setRaceSearch] = useState<string>("");
   const [stateSearch, setStateSearch] = useState<string>("");
+
   const downloadCSV = (data: any[], filename: string) => {
     const headers = Object.keys(data[0]);
     const csvContent = [headers.join(','), ...data.map(row => headers.map(header => `"${row[header]}"`).join(','))].join('\n');
@@ -253,6 +262,7 @@ export default function Operation() {
     link.click();
     document.body.removeChild(link);
   };
+
   const FilterComponent = ({
     month,
     setMonth,
@@ -300,6 +310,7 @@ export default function Operation() {
         </SelectContent>
       </Select>
     </div>;
+
   const SearchComponent = ({
     search,
     setSearch,
@@ -515,7 +526,7 @@ export default function Operation() {
             </CardHeader>
             <CardContent className="space-y-4">
               <FilterComponent month={nadiAreaMonth} setMonth={setNadiAreaMonth} year={nadiAreaYear} setYear={setNadiAreaYear} title="Filter" />
-              {areaDistribution.map(area => <div key={area.area} className="space-y-2">
+              {areaDistribution.map(area => <div key={area.area} className="space-y-2" data-area-item data-area-name={area.area} data-area-count={area.count} data-area-percentage={area.percentage}>
                   <div className="flex justify-between text-sm">
                     <span className="font-medium">{area.area}</span>
                     <span className="text-muted-foreground">
@@ -537,7 +548,7 @@ export default function Operation() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                {nadiByDUSP.map(item => <Card key={item.dusp} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => {
+                {nadiByDUSP.map(item => <Card key={item.dusp} className="cursor-pointer hover:shadow-md transition-shadow" data-dusp-item data-dusp-name={item.dusp} data-dusp-count={item.count} onClick={() => {
                 setSelectedDUSP(item.dusp);
                 setDuspDialogOpen(true);
               }}>
@@ -587,7 +598,7 @@ export default function Operation() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {filteredNadiTPData.map(item => <Card key={item.tp} className="cursor-pointer hover:shadow-md transition-shadow">
+                {filteredNadiTPData.map(item => <Card key={item.tp} className="cursor-pointer hover:shadow-md transition-shadow" data-tp-item data-tp-name={item.tp} data-tp-count={item.count}>
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
@@ -618,7 +629,7 @@ export default function Operation() {
             </CardHeader>
             <CardContent className="space-y-4">
               <SearchComponent search={stateSearch} setSearch={setStateSearch} placeholder="Search state..." />
-              {filteredStateData.map(item => <div key={item.state} className="flex justify-between items-center">
+              {filteredStateData.map(item => <div key={item.state} className="flex justify-between items-center" data-state-item data-state-name={item.state} data-state-count={item.count}>
                   <span>{item.state}</span>
                   <Badge variant="secondary">{item.count}</Badge>
                 </div>)}
@@ -632,7 +643,7 @@ export default function Operation() {
 
           {/* NADI Officer Statistics */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {officerStats.map(officer => <Card key={officer.role}>
+            {officerStats.map(officer => <Card key={officer.role} data-officer-role={officer.role} data-officer-total={officer.total}>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
@@ -663,7 +674,7 @@ export default function Operation() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <SearchComponent search={genderSearch} setSearch={setGenderSearch} placeholder="Search gender..." />
-                {filteredGenderData.map(item => <div key={item.gender} className="flex justify-between items-center">
+                {filteredGenderData.map(item => <div key={item.gender} className="flex justify-between items-center" data-gender-item data-gender-name={item.gender} data-gender-count={item.count} data-gender-percentage={item.percentage}>
                     <span>{item.gender}</span>
                     <div className="flex items-center gap-2">
                       <Progress value={item.percentage} className="w-24 h-2" />
@@ -679,7 +690,7 @@ export default function Operation() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <SearchComponent search={raceSearch} setSearch={setRaceSearch} placeholder="Search race..." />
-                {filteredRaceData.map(item => <div key={item.race} className="flex justify-between items-center">
+                {filteredRaceData.map(item => <div key={item.race} className="flex justify-between items-center" data-race-item data-race-name={item.race} data-race-count={item.count} data-race-percentage={item.percentage}>
                     <span>{item.race}</span>
                     <div className="flex items-center gap-2">
                       <Progress value={item.percentage} className="w-16 h-2" />
