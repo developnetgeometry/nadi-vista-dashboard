@@ -355,6 +355,118 @@ export function PDFDownloadButton({
         }
       }
 
+      // Operation page data capture
+      if (window.location.pathname.includes('/operation')) {
+        // Operation stats
+        const operationStatsElement = document.querySelector('[data-component="operation-stats"]');
+        if (operationStatsElement) {
+          const statCards = operationStatsElement.querySelectorAll('[data-stat-title]');
+          const stats: any[] = [];
+
+          statCards.forEach(card => {
+            const title = card.getAttribute('data-stat-title');
+            const valueEl = card.querySelector('p.text-2xl.font-bold');
+            
+            if (title && valueEl) {
+              stats.push({
+                title: title,
+                value: extractCleanText(valueEl)
+              });
+            }
+          });
+
+          if (stats.length > 0) {
+            data.sections.push({
+              type: "stats",
+              title: "Operation Statistics",
+              data: stats
+            });
+          }
+        }
+
+        // Top 5 States - NADI Center data
+        const stateItems = document.querySelectorAll('[data-state-item]');
+        if (stateItems.length > 0) {
+          const states: any[] = [];
+          
+          stateItems.forEach(item => {
+            const state = item.getAttribute('data-state-name');
+            const count = item.getAttribute('data-state-count');
+            
+            if (state && count) {
+              states.push({
+                state: state,
+                count: count
+              });
+            }
+          });
+
+          if (states.length > 0) {
+            data.sections.push({
+              type: "states",
+              title: "Total NADI by State",
+              data: states
+            });
+          }
+        }
+
+        // Gender data for officers
+        const genderItems = document.querySelectorAll('[data-gender-item]');
+        if (genderItems.length > 0) {
+          const genders: any[] = [];
+          
+          genderItems.forEach(item => {
+            const gender = item.getAttribute('data-gender-name');
+            const count = item.getAttribute('data-gender-count');
+            const percentage = item.getAttribute('data-gender-percentage');
+            
+            if (gender && count) {
+              genders.push({
+                label: gender,
+                count: count,
+                percentage: percentage ? percentage + '%' : ''
+              });
+            }
+          });
+
+          if (genders.length > 0) {
+            data.sections.push({
+              type: "demographic",
+              title: "NADI Officers by Gender",
+              data: genders
+            });
+          }
+        }
+
+        // Race data for officers  
+        const raceItems = document.querySelectorAll('[data-race-item]');
+        if (raceItems.length > 0) {
+          const races: any[] = [];
+          
+          raceItems.forEach(item => {
+            const race = item.getAttribute('data-race-name');
+            const count = item.getAttribute('data-race-count');
+            const percentage = item.getAttribute('data-race-percentage');
+            
+            if (race && count) {
+              races.push({
+                label: race,
+                count: count,
+                percentage: percentage ? percentage + '%' : ''
+              });
+            }
+          });
+
+          if (races.length > 0) {
+            data.sections.push({
+              type: "demographic",
+              title: "NADI Officers by Race", 
+              data: races
+            });
+          }
+        }
+      }
+
     } catch (error) {
       console.error('Error extracting data:', error);
     }
@@ -496,7 +608,7 @@ export function PDFDownloadButton({
           })
           currentY += 10
 
-        } else if (section.type === 'dusp' || section.type === 'tp' || section.type === 'state') {
+        } else if (section.type === 'dusp' || section.type === 'tp' || section.type === 'state' || section.type === 'states') {
           // DUSP, TP, State data in columns
           const itemsPerRow = 2
           const colWidth = contentWidth / itemsPerRow
@@ -508,7 +620,8 @@ export function PDFDownloadButton({
             const y = currentY + (row * 12)
 
             const key = section.type === 'dusp' ? item.dusp : 
-                       section.type === 'tp' ? item.tp : item.state
+                       section.type === 'tp' ? item.tp : 
+                       (section.type === 'states' ? item.state : item.state)
             
             pdf.setFontSize(10)
             pdf.setFont('helvetica', 'normal')
