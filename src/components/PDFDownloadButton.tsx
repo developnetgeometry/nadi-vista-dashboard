@@ -262,31 +262,16 @@ export function PDFDownloadButton({
         });
       }
 
-      // Additional fallback for any stats cards not captured
-      const remainingStatsCards = document.querySelectorAll('.text-3xl.font-bold, .text-2xl.font-bold');
-      const additionalStats: any[] = [];
+      // Extract dashboard title and subtitle for proper PDF header
+      const headerTitle = document.querySelector('h1')?.textContent?.trim();
+      const headerSubtitle = document.querySelector('p.text-muted-foreground')?.textContent?.trim();
       
-      remainingStatsCards.forEach(statEl => {
-        const parent = statEl.closest('.space-y-2, .space-y-4, .p-6, .p-4');
-        if (parent && !parent.closest('[data-component]')) {
-          const label = parent.querySelector('.text-sm, .text-muted-foreground')?.textContent?.trim();
-          const value = extractCleanText(statEl);
-          
-          if (label && value && !additionalStats.some(s => s.value === value)) {
-            additionalStats.push({
-              title: label,
-              value: value
-            });
-          }
-        }
-      });
-
-      if (additionalStats.length > 0) {
-        data.sections.push({
-          type: "additional-stats",
-          title: "Additional Statistics",
-          data: additionalStats
-        });
+      if (headerTitle) {
+        data.dashboardTitle = headerTitle;
+        data.title = `${headerTitle} Report`;
+      }
+      if (headerSubtitle) {
+        data.dashboardSubtitle = headerSubtitle;
       }
 
     } catch (error) {
@@ -692,38 +677,6 @@ export function PDFDownloadButton({
             currentY += 10
           })
           currentY += 10
-
-        } else if (section.type === 'additional-stats') {
-          // Additional statistics fallback
-          const statsPerRow = 2
-          const colWidth = contentWidth / statsPerRow
-          let col = 0
-          let row = 0
-
-          section.data.forEach((stat: any) => {
-            const x = margin + (col * colWidth)
-            const y = currentY + (row * 25)
-
-            // Stat box
-            pdf.setFillColor(245, 245, 245)
-            pdf.rect(x + 2, y - 3, colWidth - 8, 20, 'F')
-            
-            pdf.setFontSize(10)
-            pdf.setFont('helvetica', 'normal')
-            pdf.text(stat.title, x + 5, y + 5)
-            
-            pdf.setFontSize(12)
-            pdf.setFont('helvetica', 'bold')
-            pdf.text(stat.value, x + 5, y + 15)
-
-            col++
-            if (col >= statsPerRow) {
-              col = 0
-              row++
-            }
-          })
-          
-          currentY += Math.ceil(section.data.length / statsPerRow) * 25 + 10
         }
       })
 
