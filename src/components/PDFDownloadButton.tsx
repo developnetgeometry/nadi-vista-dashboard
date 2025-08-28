@@ -353,6 +353,42 @@ export function PDFDownloadButton({
             });
           }
         }
+
+        // Top 5 States data from NADIDistributionMap
+        const topStatesSection = document.querySelector('h3');
+        let topStatesTitle = "Top 5 States";
+        
+        // Check if the heading contains view mode information
+        if (topStatesSection?.textContent?.includes('Top 5 States')) {
+          topStatesTitle = topStatesSection.textContent.trim();
+        }
+        
+        // Find the states data from the rendered grid
+        const stateGridItems = document.querySelectorAll('.grid.grid-cols-1.md\\:grid-cols-5 .text-center.p-3');
+        if (stateGridItems.length > 0) {
+          const states: any[] = [];
+          
+          stateGridItems.forEach((item, index) => {
+            const rankEl = item.querySelector('.text-lg.font-bold.text-primary');
+            const stateNameEl = item.querySelector('.font-medium.text-sm');
+            const valueEl = item.querySelector('.text-xl.font-bold:last-child');
+            
+            if (stateNameEl && valueEl && index < 5) {
+              states.push({
+                state: extractCleanText(stateNameEl),
+                count: extractCleanText(valueEl)
+              });
+            }
+          });
+
+          if (states.length > 0) {
+            data.sections.push({
+              type: "states",
+              title: topStatesTitle,
+              data: states
+            });
+          }
+        }
       }
 
       // Operation page data capture
