@@ -924,14 +924,24 @@ export function PDFDownloadButton({
           currentY += 10
 
         } else if (section.type === 'area') {
-          // Area distribution - text only, no progress bars
+          // Area distribution with progress bars
           section.data.forEach((area: any) => {
+            // Area label
             pdf.setFontSize(11)
             pdf.setFont('helvetica', 'normal')
             pdf.text(`${area.area}`, margin + 5, currentY)
             pdf.text(`${area.count} centers (${area.percentage}%)`, margin + 80, currentY)
             
-            currentY += 10
+            // Progress bar background
+            pdf.setFillColor(229, 231, 235) // gray-200
+            pdf.rect(margin + 5, currentY + 3, 100, 4, 'F')
+            
+            // Progress bar fill
+            const fillWidth = (area.percentage / 100) * 100
+            pdf.setFillColor(59, 130, 246) // blue-500
+            pdf.rect(margin + 5, currentY + 3, fillWidth, 4, 'F')
+            
+            currentY += 15
           })
           currentY += 10
 
@@ -1190,14 +1200,24 @@ export function PDFDownloadButton({
           currentY += 10
 
         } else if (section.type === 'category-breakdown') {
-          // Category breakdown - text only, no progress bars  
+          // Category breakdown with progress bars
           section.data.forEach((category: any) => {
+            // Category label
             pdf.setFontSize(11)
             pdf.setFont('helvetica', 'normal')
             pdf.text(`${category.category}`, margin + 5, currentY)
             pdf.text(`${category.percentage}`, margin + 120, currentY)
             
-            currentY += 10
+            // Progress bar background
+            pdf.setFillColor(229, 231, 235)
+            pdf.rect(margin + 5, currentY + 3, 80, 3, 'F')
+            
+            // Progress bar fill
+            const fillWidth = (parseInt(category.percentage) / 100) * 80
+            pdf.setFillColor(59, 130, 246) // blue-500
+            pdf.rect(margin + 5, currentY + 3, fillWidth, 3, 'F')
+            
+            currentY += 12
           })
           currentY += 10
         } else if (section.type === 'age-groups') {
