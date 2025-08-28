@@ -685,7 +685,7 @@ export function PDFDownloadButton({
 
       // Operation page data capture
       if (window.location.pathname.includes('/operation')) {
-        // Operation stats
+        // Operation stats - use stats-cards for better formatting
         const operationStatsElement = document.querySelector('[data-component="operation-stats"]');
         if (operationStatsElement) {
           const statCards = operationStatsElement.querySelectorAll('[data-stat-title]');
@@ -705,9 +705,89 @@ export function PDFDownloadButton({
 
           if (stats.length > 0) {
             data.sections.push({
-              type: "stats",
+              type: "stats-cards",
               title: "Operation Statistics",
               data: stats
+            });
+          }
+        }
+
+        // NADI by Area - with progress bars
+        const areaItems = document.querySelectorAll('[data-area-item]');
+        if (areaItems.length > 0) {
+          const areas: any[] = [];
+          
+          areaItems.forEach(item => {
+            const area = item.getAttribute('data-area-name');
+            const count = item.getAttribute('data-area-count');
+            const percentage = item.getAttribute('data-area-percentage');
+            
+            if (area && count && percentage) {
+              areas.push({
+                area: area,
+                count: count,
+                percentage: parseInt(percentage)
+              });
+            }
+          });
+
+          if (areas.length > 0) {
+            data.sections.push({
+              type: "area",
+              title: "NADI by Area",
+              data: areas
+            });
+          }
+        }
+
+        // DUSP data
+        const duspItems = document.querySelectorAll('[data-dusp-item]');
+        if (duspItems.length > 0) {
+          const dusps: any[] = [];
+          
+          duspItems.forEach(item => {
+            const dusp = item.getAttribute('data-dusp-name');
+            const count = item.getAttribute('data-dusp-count');
+            
+            if (dusp && count) {
+              dusps.push({
+                dusp: dusp,
+                count: count
+              });
+            }
+          });
+
+          if (dusps.length > 0) {
+            data.sections.push({
+              type: "dusp",
+              title: "Total NADI by DUSP",
+              data: dusps
+            });
+          }
+        }
+
+        // TP data
+        const tpItems = document.querySelectorAll('[data-tp-item]');
+        if (tpItems.length > 0) {
+          const tps: any[] = [];
+          
+          tpItems.forEach(item => {
+            const tp = item.getAttribute('data-tp-name');
+            const count = item.getAttribute('data-tp-count');
+            
+            if (tp && count) {
+              tps.push({
+                tp: tp,
+                count: count
+              });
+            }
+          });
+
+          if (tps.length > 0) {
+            data.sections.push({
+              type: "tp",
+              title: "Total NADI by TP",
+              data: tps
             });
           }
         }
