@@ -53,7 +53,9 @@ export function PDFDownloadButton({
       '[data-component="events-overview"]', 
       '[data-component="stats-card"]',
       '[data-component="membership-stats"]',
-      '[data-component="participant-metrics"]'
+      '[data-component="participant-metrics"]',
+      '[data-component="home-stats"]',
+      '[data-component="participation-stats"]'
     ]
     
     for (const selector of statsSelectors) {
@@ -103,6 +105,28 @@ export function PDFDownloadButton({
       
       if (stats.length > 0) {
         data.sections.push({ type: 'stats', title: 'Key Statistics', data: stats })
+      }
+    }
+
+    // Fallback: Extract ANY card with statistics as last resort
+    if (data.sections.length === 0) {
+      const anyStatCards = document.querySelectorAll('.card')
+      const fallbackStats: any[] = []
+      
+      anyStatCards.forEach((card, index) => {
+        const titleElement = card.querySelector('.text-sm.font-medium, .card-title, h3, h2, p.text-sm.font-medium.text-muted-foreground')
+        const valueElement = card.querySelector('.text-2xl.font-bold, .text-3xl.font-bold, .text-xl.font-bold')
+        
+        const title = titleElement?.textContent?.trim()
+        const value = valueElement?.textContent?.trim()
+        
+        if (title && value && fallbackStats.length < 10) { // Limit fallback results
+          fallbackStats.push({ title, value })
+        }
+      })
+      
+      if (fallbackStats.length > 0) {
+        data.sections.push({ type: 'stats', title: 'Page Statistics', data: fallbackStats })
       }
     }
 
@@ -498,6 +522,98 @@ export function PDFDownloadButton({
       }
     }
 
+    // 15. Extract Home Page Category Data (NADI4U breakdown)
+    const categoryItems = document.querySelectorAll('[data-category-item]')
+    if (categoryItems.length > 0) {
+      const categoryData: any[] = []
+      categoryItems.forEach((item) => {
+        const categoryName = item.getAttribute('data-category-name')
+        const categoryPercentage = item.getAttribute('data-category-percentage')
+        
+        if (categoryName && categoryPercentage) {
+          categoryData.push({
+            category: categoryName,
+            percentage: categoryPercentage
+          })
+        }
+      })
+      
+      if (categoryData.length > 0) {
+        data.sections.push({ type: 'categories', title: 'NADI4U Category Breakdown', data: categoryData })
+      }
+    }
+
+    // 16. Extract Smart Services Participant Categories
+    const participantCategoryContainer = document.querySelector('[data-component="participant-categories"]')
+    if (participantCategoryContainer) {
+      const participantItems = participantCategoryContainer.querySelectorAll('.p-4.border.rounded-lg')
+      if (participantItems.length > 0) {
+        const participantData: any[] = []
+        participantItems.forEach((item) => {
+          const categoryElement = item.querySelector('h4.font-medium')
+          const countElement = item.querySelector('.text-lg.font-bold.text-blue-600')
+          const percentageElement = item.querySelector('.badge')
+          
+          const category = categoryElement?.textContent?.trim()
+          const count = countElement?.textContent?.trim()
+          const percentage = percentageElement?.textContent?.trim()
+          
+          if (category && count) {
+            participantData.push({
+              category: category,
+              count: count,
+              percentage: percentage || ''
+            })
+          }
+        })
+        
+        if (participantData.length > 0) {
+          data.sections.push({ type: 'participant-categories', title: 'Participant Categories', data: participantData })
+        }
+      }
+    }
+
+    // 17. Extract Component-specific data (category breakdown, distribution map, etc)
+    const componentContainers = document.querySelectorAll('[data-component="category-breakdown"], [data-component="distribution-map"]')
+    if (componentContainers.length > 0) {
+      const componentData: any[] = []
+      componentContainers.forEach((container) => {
+        const titleElement = container.querySelector('.card-title, [class*="CardTitle"], h2, h3')
+        const title = titleElement?.textContent?.trim()
+        
+        if (title) {
+          const items: string[] = []
+          
+          // For category breakdown - extract category items
+          if (container.getAttribute('data-component') === 'category-breakdown') {
+            const categories = container.querySelectorAll('.space-y-2 .font-medium')
+            categories.forEach(cat => {
+              const categoryName = cat.textContent?.trim()
+              if (categoryName) items.push(categoryName)
+            })
+          }
+          
+          // For other components, extract general content
+          const contentElements = container.querySelectorAll('.font-medium, .text-primary, .badge')
+          contentElements.forEach(el => {
+            const text = el.textContent?.trim()
+            if (text && text.length < 50) items.push(text)
+          })
+          
+          if (items.length > 0) {
+            componentData.push({
+              componentTitle: title,
+              items: items.slice(0, 8).join(', ') // Limit items
+            })
+          }
+        }
+      })
+      
+      if (componentData.length > 0) {
+        data.sections.push({ type: 'components', title: 'Dashboard Components', data: componentData })
+      }
+    }
+
     console.log("Final comprehensive extracted data:", data)
     return data
   }
@@ -814,7 +930,37 @@ export function PDFDownloadButton({
             
             pdf.setFontSize(10)
             pdf.setFont('helvetica', 'normal')
-            pdf.text(`${category.items}`, margin + 10, currentY)
+            pdf.text(`${category.items || category.percentage + '%'}`, margin + 10, currentY)
+            currentY += 12
+          })
+          currentY += 10
+
+        } else if (section.type === 'participant-categories') {
+          // Participant categories for Smart Services
+          section.data.forEach((item: any) => {
+            pdf.setFontSize(11)
+            pdf.setFont('helvetica', 'bold')
+            pdf.text(`${item.category}`, margin + 5, currentY)
+            pdf.text(`${item.count}`, margin + 100, currentY)
+            
+            if (item.percentage) {
+              pdf.text(`${item.percentage}`, margin + 140, currentY)
+            }
+            currentY += 10
+          })
+          currentY += 10
+
+        } else if (section.type === 'components') {
+          // Dashboard components
+          section.data.forEach((component: any) => {
+            pdf.setFontSize(11)
+            pdf.setFont('helvetica', 'bold')
+            pdf.text(`${component.componentTitle}`, margin + 5, currentY)
+            currentY += 8
+            
+            pdf.setFontSize(10)
+            pdf.setFont('helvetica', 'normal')
+            pdf.text(`${component.items}`, margin + 10, currentY)
             currentY += 12
           })
           currentY += 10
