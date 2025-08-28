@@ -1121,7 +1121,7 @@ export function PDFDownloadButton({
           currentY += 10
 
         } else if (section.type === 'participant-categories') {
-          // Participant categories for Smart Services
+          // Participant categories for Smart Services with progress bars
           section.data.forEach((item: any) => {
             pdf.setFontSize(11)
             pdf.setFont('helvetica', 'bold')
@@ -1130,8 +1130,21 @@ export function PDFDownloadButton({
             
             if (item.percentage) {
               pdf.text(`${item.percentage}`, margin + 140, currentY)
+              
+              // Progress bar background
+              pdf.setFillColor(229, 231, 235)
+              pdf.rect(margin + 5, currentY + 3, 80, 3, 'F')
+              
+              // Progress bar fill
+              const percentageValue = parseInt(item.percentage.replace('%', ''))
+              const fillWidth = (percentageValue / 100) * 80
+              pdf.setFillColor(59, 130, 246) // blue-500
+              pdf.rect(margin + 5, currentY + 3, fillWidth, 3, 'F')
+              
+              currentY += 12
+            } else {
+              currentY += 8
             }
-            currentY += 10
           })
           currentY += 10
 
