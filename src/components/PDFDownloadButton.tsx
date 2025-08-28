@@ -3,6 +3,7 @@ import React from "react"
 import { Button } from "@/components/ui/button"
 import { Download } from "lucide-react"
 import jsPDF from "jspdf"
+import html2canvas from "html2canvas"
 import { toast } from "@/hooks/use-toast"
 
 interface PDFDownloadButtonProps {
@@ -22,7 +23,7 @@ export function PDFDownloadButton({
 }: PDFDownloadButtonProps) {
   const [isGenerating, setIsGenerating] = React.useState(false)
 
-  const extractDataFromPage = () => {
+  const extractDataFromPage = async () => {
     console.log("Starting comprehensive PDF data extraction...")
     const data: any = {
       title: "NADI Operation Dashboard Report",
@@ -31,7 +32,8 @@ export function PDFDownloadButton({
         month: 'long', 
         year: 'numeric' 
       }),
-      sections: []
+      sections: [],
+      charts: []
     }
 
     // Extract dashboard header info
@@ -43,6 +45,59 @@ export function PDFDownloadButton({
     }
     if (headerSubtitle) {
       data.dashboardSubtitle = headerSubtitle
+    }
+
+    // Capture chart sections as images
+    const chartSections = [
+      { selector: '[data-component="operation-stats"]', title: 'Operation Statistics' },
+      { selector: '[data-area-item]', title: 'NADI by Area Progress Charts', parentSelector: '.space-y-4' },
+      { selector: '[data-dusp-item]', title: 'NADI by DUSP Cards', parentSelector: '.grid.grid-cols-2' },
+      { selector: '[data-tp-item]', title: 'NADI by TP Cards', parentSelector: '.grid.grid-cols-2' },
+      { selector: '[data-gender-item]', title: 'Gender Demographics', parentSelector: '.space-y-4' },
+      { selector: '[data-race-item]', title: 'Race Demographics', parentSelector: '.space-y-4' }
+    ]
+
+    for (const section of chartSections) {
+      try {
+        let element: HTMLElement | null = null
+        
+        if (section.parentSelector) {
+          // Find the parent container for multiple items
+          const firstItem = document.querySelector(section.selector)
+          if (firstItem) {
+            element = firstItem.closest(section.parentSelector) as HTMLElement
+            if (!element) {
+              // Fallback to the card container
+              element = firstItem.closest('.card, [class*="Card"]') as HTMLElement
+            }
+          }
+        } else {
+          element = document.querySelector(section.selector) as HTMLElement
+        }
+        
+        if (element && element.offsetWidth > 0 && element.offsetHeight > 0) {
+          const canvas = await html2canvas(element, {
+            backgroundColor: '#ffffff',
+            scale: 2,
+            useCORS: true,
+            logging: false,
+            height: element.scrollHeight,
+            windowHeight: element.scrollHeight
+          })
+          
+          data.charts.push({
+            title: section.title,
+            imageData: canvas.toDataURL('image/png'),
+            width: canvas.width,
+            height: canvas.height
+          })
+          console.log(`Captured chart: ${section.title}`)
+        } else {
+          console.log(`Element not found or invalid for: ${section.title}`)
+        }
+      } catch (error) {
+        console.log(`Failed to capture ${section.title}:`, error)
+      }
     }
 
     // 1. Extract Operation Statistics
@@ -228,7 +283,7 @@ export function PDFDownloadButton({
     setIsGenerating(true)
     
     try {
-      const data = extractDataFromPage()
+      const data = await extractDataFromPage()
       
       // Create PDF with proper A4 dimensions
       const pdf = new jsPDF({
@@ -283,7 +338,42 @@ export function PDFDownloadButton({
         }
       }
 
-      // Sections
+      // Add captured chart images
+      data.charts.forEach((chart: any) => {
+        // Check if we need a new page
+        const imageHeight = (chart.height * contentWidth) / chart.width
+        if (currentY + imageHeight > pageHeight - 40) {
+          pdf.addPage()
+          currentY = margin
+        }
+
+        // Chart title
+        pdf.setFillColor(248, 250, 252)
+        pdf.rect(margin, currentY - 5, contentWidth, 12, 'F')
+        
+        pdf.setTextColor(0, 0, 0)
+        pdf.setFontSize(14)
+        pdf.setFont('helvetica', 'bold')
+        pdf.text(chart.title, margin + 2, currentY + 3)
+        currentY += 20
+
+        // Add the chart image
+        const maxWidth = contentWidth
+        const scaledHeight = (chart.height * maxWidth) / chart.width
+        
+        pdf.addImage(
+          chart.imageData,
+          'PNG',
+          margin,
+          currentY,
+          maxWidth,
+          scaledHeight
+        )
+        
+        currentY += scaledHeight + 15
+      })
+
+      // Sections (for any remaining text data)
       data.sections.forEach((section: any) => {
         // Check if we need a new page
         if (currentY > pageHeight - 80) {
@@ -334,12 +424,24 @@ export function PDFDownloadButton({
           currentY += Math.ceil(section.data.length / statsPerRow) * 25 + 10
 
         } else if (section.type === 'area') {
-          // Area distribution with percentages
+          // Area distribution with progress bars
           section.data.forEach((area: any) => {
+            // Area label
             pdf.setFontSize(11)
             pdf.setFont('helvetica', 'normal')
-            pdf.text(`${area.area}: ${area.count} centers (${area.percentage}%)`, margin + 5, currentY)
-            currentY += 8
+            pdf.text(`${area.area}`, margin + 5, currentY)
+            pdf.text(`${area.count} centers (${area.percentage}%)`, margin + 80, currentY)
+            
+            // Progress bar background
+            pdf.setFillColor(229, 231, 235) // gray-200
+            pdf.rect(margin + 5, currentY + 3, 100, 4, 'F')
+            
+            // Progress bar fill
+            const fillWidth = (area.percentage / 100) * 100
+            pdf.setFillColor(59, 130, 246) // blue-500
+            pdf.rect(margin + 5, currentY + 3, fillWidth, 4, 'F')
+            
+            currentY += 15
           })
           currentY += 10
 
@@ -381,13 +483,26 @@ export function PDFDownloadButton({
           currentY += 10
 
         } else if (section.type === 'gender' || section.type === 'race') {
-          // Gender/Race with percentages
+          // Gender/Race with progress bars
           section.data.forEach((item: any) => {
             const key = section.type === 'gender' ? item.gender : item.race
+            
+            // Label
             pdf.setFontSize(11)
             pdf.setFont('helvetica', 'normal')
-            pdf.text(`${key}: ${item.count} (${item.percentage}%)`, margin + 5, currentY)
-            currentY += 8
+            pdf.text(`${key}`, margin + 5, currentY)
+            pdf.text(`${item.count} (${item.percentage}%)`, margin + 120, currentY)
+            
+            // Progress bar background
+            pdf.setFillColor(229, 231, 235)
+            pdf.rect(margin + 5, currentY + 3, 80, 3, 'F')
+            
+            // Progress bar fill
+            const fillWidth = (item.percentage / 100) * 80
+            pdf.setFillColor(16, 185, 129) // green-500
+            pdf.rect(margin + 5, currentY + 3, fillWidth, 3, 'F')
+            
+            currentY += 12
           })
           currentY += 10
         }
