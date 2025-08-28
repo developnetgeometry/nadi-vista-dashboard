@@ -263,7 +263,7 @@ export default function SmartServices() {
               </CardContent>
             </Card>
 
-            <Card className="border-0 shadow-md hover:shadow-lg transition-shadow">
+            <Card className="border-0 shadow-md hover:shadow-lg transition-shadow" data-stat-title="Participation Rate">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
@@ -277,7 +277,7 @@ export default function SmartServices() {
               </CardContent>
             </Card>
 
-            <Card className="border-0 shadow-md hover:shadow-lg transition-shadow">
+            <Card className="border-0 shadow-md hover:shadow-lg transition-shadow" data-stat-title="Total KPI">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>

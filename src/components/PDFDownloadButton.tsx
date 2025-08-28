@@ -24,600 +24,279 @@ export function PDFDownloadButton({
   const [isGenerating, setIsGenerating] = React.useState(false)
 
   const extractDataFromPage = async () => {
-    console.log("Starting comprehensive PDF data extraction...")
-    const data: any = {
-      title: "Dashboard Report",
+    console.log('Starting comprehensive PDF data extraction...');
+    
+    const data = {
+      title: "NADI Report",
       date: new Date().toLocaleDateString('en-GB', { 
-        day: 'numeric', 
+        day: '2-digit', 
         month: 'long', 
         year: 'numeric' 
       }),
-      sections: []
-    }
+      sections: [] as any[],
+      dashboardTitle: "NADI",
+      dashboardSubtitle: "Administrator"
+    };
 
-    // Extract dashboard header info
-    const headerTitle = document.querySelector('h1')?.textContent?.trim()
-    const headerSubtitle = document.querySelector('p.text-muted-foreground')?.textContent?.trim()
-    
-    if (headerTitle) {
-      data.dashboardTitle = headerTitle
-      data.title = `${headerTitle} Report`
-    }
-    if (headerSubtitle) {
-      data.dashboardSubtitle = headerSubtitle
-    }
+    try {
+      // Helper function to extract text content, removing emojis and icons
+      const extractCleanText = (element: Element): string => {
+        const text = element.textContent || '';
+        // Remove emojis and common icon patterns
+        return text.replace(/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '').trim();
+      };
 
-    // 1. Extract Stats Cards (comprehensive selectors for all page types)
-    const statsSelectors = [
-      '[data-component="operation-stats"]',
-      '[data-component="events-overview"]', 
-      '[data-component="stats-card"]',
-      '[data-component="membership-stats"]',
-      '[data-component="participant-metrics"]',
-      '[data-component="home-stats"]',
-      '[data-component="participation-stats"]'
-    ]
-    
-    for (const selector of statsSelectors) {
-      const statsContainer = document.querySelector(selector)
-      if (statsContainer) {
-        const statCards = statsContainer.querySelectorAll('[data-stat-title], .card, [class*="Card"]')
-        const stats: any[] = []
+      // Smart Services Overview Stats - Fixed selectors
+      const participationStatsCards = document.querySelectorAll('[data-component="participation-stats"] .grid > div');
+      if (participationStatsCards.length > 0) {
+        const stats: any[] = [];
         
-        statCards.forEach((card) => {
-          // Try multiple patterns for title and value
-          const titleElement = card.querySelector('p.text-sm.font-medium.text-muted-foreground, .text-sm.font-medium, [class*="CardTitle"], .card-title, .text-sm.font-medium')
-          const valueElement = card.querySelector('p.text-2xl.font-bold, .text-2xl.font-bold, p.text-3xl.font-bold, .text-3xl.font-bold, .text-xl.font-bold, .text-2xl.font-bold')
+        participationStatsCards.forEach((card) => {
+          const titleEl = card.querySelector('p.text-sm.font-medium');
+          const valueEl = card.querySelector('p.text-3xl.font-bold');
           
-          const title = titleElement?.textContent?.trim()
-          const value = valueElement?.textContent?.trim()
-          
-          if (title && value) {
-            stats.push({ title, value })
+          if (titleEl && valueEl) {
+            stats.push({
+              title: extractCleanText(titleEl),
+              value: extractCleanText(valueEl)
+            });
           }
-        })
-        
+        });
+
         if (stats.length > 0) {
-          const sectionTitle = selector.includes('events') ? 'Event Statistics' : 
-                             selector.includes('operation') ? 'Operation Statistics' : 
-                             selector.includes('membership') ? 'Membership Statistics' :
-                             selector.includes('participant') ? 'Participant Statistics' : 'Statistics'
-          data.sections.push({ type: 'stats', title: sectionTitle, data: stats })
+          data.sections.push({
+            type: "stats",
+            title: "Statistics", 
+            data: stats
+          });
         }
       }
-    }
 
-    // Extract standalone stat cards (for pages without containers)
-    const standaloneCards = document.querySelectorAll('.card:not([data-component]) [data-stat-title], .card:not([data-component]):has(.text-2xl.font-bold)')
-    if (standaloneCards.length > 0) {
-      const stats: any[] = []
-      standaloneCards.forEach((card) => {
-        const titleElement = card.querySelector('.text-sm.font-medium, [class*="CardTitle"], .card-title')
-        const valueElement = card.querySelector('.text-2xl.font-bold, .text-3xl.font-bold, .text-xl.font-bold')
-        
-        const title = titleElement?.textContent?.trim()
-        const value = valueElement?.textContent?.trim()
-        
-        if (title && value) {
-          stats.push({ title, value })
-        }
-      })
-      
-      if (stats.length > 0) {
-        data.sections.push({ type: 'stats', title: 'Key Statistics', data: stats })
-      }
-    }
+      // Smart Services Participant Categories
+      const participantCategoriesElement = document.querySelector('[data-component="participant-categories"]');
+      if (participantCategoriesElement) {
+        const categoryItems = participantCategoriesElement.querySelectorAll('.space-y-4 > div');
+        const categories: any[] = [];
 
-    // Fallback: Extract ANY card with statistics as last resort
-    if (data.sections.length === 0) {
-      const anyStatCards = document.querySelectorAll('.card')
-      const fallbackStats: any[] = []
-      
-      anyStatCards.forEach((card, index) => {
-        const titleElement = card.querySelector('.text-sm.font-medium, .card-title, h3, h2, p.text-sm.font-medium.text-muted-foreground')
-        const valueElement = card.querySelector('.text-2xl.font-bold, .text-3xl.font-bold, .text-xl.font-bold')
-        
-        const title = titleElement?.textContent?.trim()
-        const value = valueElement?.textContent?.trim()
-        
-        if (title && value && fallbackStats.length < 10) { // Limit fallback results
-          fallbackStats.push({ title, value })
-        }
-      })
-      
-      if (fallbackStats.length > 0) {
-        data.sections.push({ type: 'stats', title: 'Page Statistics', data: fallbackStats })
-      }
-    }
+        categoryItems.forEach(item => {
+          const categoryName = item.querySelector('h4')?.textContent?.trim();
+          const count = item.querySelector('.text-lg.font-bold')?.textContent?.trim();
+          const percentage = item.querySelector('.text-xs')?.textContent?.trim();
 
-    // 2. Extract NADI by Area data
-    const areaCards = document.querySelectorAll('[data-area-item]')
-    if (areaCards.length > 0) {
-      const areaData: any[] = []
-      areaCards.forEach((card) => {
-        const areaName = card.getAttribute('data-area-name')
-        const areaCount = card.getAttribute('data-area-count')
-        const areaPercentage = card.getAttribute('data-area-percentage')
-        
-        if (areaName && areaCount && areaPercentage) {
-          areaData.push({
-            area: areaName,
-            count: areaCount,
-            percentage: areaPercentage
-          })
-        }
-      })
-      
-      if (areaData.length > 0) {
-        data.sections.push({ type: 'area', title: 'NADI by Area Distribution', data: areaData })
-      }
-    }
-
-    // 3. Extract NADI by DUSP data
-    const duspCards = document.querySelectorAll('[data-dusp-item]')
-    if (duspCards.length > 0) {
-      const duspData: any[] = []
-      duspCards.forEach((card) => {
-        const duspName = card.getAttribute('data-dusp-name')
-        const duspCount = card.getAttribute('data-dusp-count')
-        
-        if (duspName && duspCount) {
-          duspData.push({
-            dusp: duspName,
-            count: duspCount
-          })
-        }
-      })
-      
-      if (duspData.length > 0) {
-        data.sections.push({ type: 'dusp', title: 'Total NADI by DUSP', data: duspData })
-      }
-    }
-
-    // 4. Extract NADI by TP data
-    const tpCards = document.querySelectorAll('[data-tp-item]')
-    if (tpCards.length > 0) {
-      const tpData: any[] = []
-      tpCards.forEach((card) => {
-        const tpName = card.getAttribute('data-tp-name')
-        const tpCount = card.getAttribute('data-tp-count')
-        
-        if (tpName && tpCount) {
-          tpData.push({
-            tp: tpName,
-            count: tpCount
-          })
-        }
-      })
-      
-      if (tpData.length > 0) {
-        data.sections.push({ type: 'tp', title: 'Total NADI by TP', data: tpData })
-      }
-    }
-
-    // 5. Extract NADI by State data
-    const stateItems = document.querySelectorAll('[data-state-item]')
-    if (stateItems.length > 0) {
-      const stateData: any[] = []
-      stateItems.forEach((item) => {
-        const stateName = item.getAttribute('data-state-name')
-        const stateCount = item.getAttribute('data-state-count')
-        
-        if (stateName && stateCount) {
-          stateData.push({
-            state: stateName,
-            count: stateCount
-          })
-        }
-      })
-      
-      if (stateData.length > 0) {
-        data.sections.push({ type: 'state', title: 'Total NADI by State', data: stateData })
-      }
-    }
-
-    // 6. Extract Officer Statistics
-    const officerCards = document.querySelectorAll('[data-officer-role]')
-    if (officerCards.length > 0) {
-      const officerData: any[] = []
-      officerCards.forEach((card) => {
-        const role = card.getAttribute('data-officer-role')
-        const total = card.getAttribute('data-officer-total')
-        
-        if (role && total) {
-          officerData.push({
-            role: role,
-            total: total
-          })
-        }
-      })
-      
-      if (officerData.length > 0) {
-        data.sections.push({ type: 'officers', title: 'Officer Statistics', data: officerData })
-      }
-    }
-
-    // 7. Extract Staff Dashboard Data
-    const staffCards = document.querySelectorAll('[data-component="staff-card"], [data-component="payroll-summary"], [data-component="leave-summary"]')
-    if (staffCards.length > 0) {
-      const staffData: any[] = []
-      staffCards.forEach((card) => {
-        const titleElement = card.querySelector('.card-title, [class*="CardTitle"], h3, h2')
-        const valueElements = card.querySelectorAll('.text-xl.font-bold, .text-2xl.font-bold, .font-semibold')
-        
-        const title = titleElement?.textContent?.trim()
-        if (title) {
-          const values: string[] = []
-          valueElements.forEach((el) => {
-            const value = el.textContent?.trim()
-            if (value) values.push(value)
-          })
-          
-          staffData.push({
-            title: title,
-            values: values.join(', ')
-          })
-        }
-      })
-      
-      if (staffData.length > 0) {
-        data.sections.push({ type: 'staff', title: 'Staff Information', data: staffData })
-      }
-    }
-
-    // 8. Extract Chart/Visualization Data
-    const chartContainers = document.querySelectorAll('[data-component="events-by-type"], [data-component="events-by-location"], .recharts-wrapper, [class*="chart"]')
-    if (chartContainers.length > 0) {
-      const chartData: any[] = []
-      chartContainers.forEach((container, index) => {
-        const titleElement = container.closest('.card')?.querySelector('[class*="CardTitle"], .card-title, h3, h2')
-        const title = titleElement?.textContent?.trim() || `Chart ${index + 1}`
-        
-        chartData.push({ title })
-      })
-      
-      if (chartData.length > 0) {
-        data.sections.push({ type: 'charts', title: 'Visualizations', data: chartData })
-      }
-    }
-
-    // 9. Extract Tables
-    const tables = document.querySelectorAll('table')
-    if (tables.length > 0) {
-      const tableData: any[] = []
-      tables.forEach((table, index) => {
-        const rows = table.querySelectorAll('tbody tr')
-        const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent?.trim() || '')
-        
-        if (rows.length > 0) {
-          const tableRows: any[] = []
-          rows.forEach((row) => {
-            const cells = Array.from(row.querySelectorAll('td')).map(td => td.textContent?.trim() || '')
-            if (cells.length > 0) {
-              tableRows.push(cells)
-            }
-          })
-          
-          if (tableRows.length > 0) {
-            tableData.push({
-              title: `Table ${index + 1}`,
-              headers,
-              rows: tableRows.slice(0, 10) // Limit to first 10 rows
-            })
-          }
-        }
-      })
-      
-      if (tableData.length > 0) {
-        data.sections.push({ type: 'tables', title: 'Data Tables', data: tableData })
-      }
-    }
-
-    // 10. Extract Staff Dashboard Components (comprehensive)
-    const staffComponents = document.querySelectorAll('[data-component^="staff"], .staff-card, [class*="staff"]')
-    if (staffComponents.length > 0) {
-      const staffSections: any[] = []
-      staffComponents.forEach((component) => {
-        const titleElement = component.querySelector('h2, h3, .card-title, [class*="CardTitle"]')
-        const title = titleElement?.textContent?.trim()
-        
-        if (title) {
-          const content: string[] = []
-          // Extract various content patterns
-          const valueElements = component.querySelectorAll('.text-xl.font-bold, .text-2xl.font-bold, .text-lg.font-semibold, .font-bold:not(h1):not(h2):not(h3)')
-          const textElements = component.querySelectorAll('p, .text-sm, .text-muted-foreground')
-          
-          valueElements.forEach(el => {
-            const value = el.textContent?.trim()
-            if (value && !title.includes(value)) {
-              content.push(value)
-            }
-          })
-          
-          textElements.forEach(el => {
-            const text = el.textContent?.trim()
-            if (text && !title.includes(text) && text.length < 100) {
-              content.push(text)
-            }
-          })
-          
-          if (content.length > 0) {
-            staffSections.push({
-              title: title,
-              content: content.slice(0, 5).join(' | ') // Limit content
-            })
-          }
-        }
-      })
-      
-      if (staffSections.length > 0) {
-        data.sections.push({ type: 'staff-components', title: 'Staff Dashboard Components', data: staffSections })
-      }
-    }
-
-    // 11. Extract Membership and Demographic Data
-    const membershipCards = document.querySelectorAll('[data-component="membership-by-area"], [data-component="membership-by-dusp"], [data-component="membership-stats"]')
-    if (membershipCards.length > 0) {
-      const membershipData: any[] = []
-      membershipCards.forEach((card) => {
-        const titleElement = card.querySelector('h2, h3, .card-title, [class*="CardTitle"]')
-        const title = titleElement?.textContent?.trim()
-        
-        if (title) {
-          const items: any[] = []
-          // Look for various membership data patterns
-          const dataItems = card.querySelectorAll('.badge, [data-area-item], [data-dusp-item], .card:not([data-component])')
-          
-          dataItems.forEach(item => {
-            const label = item.querySelector('.font-medium, .font-semibold')?.textContent?.trim() ||
-                         item.getAttribute('data-area-name') ||
-                         item.getAttribute('data-dusp-name')
-            const count = item.querySelector('.text-lg.font-bold, .text-primary')?.textContent?.trim() ||
-                         item.getAttribute('data-area-count') ||
-                         item.getAttribute('data-dusp-count')
-            
-            if (label && count) {
-              items.push({ label, count })
-            }
-          })
-          
-          if (items.length > 0) {
-            membershipData.push({
-              category: title,
-              items: items
-            })
-          }
-        }
-      })
-      
-      if (membershipData.length > 0) {
-        data.sections.push({ type: 'membership', title: 'Membership Data', data: membershipData })
-      }
-    }
-
-    // 12. Extract Event Breakdown Data (SSO specific)
-    const eventComponents = document.querySelectorAll('[data-component="events-by-type"], [data-component="participant-growth"], [data-component="age-distribution"]')
-    if (eventComponents.length > 0) {
-      const eventData: any[] = []
-      eventComponents.forEach((component) => {
-        const titleElement = component.querySelector('.card-title, [class*="CardTitle"], h2, h3')
-        const title = titleElement?.textContent?.trim()
-        
-        if (title) {
-          // Try to extract chart legend data or other structured data
-          const legendItems = component.querySelectorAll('.recharts-legend-item-text, .flex.items-center.gap-2 span')
-          const dataPoints: string[] = []
-          
-          legendItems.forEach(item => {
-            const text = item.textContent?.trim()
-            if (text) dataPoints.push(text)
-          })
-          
-          eventData.push({
-            chartTitle: title,
-            dataPoints: dataPoints.join(', ') || 'Chart data available'
-          })
-        }
-      })
-      
-      if (eventData.length > 0) {
-        data.sections.push({ type: 'events', title: 'Event Analytics', data: eventData })
-      }
-    }
-
-    // 13. Extract all Cards with Statistics (fallback comprehensive pattern)
-    const allStatCards = document.querySelectorAll('.card:has(.text-2xl.font-bold), .card:has(.text-3xl.font-bold), .card:has(.text-xl.font-bold)')
-    if (allStatCards.length > 3) { // Only if we have a significant number of cards
-      const allStats: any[] = []
-      allStatCards.forEach((card) => {
-        // Skip if already captured in other sections
-        if (card.closest('[data-component]')) return
-        
-        const titleElement = card.querySelector('.text-sm.font-medium, .card-title, h3, h2')
-        const valueElement = card.querySelector('.text-2xl.font-bold, .text-3xl.font-bold, .text-xl.font-bold')
-        
-        const title = titleElement?.textContent?.trim()
-        const value = valueElement?.textContent?.trim()
-        
-        if (title && value && !allStats.some(s => s.title === title)) {
-          allStats.push({ title, value })
-        }
-      })
-      
-      if (allStats.length > 0) {
-        data.sections.push({ type: 'stats', title: 'Additional Statistics', data: allStats })
-      }
-    }
-
-    // 14. Extract Badge and Label Information (demographics, filters, etc)
-    const badgeContainers = document.querySelectorAll('.space-y-4:has(.badge), .grid.gap-4:has(.badge)')
-    if (badgeContainers.length > 0) {
-      const badgeData: any[] = []
-      badgeContainers.forEach((container) => {
-        const containerTitle = container.querySelector('h3, .card-title, [class*="CardTitle"]')?.textContent?.trim()
-        
-        if (containerTitle) {
-          const badges = container.querySelectorAll('.badge')
-          const items: string[] = []
-          
-          badges.forEach(badge => {
-            const text = badge.textContent?.trim()
-            if (text) items.push(text)
-          })
-          
-          if (items.length > 0) {
-            badgeData.push({
-              category: containerTitle,
-              items: items.join(', ')
-            })
-          }
-        }
-      })
-      
-      if (badgeData.length > 0) {
-        data.sections.push({ type: 'categories', title: 'Categories & Labels', data: badgeData })
-      }
-    }
-    const genderItems = document.querySelectorAll('[data-gender-item]')
-    if (genderItems.length > 0) {
-      const genderData: any[] = []
-      genderItems.forEach((item) => {
-        const gender = item.getAttribute('data-gender-name')
-        const count = item.getAttribute('data-gender-count')
-        const percentage = item.getAttribute('data-gender-percentage')
-        
-        if (gender && count && percentage) {
-          genderData.push({
-            gender: gender,
-            count: count,
-            percentage: percentage
-          })
-        }
-      })
-      
-      if (genderData.length > 0) {
-        data.sections.push({ type: 'gender', title: 'Officers by Gender', data: genderData })
-      }
-    }
-
-    const raceItems = document.querySelectorAll('[data-race-item]')
-    if (raceItems.length > 0) {
-      const raceData: any[] = []
-      raceItems.forEach((item) => {
-        const race = item.getAttribute('data-race-name')
-        const count = item.getAttribute('data-race-count')
-        const percentage = item.getAttribute('data-race-percentage')
-        
-        if (race && count && percentage) {
-          raceData.push({
-            race: race,
-            count: count,
-            percentage: percentage
-          })
-        }
-      })
-      
-      if (raceData.length > 0) {
-        data.sections.push({ type: 'race', title: 'Officers by Race', data: raceData })
-      }
-    }
-
-    // 15. Extract Home Page Category Data (NADI4U breakdown)
-    const categoryItems = document.querySelectorAll('[data-category-item]')
-    if (categoryItems.length > 0) {
-      const categoryData: any[] = []
-      categoryItems.forEach((item) => {
-        const categoryName = item.getAttribute('data-category-name')
-        const categoryPercentage = item.getAttribute('data-category-percentage')
-        
-        if (categoryName && categoryPercentage) {
-          categoryData.push({
-            category: categoryName,
-            percentage: categoryPercentage
-          })
-        }
-      })
-      
-      if (categoryData.length > 0) {
-        data.sections.push({ type: 'categories', title: 'NADI4U Category Breakdown', data: categoryData })
-      }
-    }
-
-    // 16. Extract Smart Services Participant Categories
-    const participantCategoryContainer = document.querySelector('[data-component="participant-categories"]')
-    if (participantCategoryContainer) {
-      const participantItems = participantCategoryContainer.querySelectorAll('.p-4.border.rounded-lg')
-      if (participantItems.length > 0) {
-        const participantData: any[] = []
-        participantItems.forEach((item) => {
-          const categoryElement = item.querySelector('h4.font-medium')
-          const countElement = item.querySelector('.text-lg.font-bold.text-blue-600')
-          const percentageElement = item.querySelector('.badge')
-          
-          const category = categoryElement?.textContent?.trim()
-          const count = countElement?.textContent?.trim()
-          const percentage = percentageElement?.textContent?.trim()
-          
-          if (category && count) {
-            participantData.push({
-              category: category,
+          if (categoryName && count) {
+            categories.push({
+              category: categoryName,
               count: count,
-              percentage: percentage || ''
-            })
+              percentage: percentage || ""
+            });
           }
-        })
-        
-        if (participantData.length > 0) {
-          data.sections.push({ type: 'participant-categories', title: 'Participant Categories', data: participantData })
+        });
+
+        if (categories.length > 0) {
+          data.sections.push({
+            type: "participant-categories",
+            title: "Participant Categories",
+            data: categories
+          });
         }
       }
-    }
 
-    // 17. Extract Component-specific data (category breakdown, distribution map, etc)
-    const componentContainers = document.querySelectorAll('[data-component="category-breakdown"], [data-component="distribution-map"]')
-    if (componentContainers.length > 0) {
-      const componentData: any[] = []
-      componentContainers.forEach((container) => {
-        const titleElement = container.querySelector('.card-title, [class*="CardTitle"], h2, h3')
-        const title = titleElement?.textContent?.trim()
+      // Smart Services By Program - Remove icons, keep text only
+      const programCards = document.querySelectorAll('.grid.grid-cols-1.md\\:grid-cols-2.lg\\:grid-cols-4 .text-center');
+      if (programCards.length > 0) {
+        const programs: any[] = [];
         
-        if (title) {
-          const items: string[] = []
+        programCards.forEach(card => {
+          const nameEl = card.querySelector('.font-semibold');
+          const countEl = card.querySelector('.text-3xl.font-bold');
           
-          // For category breakdown - extract category items
-          if (container.getAttribute('data-component') === 'category-breakdown') {
-            const categories = container.querySelectorAll('.space-y-2 .font-medium')
-            categories.forEach(cat => {
-              const categoryName = cat.textContent?.trim()
-              if (categoryName) items.push(categoryName)
-            })
+          if (nameEl && countEl) {
+            programs.push({
+              name: extractCleanText(nameEl),
+              participants: extractCleanText(countEl)
+            });
           }
-          
-          // For other components, extract general content
-          const contentElements = container.querySelectorAll('.font-medium, .text-primary, .badge')
-          contentElements.forEach(el => {
-            const text = el.textContent?.trim()
-            if (text && text.length < 50) items.push(text)
-          })
-          
-          if (items.length > 0) {
-            componentData.push({
-              componentTitle: title,
-              items: items.slice(0, 8).join(', ') // Limit items
-            })
-          }
+        });
+
+        if (programs.length > 0) {
+          data.sections.push({
+            type: "programs",
+            title: "Programs",
+            data: programs
+          });
         }
-      })
+      }
+
+      // Membership Statistics
+      const membershipStatsElement = document.querySelector('[data-component="membership-stats"]');
+      if (membershipStatsElement) {
+        const statCards = membershipStatsElement.querySelectorAll('[data-stat-title]');
+        const stats: any[] = [];
+
+        statCards.forEach(card => {
+          const title = card.getAttribute('data-stat-title');
+          const valueEl = card.querySelector('p.text-3xl');
+          
+          if (title && valueEl) {
+            stats.push({
+              title: title,
+              value: extractCleanText(valueEl)
+            });
+          }
+        });
+
+        if (stats.length > 0) {
+          data.sections.push({
+            type: "stats",
+            title: "Membership Statistics",
+            data: stats
+          });
+        }
+      }
+
+      // Membership by Area
+      const membershipByAreaElement = document.querySelector('[data-component="membership-by-area"]');
+      if (membershipByAreaElement) {
+        const areaItems = membershipByAreaElement.querySelectorAll('[data-area-item]');
+        const areas: any[] = [];
+
+        areaItems.forEach(item => {
+          const area = item.getAttribute('data-area-name');
+          const count = item.getAttribute('data-area-count');
+          const percentage = item.getAttribute('data-area-percentage');
+
+          if (area && count && percentage) {
+            areas.push({
+              area: area,
+              count: count,
+              percentage: percentage
+            });
+          }
+        });
+
+        if (areas.length > 0) {
+          data.sections.push({
+            type: "area",
+            title: "NADI by Area Distribution",
+            data: areas
+          });
+
+          // Also add as membership data format
+          const membershipData = [{
+            category: "New Membership by Area",
+            items: areas.map(area => ({
+              label: area.area,
+              count: area.count
+            }))
+          }];
+
+          data.sections.push({
+            type: "membership",
+            title: "Membership Data",
+            data: membershipData
+          });
+        }
+      }
+
+      // Handle current active tab content
+      const activeTabContent = document.querySelector('[data-state="active"][role="tabpanel"]');
       
-      if (componentData.length > 0) {
-        data.sections.push({ type: 'components', title: 'Dashboard Components', data: componentData })
+      if (activeTabContent) {
+        // Capture TP data (DUSP-TP tab)
+        const tpCards = activeTabContent.querySelectorAll('.grid .text-center');
+        if (tpCards.length > 0) {
+          const tpData: any[] = [];
+
+          tpCards.forEach(card => {
+            const nameEl = card.querySelector('.font-semibold');
+            const countEl = card.querySelector('.text-lg.font-bold, .text-primary');
+            
+            if (nameEl && countEl) {
+              tpData.push({
+                name: extractCleanText(nameEl),
+                count: extractCleanText(countEl)
+              });
+            }
+          });
+
+          if (tpData.length > 0) {
+            data.sections.push({
+              type: "tp-data",
+              title: "Membership by TP",
+              data: tpData
+            });
+          }
+        }
+
+        // Capture demographic data
+        const demographicSections = activeTabContent.querySelectorAll('.space-y-4');
+        demographicSections.forEach(section => {
+          const titleEl = section.querySelector('h3, .font-semibold, [data-title]');
+          const items = section.querySelectorAll('.flex.justify-between.items-center');
+          
+          if (titleEl && items.length > 0) {
+            const demographicItems: any[] = [];
+
+            items.forEach(item => {
+              const badgeEl = item.querySelector('[data-radix-collection-item], .inline-flex');
+              const countEl = item.querySelector('.text-muted-foreground');
+              const percentageEl = item.querySelector('.font-medium');
+
+              if (badgeEl && countEl) {
+                demographicItems.push({
+                  label: extractCleanText(badgeEl),
+                  count: extractCleanText(countEl),
+                  percentage: percentageEl ? extractCleanText(percentageEl) : ""
+                });
+              }
+            });
+
+            if (demographicItems.length > 0) {
+              data.sections.push({
+                type: "demographic",
+                title: extractCleanText(titleEl),
+                data: demographicItems
+              });
+            }
+          }
+        });
       }
+
+      // Additional fallback for any stats cards not captured
+      const remainingStatsCards = document.querySelectorAll('.text-3xl.font-bold, .text-2xl.font-bold');
+      const additionalStats: any[] = [];
+      
+      remainingStatsCards.forEach(statEl => {
+        const parent = statEl.closest('.space-y-2, .space-y-4, .p-6, .p-4');
+        if (parent && !parent.closest('[data-component]')) {
+          const label = parent.querySelector('.text-sm, .text-muted-foreground')?.textContent?.trim();
+          const value = extractCleanText(statEl);
+          
+          if (label && value && !additionalStats.some(s => s.value === value)) {
+            additionalStats.push({
+              title: label,
+              value: value
+            });
+          }
+        }
+      });
+
+      if (additionalStats.length > 0) {
+        data.sections.push({
+          type: "additional-stats",
+          title: "Additional Statistics",
+          data: additionalStats
+        });
+      }
+
+    } catch (error) {
+      console.error('Error extracting data:', error);
     }
 
-    console.log("Final comprehensive extracted data:", data)
-    return data
-  }
-
+    console.log('Final comprehensive extracted data:', data);
+    return data;
+  };
+  
   const generatePDF = async () => {
     setIsGenerating(true)
     
@@ -964,6 +643,87 @@ export function PDFDownloadButton({
             currentY += 12
           })
           currentY += 10
+
+        } else if (section.type === 'programs') {
+          // Smart Services programs (without icons)
+          section.data.forEach((program: any) => {
+            pdf.setFontSize(11)
+            pdf.setFont('helvetica', 'bold')
+            pdf.text(`${program.name}`, margin + 5, currentY)
+            pdf.text(`${program.participants} participants`, margin + 100, currentY)
+            currentY += 10
+          })
+          currentY += 10
+
+        } else if (section.type === 'tp-data') {
+          // TP membership data
+          const itemsPerRow = 2
+          const colWidth = contentWidth / itemsPerRow
+          let col = 0
+          let row = 0
+
+          section.data.forEach((tp: any) => {
+            const x = margin + (col * colWidth)
+            const y = currentY + (row * 12)
+
+            pdf.setFontSize(10)
+            pdf.setFont('helvetica', 'normal')
+            pdf.text(`${tp.name}: ${tp.count}`, x + 5, y)
+
+            col++
+            if (col >= itemsPerRow) {
+              col = 0
+              row++
+            }
+          })
+          
+          currentY += Math.ceil(section.data.length / itemsPerRow) * 12 + 15
+
+        } else if (section.type === 'demographic') {
+          // Demographic data
+          section.data.forEach((item: any) => {
+            pdf.setFontSize(11)
+            pdf.setFont('helvetica', 'normal')
+            pdf.text(`${item.label}`, margin + 5, currentY)
+            pdf.text(`${item.count}`, margin + 80, currentY)
+            if (item.percentage) {
+              pdf.text(`(${item.percentage})`, margin + 140, currentY)
+            }
+            currentY += 10
+          })
+          currentY += 10
+
+        } else if (section.type === 'additional-stats') {
+          // Additional statistics fallback
+          const statsPerRow = 2
+          const colWidth = contentWidth / statsPerRow
+          let col = 0
+          let row = 0
+
+          section.data.forEach((stat: any) => {
+            const x = margin + (col * colWidth)
+            const y = currentY + (row * 25)
+
+            // Stat box
+            pdf.setFillColor(245, 245, 245)
+            pdf.rect(x + 2, y - 3, colWidth - 8, 20, 'F')
+            
+            pdf.setFontSize(10)
+            pdf.setFont('helvetica', 'normal')
+            pdf.text(stat.title, x + 5, y + 5)
+            
+            pdf.setFontSize(12)
+            pdf.setFont('helvetica', 'bold')
+            pdf.text(stat.value, x + 5, y + 15)
+
+            col++
+            if (col >= statsPerRow) {
+              col = 0
+              row++
+            }
+          })
+          
+          currentY += Math.ceil(section.data.length / statsPerRow) * 25 + 10
         }
       })
 
