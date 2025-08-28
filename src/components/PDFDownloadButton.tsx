@@ -338,69 +338,7 @@ export function PDFDownloadButton({
         }
       }
 
-      // Add captured chart images in 2-column grid layout
-      for (let i = 0; i < data.charts.length; i += 2) {
-        const leftChart = data.charts[i]
-        const rightChart = data.charts[i + 1]
-        
-        // Calculate dimensions for 2-column layout
-        const columnWidth = (contentWidth - 10) / 2 // 10mm gap between columns
-        const leftImageHeight = (leftChart.height * columnWidth) / leftChart.width
-        const rightImageHeight = rightChart ? (rightChart.height * columnWidth) / rightChart.width : 0
-        const maxRowHeight = Math.max(leftImageHeight, rightImageHeight)
-        
-        // Check if we need a new page for this row
-        if (currentY + maxRowHeight + 40 > pageHeight - 40) {
-          pdf.addPage()
-          currentY = margin
-        }
-
-        // Left chart
-        // Chart title
-        pdf.setFillColor(248, 250, 252)
-        pdf.rect(margin, currentY - 5, columnWidth, 12, 'F')
-        
-        pdf.setTextColor(0, 0, 0)
-        pdf.setFontSize(12)
-        pdf.setFont('helvetica', 'bold')
-        pdf.text(leftChart.title, margin + 2, currentY + 3)
-        
-        // Add the left chart image
-        pdf.addImage(
-          leftChart.imageData,
-          'PNG',
-          margin,
-          currentY + 15,
-          columnWidth,
-          leftImageHeight
-        )
-
-        // Right chart (if exists)
-        if (rightChart) {
-          const rightX = margin + columnWidth + 10
-          
-          // Chart title
-          pdf.setFillColor(248, 250, 252)
-          pdf.rect(rightX, currentY - 5, columnWidth, 12, 'F')
-          
-          pdf.setTextColor(0, 0, 0)
-          pdf.setFontSize(12)
-          pdf.setFont('helvetica', 'bold')
-          pdf.text(rightChart.title, rightX + 2, currentY + 3)
-          
-          // Add the right chart image
-          pdf.addImage(
-            rightChart.imageData,
-            'PNG',
-            rightX,
-            currentY + 15,
-            columnWidth,
-            rightImageHeight
-          )
-        }
-        
-        currentY += maxRowHeight + 35
-      }
+      // Chart screenshots removed - using structured text data only
 
       // Sections (for any remaining text data)
       data.sections.forEach((section: any) => {
