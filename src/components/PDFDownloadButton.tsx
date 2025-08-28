@@ -35,7 +35,8 @@ export function PDFDownloadButton({
       }),
       sections: [] as any[],
       dashboardTitle: "NADI",
-      dashboardSubtitle: "Administrator"
+      dashboardSubtitle: "Administrator",
+      filterInfo: {} as any
     };
 
     try {
@@ -274,19 +275,35 @@ export function PDFDownloadButton({
         data.dashboardSubtitle = headerSubtitle;
       }
 
-      // Capture filter information and add to title
-      const filterTabContent = document.querySelector('[role="tabpanel"]:not([hidden])');
+      // Capture filter information for dynamic titles
+      const filterInfo: any = {};
       
       // Check for TP filter in membership demographic tab
       if (window.location.pathname.includes('/membership')) {
-        const tpSelectTrigger = document.querySelector('[data-state="active"] select, [data-state="active"] [role="combobox"]');
-        if (tpSelectTrigger) {
-          const selectedValue = tpSelectTrigger.getAttribute('value') || tpSelectTrigger.textContent?.trim();
-          if (selectedValue && selectedValue !== 'all' && selectedValue !== 'All TPs' && !selectedValue.includes('Select')) {
-            data.title += ` - ${selectedValue}`;
+        const activeTab = document.querySelector('[data-state="active"][role="tabpanel"]');
+        if (activeTab) {
+          // Look for TP select in demographic tab
+          const tpSelect = activeTab.querySelector('select');
+          if (tpSelect && tpSelect.value && tpSelect.value !== 'all') {
+            filterInfo.tp = tpSelect.value;
           }
         }
       }
+      
+      // Check for program filter in smart services by program tab  
+      if (window.location.pathname.includes('/smart-services')) {
+        const activeTab = document.querySelector('[data-state="active"][role="tabpanel"]');
+        if (activeTab) {
+          // Look for program select
+          const programSelect = activeTab.querySelector('select');
+          if (programSelect && programSelect.value && programSelect.value !== 'all') {
+            filterInfo.programme = programSelect.value;
+          }
+        }
+      }
+      
+      // Store filter info for use in PDF generation
+      data.filterInfo = filterInfo;
 
       // Smart Services specific data capture
       if (window.location.pathname.includes('/smart-services')) {
@@ -657,14 +674,20 @@ export function PDFDownloadButton({
       
       currentY = 45
 
-      // Filter information below dashboard overview
-      if (data.title && data.title !== `${data.dashboardTitle} Report`) {
+      // Filter information below dashboard overview  
+      if (data.filterInfo && Object.keys(data.filterInfo).length > 0) {
         pdf.setTextColor(0, 0, 0)
-        pdf.setFontSize(14)
+        pdf.setFontSize(12)
         pdf.setFont('helvetica', 'bold')
-        const filterInfo = data.title.replace(`${data.dashboardTitle} Report`, '').trim();
-        if (filterInfo.startsWith(' - ')) {
-          pdf.text(`Filter: ${filterInfo.substring(3)}`, margin, currentY)
+        
+        // Format filter titles based on type
+        if (data.filterInfo.tp) {
+          pdf.text(`TP: ${data.filterInfo.tp}`, margin, currentY)
+          currentY += 15
+        }
+        
+        if (data.filterInfo.programme) {
+          pdf.text(`Programme - ${data.filterInfo.programme}`, margin, currentY)
           currentY += 15
         }
       }
