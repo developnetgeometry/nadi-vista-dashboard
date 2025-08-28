@@ -288,15 +288,118 @@ export function PDFDownloadButton({
         }
       }
 
-      // Check for pillar filter in smart services
+      // Smart Services specific data capture
       if (window.location.pathname.includes('/smart-services')) {
-        const pillarSelects = document.querySelectorAll('select');
-        pillarSelects.forEach(select => {
-          const selectedValue = select.value;
-          if (selectedValue && selectedValue !== 'NADi x Entrepreneur' && selectedValue.includes('NADi x')) {
-            data.title += ` - ${selectedValue}`;
+        // Capture participant categories with pillar filter
+        const participantCategoriesCard = document.querySelector('[data-component="participant-categories"]');
+        if (participantCategoriesCard) {
+          const pillarSelect = participantCategoriesCard.querySelector('select');
+          const selectedPillar = pillarSelect?.value || '';
+          
+          const categoryItems = participantCategoriesCard.querySelectorAll('.p-4.border.rounded-lg');
+          if (categoryItems.length > 0) {
+            const categories: any[] = [];
+            
+            categoryItems.forEach(item => {
+              const categoryEl = item.querySelector('h4');
+              const countEl = item.querySelector('.text-lg.font-bold.text-blue-600');
+              const percentageEl = item.querySelector('.text-xs');
+              
+              if (categoryEl && countEl && percentageEl) {
+                categories.push({
+                  category: extractCleanText(categoryEl),
+                  count: extractCleanText(countEl),
+                  percentage: extractCleanText(percentageEl)
+                });
+              }
+            });
+
+            if (categories.length > 0 && selectedPillar) {
+              data.sections.push({
+                type: "participant-categories",
+                title: `Participant Categories (${selectedPillar})`,
+                data: categories
+              });
+            }
           }
-        });
+        }
+
+        // Capture "By Age Group" data from program tab
+        const ageGroupCard = document.querySelector('h3')?.textContent?.includes('By Age Group') 
+          ? document.querySelector('h3')?.closest('.border-0.shadow-md')
+          : null;
+        
+        if (!ageGroupCard) {
+          // Alternative selector
+          const ageGroupCards = Array.from(document.querySelectorAll('.border-0.shadow-md')).find(card => 
+            card.querySelector('h3')?.textContent?.includes('By Age Group')
+          );
+          if (ageGroupCards) {
+            const ageGroupItems = ageGroupCards.querySelectorAll('.flex.justify-between.items-center.p-3');
+            if (ageGroupItems.length > 0) {
+              const ageGroups: any[] = [];
+              
+              ageGroupItems.forEach(item => {
+                const labelEl = item.querySelector('.text-blue-600');
+                const countEl = item.querySelector('.text-sm.text-gray-600');
+                const percentageEl = item.querySelector('.text-lg.font-bold.text-blue-600');
+                
+                if (labelEl && countEl && percentageEl) {
+                  ageGroups.push({
+                    label: extractCleanText(labelEl),
+                    count: extractCleanText(countEl),
+                    percentage: extractCleanText(percentageEl)
+                  });
+                }
+              });
+
+              if (ageGroups.length > 0) {
+                data.sections.push({
+                  type: "age-groups",
+                  title: "By Age Group",
+                  data: ageGroups
+                });
+              }
+            }
+          }
+        }
+
+        // Capture "Participation by State" data from program tab
+        const stateParticipationCard = Array.from(document.querySelectorAll('.border-0.shadow-md')).find(card => 
+          card.querySelector('h3')?.textContent?.includes('Participation by State')
+        );
+        
+        if (stateParticipationCard) {
+          const stateItems = stateParticipationCard.querySelectorAll('.flex.justify-between.items-center.p-2');
+          if (stateItems.length > 0) {
+            const states: any[] = [];
+            
+            stateItems.forEach(item => {
+              const stateEl = item.querySelector('span:first-child');
+              const detailEl = item.querySelector('.text-sm.text-muted-foreground');
+              
+              if (stateEl && detailEl) {
+                const detailText = extractCleanText(detailEl);
+                const match = detailText.match(/(\d+)\s+participants\s+\((\d+)%\)/);
+                if (match) {
+                  states.push({
+                    state: extractCleanText(stateEl),
+                    count: match[1],
+                    percentage: match[2] + '%'
+                  });
+                }
+              }
+            });
+
+            if (states.length > 0) {
+              data.sections.push({
+                type: "state-participation",
+                title: "Participation by State",
+                data: states
+              });
+            }
+          }
+        }
       }
 
       // Home page data capture - specifically target Home stats
@@ -354,39 +457,51 @@ export function PDFDownloadButton({
           }
         }
 
-        // Top 5 States data from NADIDistributionMap
-        const topStatesSection = document.querySelector('h3');
-        let topStatesTitle = "Top 5 States";
-        
-        // Check if the heading contains view mode information
-        if (topStatesSection?.textContent?.includes('Top 5 States')) {
-          topStatesTitle = topStatesSection.textContent.trim();
-        }
-        
-        // Find the states data from the rendered grid
-        const stateGridItems = document.querySelectorAll('.grid.grid-cols-1.md\\:grid-cols-5 .text-center.p-3');
-        if (stateGridItems.length > 0) {
-          const states: any[] = [];
+        // Top 5 States data from NADIDistributionMap - detect view mode
+        const nadiMapCard = document.querySelector('[data-component="distribution-map"]');
+        if (nadiMapCard) {
+          const viewModeButtons = nadiMapCard.querySelectorAll('button');
+          let currentViewMode = 'nadi'; // default
           
-          stateGridItems.forEach((item, index) => {
-            const rankEl = item.querySelector('.text-lg.font-bold.text-primary');
-            const stateNameEl = item.querySelector('.font-medium.text-sm');
-            const valueEl = item.querySelector('.text-xl.font-bold:last-child');
-            
-            if (stateNameEl && valueEl && index < 5) {
-              states.push({
-                state: extractCleanText(stateNameEl),
-                count: extractCleanText(valueEl)
-              });
+          // Check which button is active (has default variant)
+          viewModeButtons.forEach(button => {
+            if (button.textContent?.includes('Membership') && button.classList.contains('bg-primary')) {
+              currentViewMode = 'membership';
             }
           });
-
-          if (states.length > 0) {
-            data.sections.push({
-              type: "states",
-              title: topStatesTitle,
-              data: states
+          
+          // Get the correct title based on view mode
+          const topStatesHeading = nadiMapCard.querySelector('h3');
+          let topStatesTitle = `Top 5 States - ${currentViewMode === 'nadi' ? 'NADI Centers' : 'Membership'}`;
+          if (topStatesHeading?.textContent) {
+            topStatesTitle = topStatesHeading.textContent.trim();
+          }
+          
+          // Find the states data from the rendered grid
+          const stateGridItems = nadiMapCard.querySelectorAll('.grid.grid-cols-1.md\\:grid-cols-5 .text-center.p-3');
+          if (stateGridItems.length > 0) {
+            const states: any[] = [];
+            
+            stateGridItems.forEach((item, index) => {
+              const rankEl = item.querySelector('.text-lg.font-bold.text-primary');
+              const stateNameEl = item.querySelector('.font-medium.text-sm');
+              const valueEl = item.querySelector('.text-xl.font-bold:last-child');
+              
+              if (stateNameEl && valueEl && index < 5) {
+                states.push({
+                  state: extractCleanText(stateNameEl),
+                  count: extractCleanText(valueEl)
+                });
+              }
             });
+
+            if (states.length > 0) {
+              data.sections.push({
+                type: "states",
+                title: topStatesTitle,
+                data: states
+              });
+            }
           }
         }
       }
@@ -530,43 +645,27 @@ export function PDFDownloadButton({
       const contentWidth = pageWidth - (2 * margin)
       let currentY = margin
 
-      // Header
-      pdf.setFillColor(59, 130, 246) // Blue header
+      // Header (removed blue color, keeping text)
+      pdf.setFillColor(40, 40, 40) // Dark gray instead of blue
       pdf.rect(0, 0, pageWidth, 40, 'F')
       
-      // Title
+      // Dashboard info only (no title or date)
       pdf.setTextColor(255, 255, 255)
-      pdf.setFontSize(24)
+      pdf.setFontSize(16)
       pdf.setFont('helvetica', 'bold')
-      pdf.text(data.title || 'NADI Operation Dashboard Report', margin, 25)
+      pdf.text(`${data.dashboardTitle} - ${data.dashboardSubtitle}`, margin, 25)
       
-      // Date
-      pdf.setFontSize(12)
-      pdf.setFont('helvetica', 'normal')
-      pdf.text(`Generated on: ${data.date}`, margin, 35)
-      
-      currentY = 55
+      currentY = 45
 
-      // Dashboard Information
-      if (data.dashboardTitle || data.dashboardSubtitle) {
+      // Filter information below dashboard overview
+      if (data.title && data.title !== `${data.dashboardTitle} Report`) {
         pdf.setTextColor(0, 0, 0)
-        pdf.setFontSize(16)
+        pdf.setFontSize(14)
         pdf.setFont('helvetica', 'bold')
-        pdf.text('Dashboard Overview', margin, currentY)
-        currentY += 10
-        
-        pdf.setFontSize(12)
-        pdf.setFont('helvetica', 'normal')
-        if (data.dashboardTitle) {
-          pdf.text(`Title: ${data.dashboardTitle}`, margin + 5, currentY)
-          currentY += 8
-        }
-        
-        if (data.dashboardSubtitle) {
-          pdf.text(`Description: ${data.dashboardSubtitle}`, margin + 5, currentY)
+        const filterInfo = data.title.replace(`${data.dashboardTitle} Report`, '').trim();
+        if (filterInfo.startsWith(' - ')) {
+          pdf.text(`Filter: ${filterInfo.substring(3)}`, margin, currentY)
           currentY += 15
-        } else {
-          currentY += 10
         }
       }
 
@@ -929,6 +1028,29 @@ export function PDFDownloadButton({
             currentY += 12
           })
           currentY += 10
+        } else if (section.type === 'age-groups') {
+          // Age groups section for Smart Services program tab
+          section.data.forEach((item: any) => {
+            pdf.setFontSize(11)
+            pdf.setFont('helvetica', 'normal')
+            pdf.text(`${item.label}`, margin + 5, currentY)
+            pdf.text(`${item.count}`, margin + 80, currentY)
+            if (item.percentage) {
+              pdf.text(`${item.percentage}`, margin + 140, currentY)
+            }
+            currentY += 10
+          })
+          currentY += 10
+        } else if (section.type === 'state-participation') {
+          // State participation section for Smart Services program tab
+          section.data.forEach((item: any, index: number) => {
+            pdf.setFontSize(11)
+            pdf.setFont('helvetica', 'normal')
+            pdf.text(`${index + 1}. ${item.state}`, margin + 5, currentY)
+            pdf.text(`${item.count} participants (${item.percentage})`, margin + 80, currentY)
+            currentY += 10
+          })
+          currentY += 10
         }
       })
 
@@ -937,7 +1059,8 @@ export function PDFDownloadButton({
       for (let i = 1; i <= totalPages; i++) {
         pdf.setPage(i)
         const footerY = pageHeight - 15
-        pdf.setFillColor(59, 130, 246)
+        // Footer on all pages (removed blue color)
+        pdf.setFillColor(40, 40, 40) // Dark gray instead of blue
         pdf.rect(0, footerY - 5, pageWidth, 20, 'F')
         
         pdf.setTextColor(255, 255, 255)
