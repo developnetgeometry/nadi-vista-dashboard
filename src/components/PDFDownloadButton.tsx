@@ -319,7 +319,7 @@ export function PDFDownloadButton({
       data.activeTab = activeTabName;
       data.title = `${pageTitle} Report`;
       
-      if (headerSubtitle) {
+      if (headerSubtitle && headerSubtitle.toLowerCase() !== 'administrator') {
         data.dashboardSubtitle = headerSubtitle;
       }
 
