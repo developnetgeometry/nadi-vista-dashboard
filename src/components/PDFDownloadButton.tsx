@@ -917,10 +917,7 @@ export function PDFDownloadButton({
         currentY += 8
       }
       
-      pdf.setFontSize(12)
-      pdf.setFont('helvetica', 'normal')
-      pdf.text(`${data.dashboardSubtitle}`, margin, currentY)
-      currentY += 15
+      currentY += 5
       
       // Add separator line
       pdf.setLineWidth(0.3)
