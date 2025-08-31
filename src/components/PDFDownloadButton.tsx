@@ -1025,26 +1025,39 @@ export function PDFDownloadButton({
           currentY += Math.ceil(section.data.length / cardsPerRow) * 25 + 10
 
         } else if (section.type === 'area') {
-          // Area distribution with progress bars
+          // Area distribution with progress bars - side by side layout
+          const itemsPerRow = 2
+          const colWidth = (contentWidth - 10) / itemsPerRow
+          let col = 0
+          let row = 0
+
           section.data.forEach((area: any) => {
+            const x = margin + 5 + (col * (colWidth + 5))
+            const y = currentY + (row * 20)
+            
             // Area label
-            pdf.setFontSize(11)
+            pdf.setFontSize(10)
             pdf.setFont('helvetica', 'normal')
-            pdf.text(`${area.area}`, margin + 5, currentY)
-            pdf.text(`${area.count} centers (${area.percentage}%)`, margin + 80, currentY)
+            pdf.text(`${area.area}`, x, y)
+            pdf.text(`${area.count} (${area.percentage}%)`, x, y + 6)
             
             // Progress bar background
             pdf.setFillColor(229, 231, 235) // gray-200
-            pdf.rect(margin + 5, currentY + 3, 100, 4, 'F')
+            pdf.rect(x, y + 10, colWidth - 10, 3, 'F')
             
             // Progress bar fill
-            const fillWidth = (area.percentage / 100) * 100
+            const fillWidth = (area.percentage / 100) * (colWidth - 10)
             pdf.setFillColor(59, 130, 246) // blue-500
-            pdf.rect(margin + 5, currentY + 3, fillWidth, 4, 'F')
+            pdf.rect(x, y + 10, fillWidth, 3, 'F')
             
-            currentY += 15
+            col++
+            if (col >= itemsPerRow) {
+              col = 0
+              row++
+            }
           })
-          currentY += 10
+          
+          currentY += Math.ceil(section.data.length / itemsPerRow) * 20 + 10
 
         } else if (section.type === 'dusp' || section.type === 'tp' || section.type === 'state' || section.type === 'states') {
           // DUSP, TP, State data in columns
@@ -1222,32 +1235,43 @@ export function PDFDownloadButton({
           currentY += 10
 
         } else if (section.type === 'participant-categories') {
-          // Participant categories for Smart Services with progress bars
+          // Participant categories for Smart Services - side by side with progress bars
+          const itemsPerRow = 2
+          const colWidth = (contentWidth - 10) / itemsPerRow
+          let col = 0
+          let row = 0
+
           section.data.forEach((item: any) => {
-            pdf.setFontSize(11)
+            const x = margin + 5 + (col * (colWidth + 5))
+            const y = currentY + (row * 18)
+
+            pdf.setFontSize(10)
             pdf.setFont('helvetica', 'bold')
-            pdf.text(`${item.category}`, margin + 5, currentY)
-            pdf.text(`${item.count}`, margin + 100, currentY)
+            pdf.text(`${item.category}`, x, y)
+            pdf.text(`${item.count}`, x + colWidth - 40, y)
             
             if (item.percentage) {
-              pdf.text(`${item.percentage}`, margin + 140, currentY)
+              pdf.text(`${item.percentage}`, x + colWidth - 20, y)
               
               // Progress bar background
               pdf.setFillColor(229, 231, 235)
-              pdf.rect(margin + 5, currentY + 3, 80, 3, 'F')
+              pdf.rect(x, y + 3, colWidth - 30, 3, 'F')
               
               // Progress bar fill
               const percentageValue = parseInt(item.percentage.replace('%', ''))
-              const fillWidth = (percentageValue / 100) * 80
+              const fillWidth = (percentageValue / 100) * (colWidth - 30)
               pdf.setFillColor(59, 130, 246) // blue-500
-              pdf.rect(margin + 5, currentY + 3, fillWidth, 3, 'F')
-              
-              currentY += 12
-            } else {
-              currentY += 8
+              pdf.rect(x, y + 3, fillWidth, 3, 'F')
+            }
+
+            col++
+            if (col >= itemsPerRow) {
+              col = 0
+              row++
             }
           })
-          currentY += 10
+          
+          currentY += Math.ceil(section.data.length / itemsPerRow) * 18 + 10
 
         } else if (section.type === 'components') {
           // Dashboard components
@@ -1265,15 +1289,30 @@ export function PDFDownloadButton({
           currentY += 10
 
         } else if (section.type === 'programs') {
-          // Smart Services programs (without icons)
+          // Smart Services programs - side by side layout
+          const itemsPerRow = 2
+          const colWidth = contentWidth / itemsPerRow
+          let col = 0
+          let row = 0
+
           section.data.forEach((program: any) => {
-            pdf.setFontSize(11)
+            const x = margin + 5 + (col * colWidth)
+            const y = currentY + (row * 12)
+
+            pdf.setFontSize(10)
             pdf.setFont('helvetica', 'bold')
-            pdf.text(`${program.name}`, margin + 5, currentY)
-            pdf.text(`${program.participants} participants`, margin + 100, currentY)
-            currentY += 10
+            pdf.text(`${program.name}`, x, y)
+            pdf.setFont('helvetica', 'normal')
+            pdf.text(`${program.participants} participants`, x, y + 6)
+
+            col++
+            if (col >= itemsPerRow) {
+              col = 0
+              row++
+            }
           })
-          currentY += 10
+          
+          currentY += Math.ceil(section.data.length / itemsPerRow) * 12 + 10
 
         } else if (section.type === 'tp-data') {
           // TP membership data
@@ -1300,53 +1339,92 @@ export function PDFDownloadButton({
           currentY += Math.ceil(section.data.length / itemsPerRow) * 12 + 15
 
         } else if (section.type === 'demographic') {
-          // Demographic data
+          // Demographic data - side by side layout
+          const itemsPerRow = 2
+          const colWidth = contentWidth / itemsPerRow
+          let col = 0
+          let row = 0
+
           section.data.forEach((item: any) => {
-            pdf.setFontSize(11)
+            const x = margin + 5 + (col * colWidth)
+            const y = currentY + (row * 12)
+
+            pdf.setFontSize(10)
             pdf.setFont('helvetica', 'normal')
-            pdf.text(`${item.label}`, margin + 5, currentY)
-            pdf.text(`${item.count}`, margin + 80, currentY)
+            pdf.text(`${item.label}: ${item.count}`, x, y)
             if (item.percentage) {
-              pdf.text(`(${item.percentage})`, margin + 140, currentY)
+              pdf.text(`(${item.percentage})`, x, y + 6)
             }
-            currentY += 10
+
+            col++
+            if (col >= itemsPerRow) {
+              col = 0
+              row++
+            }
           })
-          currentY += 10
+          
+          currentY += Math.ceil(section.data.length / itemsPerRow) * 12 + 10
 
         } else if (section.type === 'category-breakdown') {
-          // Category breakdown with progress bars
+          // Category breakdown - side by side with progress bars
+          const itemsPerRow = 2
+          const colWidth = (contentWidth - 10) / itemsPerRow
+          let col = 0
+          let row = 0
+
           section.data.forEach((category: any) => {
+            const x = margin + 5 + (col * (colWidth + 5))
+            const y = currentY + (row * 18)
+            
             // Category label
-            pdf.setFontSize(11)
+            pdf.setFontSize(10)
             pdf.setFont('helvetica', 'normal')
-            pdf.text(`${category.category}`, margin + 5, currentY)
-            pdf.text(`${category.percentage}`, margin + 120, currentY)
+            pdf.text(`${category.category}`, x, y)
+            pdf.text(`${category.percentage}`, x + colWidth - 30, y)
             
             // Progress bar background
             pdf.setFillColor(229, 231, 235)
-            pdf.rect(margin + 5, currentY + 3, 80, 3, 'F')
+            pdf.rect(x, y + 4, colWidth - 35, 3, 'F')
             
             // Progress bar fill
-            const fillWidth = (parseInt(category.percentage) / 100) * 80
+            const fillWidth = (parseInt(category.percentage) / 100) * (colWidth - 35)
             pdf.setFillColor(59, 130, 246) // blue-500
-            pdf.rect(margin + 5, currentY + 3, fillWidth, 3, 'F')
+            pdf.rect(x, y + 4, fillWidth, 3, 'F')
             
-            currentY += 12
-          })
-          currentY += 10
-        } else if (section.type === 'age-groups') {
-          // Age groups section for Smart Services program tab
-          section.data.forEach((item: any) => {
-            pdf.setFontSize(11)
-            pdf.setFont('helvetica', 'normal')
-            pdf.text(`${item.label}`, margin + 5, currentY)
-            pdf.text(`${item.count}`, margin + 80, currentY)
-            if (item.percentage) {
-              pdf.text(`${item.percentage}`, margin + 140, currentY)
+            col++
+            if (col >= itemsPerRow) {
+              col = 0
+              row++
             }
-            currentY += 10
           })
-          currentY += 10
+          
+          currentY += Math.ceil(section.data.length / itemsPerRow) * 18 + 10
+        } else if (section.type === 'age-groups') {
+          // Age groups - side by side layout
+          const itemsPerRow = 2
+          const colWidth = contentWidth / itemsPerRow
+          let col = 0
+          let row = 0
+
+          section.data.forEach((item: any) => {
+            const x = margin + 5 + (col * colWidth)
+            const y = currentY + (row * 12)
+
+            pdf.setFontSize(10)
+            pdf.setFont('helvetica', 'normal')
+            pdf.text(`${item.label}: ${item.count}`, x, y)
+            if (item.percentage) {
+              pdf.text(`${item.percentage}`, x, y + 6)
+            }
+
+            col++
+            if (col >= itemsPerRow) {
+              col = 0
+              row++
+            }
+          })
+          
+          currentY += Math.ceil(section.data.length / itemsPerRow) * 12 + 10
         } else if (section.type === 'state-participation') {
           // State participation section for Smart Services program tab
           section.data.forEach((item: any, index: number) => {
