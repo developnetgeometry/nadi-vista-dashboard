@@ -887,7 +887,9 @@ export function PDFDownloadButton({
     setIsGenerating(true)
     
     try {
+      console.log('Starting PDF generation...')
       const data = await extractDataFromPage()
+      console.log('Data extracted successfully, creating PDF...')
       
       // Create PDF with proper A4 dimensions
       const pdf = new jsPDF({
@@ -895,6 +897,7 @@ export function PDFDownloadButton({
         unit: 'mm',
         format: 'a4'
       })
+      console.log('PDF instance created successfully')
 
       const pageWidth = pdf.internal.pageSize.getWidth()
       const pageHeight = pdf.internal.pageSize.getHeight()
@@ -945,7 +948,9 @@ export function PDFDownloadButton({
       // Chart screenshots removed - using structured text data only
 
       // Sections (for any remaining text data)
+      console.log(`Processing ${data.sections.length} sections...`)
       for (const section of data.sections) {
+        console.log('Processing section:', section.title, section.type)
         // Check if we need a new page
         if (currentY > pageHeight - 80) {
           pdf.addPage()
@@ -1513,7 +1518,9 @@ export function PDFDownloadButton({
       const timestamp = new Date().toISOString().slice(0, 19).replace(/[:]/g, '-')
       const finalFilename = `${filename}-${timestamp}.pdf`
       
+      console.log('Attempting to save PDF:', finalFilename)
       pdf.save(finalFilename)
+      console.log('PDF save command executed')
       
       toast({
         title: "PDF Downloaded",
@@ -1521,12 +1528,14 @@ export function PDFDownloadButton({
       })
     } catch (error) {
       console.error('Error generating PDF:', error)
+      console.error('Error stack:', error.stack)
       toast({
         title: "PDF Generation Failed",
-        description: "There was an error generating the PDF. Please try again.",
+        description: `Error: ${error.message || 'Unknown error occurred'}`,
         variant: "destructive",
       })
     } finally {
+      console.log('PDF generation process completed, setting isGenerating to false')
       setIsGenerating(false)
     }
   }
