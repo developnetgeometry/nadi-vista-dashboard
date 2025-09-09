@@ -914,7 +914,7 @@ export function PDFDownloadButton({
           });
         }
         
-        // Extract chart data sections
+        // Extract chart data sections with actual chart elements
         const chartSections = [
           { selector: '[data-component="events-by-type"]', title: 'Events by Type', type: 'chart-events-type' },
           { selector: '[data-component="events-by-location"]', title: 'Events by Location', type: 'chart-events-location' }
@@ -923,30 +923,40 @@ export function PDFDownloadButton({
         chartSections.forEach(({ selector, title, type }) => {
           const chartElement = document.querySelector(selector);
           if (chartElement) {
+            // Find the actual chart container within the card
+            const chartContainer = chartElement.querySelector('.recharts-wrapper');
             data.sections.push({
               type: type,
               title: title,
+              chartElement: chartContainer || chartElement,
               data: `Chart showing ${title.toLowerCase()} distribution`
             });
           }
         });
         
-        // Add participation trends and registration data 
-        const chartTitles = document.querySelectorAll('h3');
-        chartTitles.forEach(titleEl => {
-          const title = extractCleanText(titleEl);
-          if (title.includes('Participation Trends')) {
-            data.sections.push({
-              type: "chart-participation-trends",
-              title: "Participation Trends", 
-              data: "Monthly participation trends showing growth patterns"
-            });
-          } else if (title.includes('Registration vs Attendance')) {
-            data.sections.push({
-              type: "chart-registration-attendance",
-              title: "Registration vs Attendance",
-              data: "Comparison of event registrations and actual attendance" 
-            });
+        // Add participation trends and registration data with chart elements
+        const allCards = document.querySelectorAll('.border');
+        allCards.forEach(card => {
+          const titleEl = card.querySelector('h3');
+          if (titleEl) {
+            const title = extractCleanText(titleEl);
+            if (title.includes('Participation Trends')) {
+              const chartContainer = card.querySelector('.recharts-wrapper');
+              data.sections.push({
+                type: "chart-participation-trends",
+                title: "Participation Trends", 
+                chartElement: chartContainer,
+                data: "Monthly participation trends showing growth patterns"
+              });
+            } else if (title.includes('Registration vs Attendance')) {
+              const chartContainer = card.querySelector('.recharts-wrapper');
+              data.sections.push({
+                type: "chart-registration-attendance",
+                title: "Registration vs Attendance",
+                chartElement: chartContainer,
+                data: "Comparison of event registrations and actual attendance" 
+              });
+            }
           }
         });
       }
@@ -1633,10 +1643,44 @@ export function PDFDownloadButton({
           }
           
         } else if (section.type.startsWith('chart-')) {
-          // Chart sections - display as text description
-          pdf.setFontSize(10)
-          pdf.text(`• ${section.data}`, 20, currentY)
-          currentY += 8
+          // Chart sections - capture actual chart as image
+          if (section.chartElement) {
+            try {
+              const canvas = await html2canvas(section.chartElement, {
+                backgroundColor: 'white',
+                scale: 2,
+                logging: false,
+                useCORS: true,
+                allowTaint: true
+              });
+              
+              const imgData = canvas.toDataURL('image/png');
+              const imgWidth = 160; // Chart width in PDF
+              const imgHeight = (canvas.height * imgWidth) / canvas.width;
+              
+              // Check if chart fits on current page
+              if (currentY + imgHeight > pageHeight - 40) {
+                pdf.addPage();
+                currentY = 40;
+              }
+              
+              // Add chart image to PDF
+              pdf.addImage(imgData, 'PNG', 20, currentY, imgWidth, imgHeight);
+              currentY += imgHeight + 15;
+              
+            } catch (error) {
+              console.error('Error capturing chart:', error);
+              // Fallback to text description
+              pdf.setFontSize(10);
+              pdf.text(`• ${section.data}`, 20, currentY);
+              currentY += 8;
+            }
+          } else {
+            // Fallback to text description if no chart element
+            pdf.setFontSize(10);
+            pdf.text(`• ${section.data}`, 20, currentY);
+            currentY += 8;
+          }
         }
         
         // Complete card-like formatting with bottom border
