@@ -991,20 +991,28 @@ export function PDFDownloadButton({
       const contentWidth = pageWidth - (2 * margin)
       let currentY = margin
 
-      // Header - Clean black text, no background colors
-      pdf.setTextColor(0, 0, 0) // Black text
-      pdf.setFontSize(18)
-      pdf.setFont('helvetica', 'bold')
-      pdf.text(`${data.dashboardTitle}`, margin, currentY)
-      currentY += 10
+      // Professional Header with background
+      pdf.setFillColor(41, 128, 185) // Professional blue background
+      pdf.rect(0, 0, pageWidth, 50, 'F')
       
-      // Show active tab below title if available
-      if (data.activeTab) {
-        pdf.setFontSize(14)
-        pdf.setFont('helvetica', 'normal')
-        pdf.text(`${data.activeTab}`, margin, currentY)
-        currentY += 8
-      }
+      // Title
+      pdf.setTextColor(255, 255, 255) // White text
+      pdf.setFontSize(22)
+      pdf.setFont('helvetica', 'bold')
+      pdf.text(`${data.dashboardTitle}`, pageWidth / 2, 25, { align: 'center' })
+      
+      // Subtitle and date
+      pdf.setFontSize(12)
+      pdf.setFont('helvetica', 'normal')
+      const subtitleText = data.dashboardSubtitle || data.activeTab || 'Analytics Dashboard'
+      pdf.text(subtitleText, pageWidth / 2, 35, { align: 'center' })
+      
+      pdf.setFontSize(10)
+      pdf.text(`Generated: ${data.date}`, pageWidth / 2, 43, { align: 'center' })
+      
+      // Reset text color and position
+      pdf.setTextColor(0, 0, 0)
+      currentY = 65
       
       currentY += 5
       
@@ -1033,19 +1041,41 @@ export function PDFDownloadButton({
 
       // Chart screenshots removed - using structured text data only
 
-      // Sections (for any remaining text data)
+      // Sections with improved organization
       console.log(`Processing ${data.sections.length} sections...`)
       for (const section of data.sections) {
         console.log('Processing section:', section.title, section.type)
-        // Check if we need a new page
-        if (currentY > pageHeight - 80) {
+        
+        // Check if we need a new page - more space for charts
+        if ((currentY > pageHeight - 120) && section.type.startsWith('chart-')) {
+          pdf.addPage()
+          currentY = margin
+        } else if (currentY > pageHeight - 80) {
           pdf.addPage()
           currentY = margin
         }
 
-        // Section title - Card-like formatting with border
-        pdf.setTextColor(0, 0, 0)
-        pdf.setFontSize(14)
+        // Professional section header with background
+        if (section.title) {
+          // Section background
+          pdf.setFillColor(248, 249, 250) // Light gray background
+          pdf.rect(margin - 5, currentY - 3, contentWidth + 10, 18, 'F')
+          
+          // Section border
+          pdf.setDrawColor(200, 200, 200)
+          pdf.setLineWidth(0.3)
+          pdf.rect(margin - 5, currentY - 3, contentWidth + 10, 18, 'S')
+          
+          // Section title
+          pdf.setTextColor(51, 51, 51) // Dark gray text
+          pdf.setFontSize(14)
+          pdf.setFont('helvetica', 'bold')
+          pdf.text(section.title, margin, currentY + 8)
+          
+          // Reset text color
+          pdf.setTextColor(0, 0, 0)
+          currentY += 25
+        }
         pdf.setFont('helvetica', 'bold')
         
         // Draw card border - track starting position
@@ -1575,75 +1605,83 @@ export function PDFDownloadButton({
             currentY += 10
           }
         } else if (section.type === 'sso-stats') {
-          // SSO Dashboard Key Statistics
+          // SSO Dashboard Key Statistics with better formatting
           if (section.data) {
-            pdf.setFontSize(10)
             const stats = [
               `Total Events: ${section.data.totalEvents}`,
               `Current Month Events: ${section.data.currentMonth}`,
               `Total Participants: ${section.data.totalParticipants}`
             ]
             
+            // Create a grid layout for statistics
             const itemsPerRow = 2
-            const colWidth = (pageWidth - 60) / itemsPerRow
+            const colWidth = (contentWidth - 20) / itemsPerRow
             let col = 0
             
             for (const stat of stats) {
               if (currentY > pageHeight - 50) {
                 pdf.addPage()
-                currentY = 40
+                currentY = margin
               }
               
-              const xPos = 20 + (col * colWidth)
+              const xPos = margin + 10 + (col * colWidth)
+              
+              // Add bullet point with better styling
+              pdf.setFontSize(11)
+              pdf.setFont('helvetica', 'normal')
               pdf.text(`• ${stat}`, xPos, currentY)
               
               col++
               if (col >= itemsPerRow) {
                 col = 0
-                currentY += 8
+                currentY += 12
               }
             }
             
-            if (col > 0) currentY += 8
+            if (col > 0) currentY += 12
             currentY += 10
           }
           
         } else if (section.type === 'sso-additional-stats') {
-          // SSO Dashboard Performance Metrics
+          // SSO Dashboard Performance Metrics with better formatting
           if (section.data) {
-            pdf.setFontSize(10)
             const stats = [
               `Average Attendance: ${section.data.avgAttendance} per event`,
               `Events per Month: ${section.data.eventsPerMonth}`,
               `Growth Rate: ${section.data.growthRate}`
             ]
             
+            // Create a grid layout for statistics
             const itemsPerRow = 2
-            const colWidth = (pageWidth - 60) / itemsPerRow
+            const colWidth = (contentWidth - 20) / itemsPerRow
             let col = 0
             
             for (const stat of stats) {
               if (currentY > pageHeight - 50) {
                 pdf.addPage()
-                currentY = 40
+                currentY = margin
               }
               
-              const xPos = 20 + (col * colWidth)
+              const xPos = margin + 10 + (col * colWidth)
+              
+              // Add bullet point with better styling
+              pdf.setFontSize(11)
+              pdf.setFont('helvetica', 'normal')
               pdf.text(`• ${stat}`, xPos, currentY)
               
               col++
               if (col >= itemsPerRow) {
                 col = 0
-                currentY += 8
+                currentY += 12
               }
             }
             
-            if (col > 0) currentY += 8
+            if (col > 0) currentY += 12
             currentY += 10
           }
           
         } else if (section.type.startsWith('chart-')) {
-          // Chart sections - capture actual chart as image
+          // Chart sections - capture actual chart as image with better formatting
           if (section.chartElement) {
             try {
               const canvas = await html2canvas(section.chartElement, {
@@ -1655,31 +1693,42 @@ export function PDFDownloadButton({
               });
               
               const imgData = canvas.toDataURL('image/png');
-              const imgWidth = 160; // Chart width in PDF
+              const maxWidth = contentWidth - 20; // Leave some margin
+              const imgWidth = Math.min(maxWidth, 160);
               const imgHeight = (canvas.height * imgWidth) / canvas.width;
               
               // Check if chart fits on current page
               if (currentY + imgHeight > pageHeight - 40) {
                 pdf.addPage();
-                currentY = 40;
+                currentY = margin;
               }
               
+              // Center the chart horizontally
+              const xPos = margin + (contentWidth - imgWidth) / 2;
+              
+              // Add chart border
+              pdf.setDrawColor(200, 200, 200);
+              pdf.setLineWidth(0.5);
+              pdf.rect(xPos - 5, currentY - 5, imgWidth + 10, imgHeight + 10, 'S');
+              
               // Add chart image to PDF
-              pdf.addImage(imgData, 'PNG', 20, currentY, imgWidth, imgHeight);
-              currentY += imgHeight + 15;
+              pdf.addImage(imgData, 'PNG', xPos, currentY, imgWidth, imgHeight);
+              currentY += imgHeight + 20;
               
             } catch (error) {
               console.error('Error capturing chart:', error);
-              // Fallback to text description
-              pdf.setFontSize(10);
-              pdf.text(`• ${section.data}`, 20, currentY);
-              currentY += 8;
+              // Fallback to text description with better formatting
+              pdf.setFontSize(11);
+              pdf.setFont('helvetica', 'italic');
+              pdf.text(`Chart: ${section.data}`, margin + 10, currentY);
+              currentY += 15;
             }
           } else {
             // Fallback to text description if no chart element
-            pdf.setFontSize(10);
-            pdf.text(`• ${section.data}`, 20, currentY);
-            currentY += 8;
+            pdf.setFontSize(11);
+            pdf.setFont('helvetica', 'italic');
+            pdf.text(`Chart: ${section.data}`, margin + 10, currentY);
+            currentY += 15;
           }
         }
         
