@@ -874,6 +874,82 @@ export function PDFDownloadButton({
           }
         }
       }
+      
+      // Special handling for SSO Dashboard
+      if (window.location.pathname === '/sso') {
+        console.log('Extracting SSO Dashboard data...')
+        
+        // Get selected pillar from badge
+        const pillarBadge = document.querySelector('.text-primary.border-primary');
+        const selectedPillar = pillarBadge ? extractCleanText(pillarBadge) : 'Unknown Pillar';
+        
+        data.dashboardSubtitle = `${selectedPillar} Pillar Dashboard`;
+        
+        // Extract stats cards data
+        const statsCards = document.querySelectorAll('[data-stat-title="Total Events"] .text-2xl.font-bold, .text-2xl.font-bold');
+        if (statsCards.length >= 3) {
+          data.sections.push({
+            type: "sso-stats",
+            title: "Key Statistics",
+            data: {
+              totalEvents: extractCleanText(statsCards[0]) || 'N/A',
+              currentMonth: extractCleanText(statsCards[1]) || 'N/A', 
+              totalParticipants: extractCleanText(statsCards[2]) || 'N/A'
+            }
+          });
+        }
+        
+        // Extract additional stats
+        const avgAttendance = document.querySelector('.text-3xl.font-bold');
+        if (avgAttendance) {
+          const quickStatsSpans = document.querySelectorAll('.font-medium');
+          data.sections.push({
+            type: "sso-additional-stats", 
+            title: "Performance Metrics",
+            data: {
+              avgAttendance: extractCleanText(avgAttendance),
+              eventsPerMonth: quickStatsSpans.length > 0 ? extractCleanText(quickStatsSpans[0]) : 'N/A',
+              growthRate: quickStatsSpans.length > 1 ? extractCleanText(quickStatsSpans[1]) : 'N/A'
+            }
+          });
+        }
+        
+        // Extract chart data sections
+        const chartSections = [
+          { selector: '[data-component="events-by-type"]', title: 'Events by Type', type: 'chart-events-type' },
+          { selector: '[data-component="events-by-location"]', title: 'Events by Location', type: 'chart-events-location' }
+        ];
+        
+        chartSections.forEach(({ selector, title, type }) => {
+          const chartElement = document.querySelector(selector);
+          if (chartElement) {
+            data.sections.push({
+              type: type,
+              title: title,
+              data: `Chart showing ${title.toLowerCase()} distribution`
+            });
+          }
+        });
+        
+        // Add participation trends and registration data 
+        const chartTitles = document.querySelectorAll('h3');
+        chartTitles.forEach(titleEl => {
+          const title = extractCleanText(titleEl);
+          if (title.includes('Participation Trends')) {
+            data.sections.push({
+              type: "chart-participation-trends",
+              title: "Participation Trends", 
+              data: "Monthly participation trends showing growth patterns"
+            });
+          } else if (title.includes('Registration vs Attendance')) {
+            data.sections.push({
+              type: "chart-registration-attendance",
+              title: "Registration vs Attendance",
+              data: "Comparison of event registrations and actual attendance" 
+            });
+          }
+        });
+      }
 
     } catch (error) {
       console.error('Error extracting data:', error);
@@ -1488,6 +1564,79 @@ export function PDFDownloadButton({
             })
             currentY += 10
           }
+        } else if (section.type === 'sso-stats') {
+          // SSO Dashboard Key Statistics
+          if (section.data) {
+            pdf.setFontSize(10)
+            const stats = [
+              `Total Events: ${section.data.totalEvents}`,
+              `Current Month Events: ${section.data.currentMonth}`,
+              `Total Participants: ${section.data.totalParticipants}`
+            ]
+            
+            const itemsPerRow = 2
+            const colWidth = (pageWidth - 60) / itemsPerRow
+            let col = 0
+            
+            for (const stat of stats) {
+              if (currentY > pageHeight - 50) {
+                pdf.addPage()
+                currentY = 40
+              }
+              
+              const xPos = 20 + (col * colWidth)
+              pdf.text(`• ${stat}`, xPos, currentY)
+              
+              col++
+              if (col >= itemsPerRow) {
+                col = 0
+                currentY += 8
+              }
+            }
+            
+            if (col > 0) currentY += 8
+            currentY += 10
+          }
+          
+        } else if (section.type === 'sso-additional-stats') {
+          // SSO Dashboard Performance Metrics
+          if (section.data) {
+            pdf.setFontSize(10)
+            const stats = [
+              `Average Attendance: ${section.data.avgAttendance} per event`,
+              `Events per Month: ${section.data.eventsPerMonth}`,
+              `Growth Rate: ${section.data.growthRate}`
+            ]
+            
+            const itemsPerRow = 2
+            const colWidth = (pageWidth - 60) / itemsPerRow
+            let col = 0
+            
+            for (const stat of stats) {
+              if (currentY > pageHeight - 50) {
+                pdf.addPage()
+                currentY = 40
+              }
+              
+              const xPos = 20 + (col * colWidth)
+              pdf.text(`• ${stat}`, xPos, currentY)
+              
+              col++
+              if (col >= itemsPerRow) {
+                col = 0
+                currentY += 8
+              }
+            }
+            
+            if (col > 0) currentY += 8
+            currentY += 10
+          }
+          
+        } else if (section.type.startsWith('chart-')) {
+          // Chart sections - display as text description
+          pdf.setFontSize(10)
+          pdf.text(`• ${section.data}`, 20, currentY)
+          currentY += 8
         }
         
         // Complete card-like formatting with bottom border
