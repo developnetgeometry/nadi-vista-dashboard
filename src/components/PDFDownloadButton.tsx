@@ -1684,16 +1684,28 @@ export function PDFDownloadButton({
           // Chart sections - capture actual chart as image with better formatting
           if (section.chartElement) {
             try {
+              // Wait for chart to fully render before capturing
+              await new Promise(resolve => setTimeout(resolve, 1000));
+              
               const canvas = await html2canvas(section.chartElement, {
                 backgroundColor: 'white',
                 scale: 2,
                 logging: false,
                 useCORS: true,
-                allowTaint: true
+                allowTaint: true,
+                height: section.chartElement.scrollHeight,
+                width: section.chartElement.scrollWidth,
+                // Ensure SVG elements are captured properly
+                onclone: (clonedDoc) => {
+                  const svgElements = clonedDoc.querySelectorAll('svg');
+                  svgElements.forEach(svg => {
+                    svg.style.background = 'white';
+                  });
+                }
               });
               
               const imgData = canvas.toDataURL('image/png');
-              const maxWidth = contentWidth - 20; // Leave some margin
+              const maxWidth = contentWidth - 20;
               const imgWidth = Math.min(maxWidth, 160);
               const imgHeight = (canvas.height * imgWidth) / canvas.width;
               
@@ -1715,19 +1727,22 @@ export function PDFDownloadButton({
               pdf.addImage(imgData, 'PNG', xPos, currentY, imgWidth, imgHeight);
               currentY += imgHeight + 20;
               
+              console.log(`Successfully captured chart: ${section.title}`);
+              
             } catch (error) {
-              console.error('Error capturing chart:', error);
+              console.error('Error capturing chart:', section.title, error);
               // Fallback to text description with better formatting
               pdf.setFontSize(11);
               pdf.setFont('helvetica', 'italic');
-              pdf.text(`Chart: ${section.data}`, margin + 10, currentY);
+              pdf.text(`Chart: ${section.data} (Image capture failed)`, margin + 10, currentY);
               currentY += 15;
             }
           } else {
+            console.warn('No chart element found for:', section.title);
             // Fallback to text description if no chart element
             pdf.setFontSize(11);
             pdf.setFont('helvetica', 'italic');
-            pdf.text(`Chart: ${section.data}`, margin + 10, currentY);
+            pdf.text(`Chart: ${section.data} (Element not found)`, margin + 10, currentY);
             currentY += 15;
           }
         }
